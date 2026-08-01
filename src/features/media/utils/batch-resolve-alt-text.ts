@@ -1,5 +1,4 @@
 import I18n from "@/shared/components/I18n";
-
 import prisma from "@/core/server/prisma";
 import { ENTITY_TYPE_MAP } from "./media-attachment-sync";
 
