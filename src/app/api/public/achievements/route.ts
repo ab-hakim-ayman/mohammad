@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   return ApiServer.cachedPublic(request, "achievements", async () => {
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "0");
     const result = await achievementService.getPublished(limit || undefined);
-    const enriched = await enrichEntitiesWithAltText("achievement", result, {
+    const enriched = await enrichEntitiesWithAltText("achievement", result as any[], {
       cardImage: "cardImage",
       heroImage: "heroImage",
       ogImage: "ogImage",
