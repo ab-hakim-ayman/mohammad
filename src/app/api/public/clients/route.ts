@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   return ApiServer.cachedPublic(request, `clients:${searchParams}`, async () => {
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "0");
     const result = await clientService.getPublished(limit || undefined);
-    const enriched = await enrichEntitiesWithAltText("client", result, {
+    const enriched = await enrichEntitiesWithAltText("client", result as any[], {
       logo: "logo",
       heroImage: "heroImage",
       ogImage: "ogImage",

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   return ApiServer.cachedPublic(request, "partners", async () => {
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "0");
     const result = await partnerService.getPublished(limit || undefined);
-    const enriched = await enrichEntitiesWithAltText("partner", result, { logo: "logo" });
+    const enriched = await enrichEntitiesWithAltText("partner", result as any[], { logo: "logo" });
     return ApiResponse.success(enriched, "Partners retrieved");
   });
 }

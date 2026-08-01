@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   return ApiServer.cachedPublic(request, "galleries", async () => {
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "0");
     const result = await galleryService.getPublished(limit || undefined);
-    const enriched = await enrichEntitiesWithAltText("gallery", result, {
+    const enriched = await enrichEntitiesWithAltText("gallery", result as any[], {
       coverImage: "coverImage",
       ogImage: "ogImage",
     });

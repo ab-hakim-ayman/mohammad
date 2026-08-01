@@ -7,7 +7,7 @@ import { enrichEntitiesWithAltText  } from "@/features/media/utils/enrich-entiti
 export async function GET(request: NextRequest) {
   return ApiServer.cachedPublic(request, "specializations", async () => {
     const specializations = await specializationService.getPublished();
-    const enriched = await enrichEntitiesWithAltText("specialization", specializations, {
+    const enriched = await enrichEntitiesWithAltText("specialization", specializations as any[], {
       cardImage: "cardImage",
       heroImage: "heroImage",
       ogImage: "ogImage",

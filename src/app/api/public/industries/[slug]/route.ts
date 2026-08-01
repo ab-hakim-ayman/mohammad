@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   return ApiServer.cachedPublic(request, "industries", async () => {
     const { slug } = await params;
     const result = await industryService.getPublicBySlug(slug);
-    const enriched = await enrichEntitiesWithAltText("industry", [result], {
+    const enriched = await enrichEntitiesWithAltText("industry", [result] as any[], {
       cardImage: "cardImage",
       heroImage: "heroImage",
       ogImage: "ogImage",

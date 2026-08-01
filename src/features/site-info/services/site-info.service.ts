@@ -12,7 +12,7 @@ export const siteInfoService = {
   async getCurrent() {
     const siteInfo = await siteInfoRepository.findCurrent();
     if (!siteInfo) return null;
-    const enriched = await enrichEntitiesWithAltText("site-info", [siteInfo], {
+    const enriched = await enrichEntitiesWithAltText("site-info", [siteInfo] as any[], {
       logo: "logo",
       darkLogo: "darkLogo",
       favicon: "favicon",

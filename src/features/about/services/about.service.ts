@@ -12,7 +12,7 @@ export const aboutService = {
   async getCurrent() {
     const about = await aboutRepository.findByKey("main");
     if (!about) return null;
-    const [enriched] = await enrichEntitiesWithAltText("about", [about], {
+    const [enriched] = await enrichEntitiesWithAltText("about", [about] as any[], {
       heroImage: "heroImage",
       ogImage: "ogImage",
     });

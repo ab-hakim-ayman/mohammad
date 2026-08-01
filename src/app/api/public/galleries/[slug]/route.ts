@@ -14,7 +14,7 @@ export async function GET(
     if (!gallery) {
       return ApiResponse.success(null, "Gallery retrieved");
     }
-    const [enriched] = await enrichEntitiesWithAltText("gallery", [gallery], {
+    const [enriched] = await enrichEntitiesWithAltText("gallery", [gallery] as any[], {
       coverImage: "coverImage",
       ogImage: "ogImage",
     });

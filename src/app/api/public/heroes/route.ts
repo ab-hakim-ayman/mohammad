@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if (!hero) {
       return ApiResponse.success(null, "Active hero retrieved");
     }
-    const [enriched] = await enrichEntitiesWithAltText("hero", [hero], { heroImage: "heroImage" });
+    const [enriched] = await enrichEntitiesWithAltText("hero", [hero] as any[], { heroImage: "heroImage" });
     return ApiResponse.success(enriched, "Active hero retrieved");
   });
 }

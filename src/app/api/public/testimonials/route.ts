@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       featured,
       limit,
     });
-    const enriched = await enrichEntitiesWithAltText("testimonial", testimonials, {
+    const enriched = await enrichEntitiesWithAltText("testimonial", testimonials as any[], {
       authorImage: "authorImage",
     });
     return ApiResponse.success(enriched, "Testimonials retrieved");
