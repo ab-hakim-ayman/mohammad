@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Client 15">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="36" fill="url(#g)"/>
+  <circle cx="110" cy="110" r="54" fill="rgba(255,255,255,0.14)"/>
+  <text x="110" y="125" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#ffffff">C1</text>
+  <text x="64" y="244" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#ffffff">Client 15</text>
+  <text x="64" y="286" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="rgba(255,255,255,0.85)">A2ICoders seed client logo</text>
+</svg>

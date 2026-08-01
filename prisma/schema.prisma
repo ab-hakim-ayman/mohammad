@@ -1,0 +1,1289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MANAGER
+  HR
+  CONTENT_MANAGER
+  EMPLOYEE
+}
+
+enum AccountStatus {
+  INVITED
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PUBLISH
+  UNPUBLISH
+  ARCHIVE
+  RESTORE
+  FEATURE
+  UNFEATURE
+  LOGIN
+  LOGOUT
+  ROLE_CHANGE
+  STATUS_CHANGE
+  PASSWORD_CHANGE
+  INVITE
+  ACCEPT_INVITE
+  RESET_PASSWORD
+}
+
+enum MediaProvider {
+  CLOUDINARY
+}
+
+enum MediaResourceType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  OTHER
+}
+
+enum MediaUsageType {
+  LOGO
+  FAVICON
+  HERO
+  HERO_VIDEO
+  BANNER
+  COVER
+  CARD
+  OG_IMAGE
+  GALLERY
+  AVATAR
+  THUMBNAIL
+  VIDEO
+  DOCUMENT
+  INLINE
+  OTHER
+}
+
+enum MediaEntityType {
+  SITE_INFO
+  ABOUT
+  HERO
+  PROFILE
+  BLOG
+  INDUSTRY
+  PROJECT
+  CASE_STUDY
+  SERVICE
+  SPECIALIZATION
+  EVENT
+  ACHIEVEMENT
+  GALLERY
+  GALLERY_ITEM
+  CLIENT
+  PARTNER
+  TECHNOLOGY
+  SKILL
+  CATEGORY
+  TAG
+  TESTIMONIAL
+  EXPERIENCE
+  EDUCATION
+}
+
+enum CategoryScope {
+  BLOG
+  PROJECT
+  SERVICE
+  CASE_STUDY
+  TECHNOLOGY
+  SKILL
+  FAQ
+}
+
+enum AchievementType {
+  AWARD
+  CERTIFICATION
+  RECOGNITION
+  MILESTONE
+  OTHER
+}
+
+enum PartnerType {
+  TECHNOLOGY
+  RESELLER
+  ALLIANCE
+  AFFILIATE
+}
+
+enum TestimonialType {
+  CLIENT
+  EMPLOYEE
+}
+
+enum TestimonialSource {
+  ADMIN
+  REQUEST_LINK
+  PUBLIC_FORM
+}
+
+enum GalleryType {
+  IMAGE
+  VIDEO
+}
+
+enum EventFormat {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String?       @map("password_hash")
+  name         String?
+  avatar       String?
+  phone        String?
+
+  role         UserRole      @default(EMPLOYEE)
+  status       AccountStatus @default(INVITED)
+  isVerified   Boolean       @default(false) @map("is_verified")
+  lastLoginAt  DateTime?     @map("last_login_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Core account relations
+  profile              Profile?             @relation("UserProfile")
+  auditLogs            AuditLog[]           @relation("AuditLogActor")
+  passwordResetTokens  PasswordResetToken[] @relation("UserPasswordResetTokens")
+  sentInvitations      UserInvitation[]     @relation("UserInvitationInvitedBy")
+  employeeTestimonials Testimonial[]        @relation("EmployeeTestimonials")
+
+  // Created / updated audit relations
+  createdAbouts          About[]          @relation("AboutCreatedBy")
+  updatedAbouts          About[]          @relation("AboutUpdatedBy")
+  createdAchievements    Achievement[]    @relation("AchievementCreatedBy")
+  updatedAchievements    Achievement[]    @relation("AchievementUpdatedBy")
+  createdBlogs           Blog[]           @relation("BlogCreatedBy")
+  updatedBlogs           Blog[]           @relation("BlogUpdatedBy")
+  createdCaseStudies     CaseStudy[]      @relation("CaseStudyCreatedBy")
+  updatedCaseStudies     CaseStudy[]      @relation("CaseStudyUpdatedBy")
+  createdCategories      Category[]       @relation("CategoryCreatedBy")
+  updatedCategories      Category[]       @relation("CategoryUpdatedBy")
+  createdClients         Client[]         @relation("ClientCreatedBy")
+  updatedClients         Client[]         @relation("ClientUpdatedBy")
+  createdEvents          Event[]          @relation("EventCreatedBy")
+  updatedEvents          Event[]          @relation("EventUpdatedBy")
+  createdFaqs            Faq[]            @relation("FaqCreatedBy")
+  updatedFaqs            Faq[]            @relation("FaqUpdatedBy")
+  createdGalleries       Gallery[]        @relation("GalleryCreatedBy")
+  updatedGalleries       Gallery[]        @relation("GalleryUpdatedBy")
+  createdHeroes          Hero[]           @relation("HeroCreatedBy")
+  updatedHeroes          Hero[]           @relation("HeroUpdatedBy")
+  createdIndustries      Industry[]       @relation("IndustryCreatedBy")
+  updatedIndustries      Industry[]       @relation("IndustryUpdatedBy")
+  createdMedia           Media[]          @relation("MediaCreatedBy")
+  updatedMedia           Media[]          @relation("MediaUpdatedBy")
+  createdPartners        Partner[]        @relation("PartnerCreatedBy")
+  updatedPartners        Partner[]        @relation("PartnerUpdatedBy")
+  createdProjects        Project[]        @relation("ProjectCreatedBy")
+  updatedProjects        Project[]        @relation("ProjectUpdatedBy")
+  createdServices        Service[]        @relation("ServiceCreatedBy")
+  updatedServices        Service[]        @relation("ServiceUpdatedBy")
+  createdSiteInfos       SiteInfo[]       @relation("SiteInfoCreatedBy")
+  updatedSiteInfos       SiteInfo[]       @relation("SiteInfoUpdatedBy")
+  createdSkills          Skill[]          @relation("SkillCreatedBy")
+  updatedSkills          Skill[]          @relation("SkillUpdatedBy")
+  createdSpecializations Specialization[] @relation("SpecializationCreatedBy")
+  updatedSpecializations Specialization[] @relation("SpecializationUpdatedBy")
+  createdTags            Tag[]            @relation("TagCreatedBy")
+  updatedTags            Tag[]            @relation("TagUpdatedBy")
+  createdTechnologies    Technology[]     @relation("TechnologyCreatedBy")
+  updatedTechnologies    Technology[]     @relation("TechnologyUpdatedBy")
+  createdTestimonials    Testimonial[]    @relation("TestimonialCreatedBy")
+  updatedTestimonials    Testimonial[]    @relation("TestimonialUpdatedBy")
+  createdExperiences     Experience[]     @relation("ExperienceCreatedBy")
+  updatedExperiences     Experience[]     @relation("ExperienceUpdatedBy")
+  createdEducations      Education[]      @relation("EducationCreatedBy")
+  updatedEducations      Education[]      @relation("EducationUpdatedBy")
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+model Profile {
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id")
+
+  fullName        String? @map("full_name")
+  headline        String?
+  bio             String?
+  avatar          String?
+  coverImage      String? @map("cover_image")
+  designation     String?
+  experienceYears Int?    @map("experience_years")
+
+  githubUrl    String? @map("github_url")
+  linkedinUrl  String? @map("linkedin_url")
+  portfolioUrl String? @map("portfolio_url")
+
+  isPublic Boolean @default(false) @map("is_public")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User    @relation("UserProfile", fields: [userId], references: [id], onDelete: Cascade)
+  skills Skill[] @relation("ProfileSkills")
+
+  @@index([isPublic])
+  @@map("profiles")
+}
+
+model UserInvitation {
+  id        String   @id @default(cuid())
+  email     String
+  tokenHash String   @unique @map("token_hash")
+  role      UserRole
+
+  invitedById String?   @map("invited_by_id")
+  expiresAt   DateTime  @map("expires_at")
+  acceptedAt  DateTime? @map("accepted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  invitedBy User? @relation("UserInvitationInvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([expiresAt])
+  @@index([invitedById])
+  @@map("user_invitations")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation("UserPasswordResetTokens", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  actorId    String?     @map("actor_id")
+  action     AuditAction
+  entityType String?     @map("entity_type")
+  entityId   String?     @map("entity_id")
+  oldValues  Json?       @map("old_values")
+  newValues  Json?       @map("new_values")
+  ipAddress  String?     @map("ip_address")
+  userAgent  String?     @map("user_agent")
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  actor User? @relation("AuditLogActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+model Media {
+  id              String            @id @default(cuid())
+  provider        MediaProvider     @default(CLOUDINARY)
+  resourceType    MediaResourceType @map("resource_type")
+  providerAssetId String            @map("provider_asset_id")
+  url             String
+
+  originalFilename String? @map("original_filename")
+  mimeType         String? @map("mime_type")
+  fileSize         Int?    @map("file_size")
+  width            Int?
+  height           Int?
+  duration         Float?
+  folder           String?
+
+  altText String? @map("alt_text")
+
+  isArchived Boolean   @default(false) @map("is_archived")
+  archivedAt DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy   User?             @relation("MediaCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?             @relation("MediaUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  attachments MediaAttachment[] @relation("MediaAttachments")
+
+  @@unique([provider, providerAssetId])
+  @@index([resourceType, isArchived])
+  @@index([folder, isArchived])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("media")
+}
+
+model MediaAttachment {
+  id         String          @id @default(cuid())
+  mediaId    String          @map("media_id")
+  entityType MediaEntityType @map("entity_type")
+  entityId   String          @map("entity_id")
+  fieldName  String          @default("default") @map("field_name")
+  usageType  MediaUsageType  @default(OTHER) @map("usage_type")
+  sortOrder  Int             @default(0) @map("sort_order")
+  isPrimary  Boolean         @default(false) @map("is_primary")
+  altText    String?         @map("alt_text")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+
+  media Media @relation("MediaAttachments", fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, entityType, entityId, fieldName])
+  @@index([entityType, entityId, fieldName, sortOrder])
+  @@index([entityType, entityId, usageType])
+  @@index([mediaId])
+  @@map("media_attachments")
+}
+
+model SiteInfo {
+  id  String @id @default(cuid())
+  key String @unique @default("main")
+
+  siteTitle    String  @map("site_title")
+  companyTitle String  @map("company_title")
+  tagline      String?
+  shortDesc    String? @map("short_desc")
+  siteUrl      String? @map("site_url")
+
+  logo     String?
+  darkLogo String? @map("dark_logo")
+  favicon  String?
+  ogImage  String? @map("og_image")
+
+  email       String?
+  phone       String?
+  address     String?
+  mapEmbedUrl String? @map("map_embed_url")
+  officeHours String? @map("office_hours")
+
+  linkedin String?
+  github   String?
+  behance  String?
+  youtube  String?
+  facebook String?
+
+  seoTitle       String?  @map("seo_title")
+  seoDescription String?  @map("seo_description")
+  seoKeywords    String[] @default([]) @map("seo_keywords")
+
+  primaryColor   String? @map("primary_color")
+  secondaryColor String? @map("secondary_color")
+  businessType   String? @map("business_type")
+  foundedYear    Int?    @map("founded_year")
+
+  copyrightText    String? @map("copyright_text")
+  privacyPolicyUrl String? @map("privacy_policy_url")
+  termsUrl         String? @map("terms_url")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("SiteInfoCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("SiteInfoUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("site_infos")
+}
+
+model About {
+  id          String   @id @default(cuid())
+  key         String   @unique @default("main")
+  title       String
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+
+  heroImage     String?  @map("hero_image")
+  galleryImages String[] @default([]) @map("gallery_images")
+  ogImage       String?  @map("og_image")
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("AboutCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("AboutUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("abouts")
+}
+
+model Hero {
+  id           String  @id @default(cuid())
+  title        String
+  shortDesc    String? @map("short_desc")
+  heroImage    String? @map("hero_image")
+  heroVideoUrl String? @map("hero_video_url")
+
+  ctaText          String? @map("cta_text")
+  ctaLink          String? @map("cta_link")
+  secondaryCtaText String? @map("secondary_cta_text")
+  secondaryCtaLink String? @map("secondary_cta_link")
+
+  isActive    Boolean   @default(false) @map("is_active")
+  order       Int       @default(0)
+  status      Status    @default(DRAFT)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("HeroCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("HeroUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, isActive, order])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("heroes")
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  contentJson Json?    @map("content_json")
+  readTime    Int?     @map("read_time")
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy  User?      @relation("BlogCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy  User?      @relation("BlogUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  categories Category[] @relation("BlogCategories")
+  tags       Tag[]      @relation("BlogTags")
+
+  @@index([status, publishedAt])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("blogs")
+}
+
+model Category {
+  id        String        @id @default(cuid())
+  title     String
+  slug      String
+  scope     CategoryScope
+  shortDesc String?       @map("short_desc")
+
+  status      Status    @default(DRAFT)
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("CategoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("CategoryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  blogs        Blog[]       @relation("BlogCategories")
+  projects     Project[]    @relation("ProjectCategories")
+  services     Service[]    @relation("ServiceCategories")
+  caseStudies  CaseStudy[]  @relation("CaseStudyCategories")
+  technologies Technology[] @relation("TechnologyCategories")
+  skills       Skill[]      @relation("SkillCategories")
+  faqs         Faq[]        @relation("FaqCategories")
+
+  @@unique([scope, title])
+  @@unique([scope, slug])
+  @@index([scope, status, order])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("categories")
+}
+
+model Tag {
+  id        String  @id @default(cuid())
+  title     String  @unique
+  slug      String  @unique
+  shortDesc String? @map("short_desc")
+
+  status      Status    @default(DRAFT)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("TagCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("TagUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  blogs        Blog[]       @relation("BlogTags")
+  projects     Project[]    @relation("ProjectTags")
+  services     Service[]    @relation("ServiceTags")
+  caseStudies  CaseStudy[]  @relation("CaseStudyTags")
+  technologies Technology[] @relation("TechnologyTags")
+  skills       Skill[]      @relation("SkillTags")
+
+  @@index([status])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("tags")
+}
+
+model Industry {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+  icon        String?
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User?     @relation("IndustryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User?     @relation("IndustryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  projects  Project[] @relation("IndustryProjects")
+  services  Service[] @relation("IndustryServices")
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("industries")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  liveUrl      String?   @map("live_url")
+  githubUrl    String?   @map("github_url")
+  startDate    DateTime? @map("start_date")
+  endDate      DateTime? @map("end_date")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  clientId     String? @map("client_id")
+  industryId   String? @map("industry_id")
+  experienceId String? @map("experience_id")
+  createdById  String? @map("created_by_id")
+  updatedById  String? @map("updated_by_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  client       Client?     @relation("ClientProjects", fields: [clientId], references: [id], onDelete: SetNull)
+  industry     Industry?   @relation("IndustryProjects", fields: [industryId], references: [id], onDelete: SetNull)
+  experience   Experience? @relation("ExperienceProjects", fields: [experienceId], references: [id], onDelete: SetNull)
+  categories   Category[]  @relation("ProjectCategories")
+  tags         Tag[]       @relation("ProjectTags")
+  technologies Technology[] @relation("ProjectTechnologies")
+  services     Service[]   @relation("ProjectServices")
+  caseStudy    CaseStudy?  @relation("ProjectCaseStudy")
+  createdBy    User?       @relation("ProjectCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy    User?       @relation("ProjectUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([clientId])
+  @@index([industryId])
+  @@index([experienceId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("projects")
+}
+
+model CaseStudy {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  projectId   String   @unique @map("project_id")
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  project      Project     @relation("ProjectCaseStudy", fields: [projectId], references: [id], onDelete: Cascade)
+  categories   Category[]  @relation("CaseStudyCategories")
+  tags         Tag[]       @relation("CaseStudyTags")
+  testimonials Testimonial[] @relation("CaseStudyTestimonials")
+  createdBy    User?       @relation("CaseStudyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy    User?       @relation("CaseStudyUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("case_studies")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+  icon        String?
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  contacts        Contact[]        @relation("ServiceContacts")
+  categories      Category[]       @relation("ServiceCategories")
+  tags            Tag[]            @relation("ServiceTags")
+  faqs            Faq[]            @relation("ServiceFaqs")
+  industries      Industry[]       @relation("IndustryServices")
+  projects        Project[]        @relation("ProjectServices")
+  technologies    Technology[]     @relation("ServiceTechnologies")
+  testimonials    Testimonial[]    @relation("ServiceTestimonials")
+  specializations Specialization[] @relation("ServiceSpecializations")
+  createdBy       User?            @relation("ServiceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy       User?            @relation("ServiceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("services")
+}
+
+model Specialization {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+  icon        String?
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  services  Service[] @relation("ServiceSpecializations")
+  createdBy User?     @relation("SpecializationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User?     @relation("SpecializationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("specializations")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  startsAt             DateTime    @map("start_date")
+  endsAt               DateTime?   @map("end_date")
+  timeZone             String      @default("Asia/Dhaka") @map("time_zone")
+  format               EventFormat @default(OFFLINE)
+  location             String?
+  meetingUrl           String?     @map("meeting_url")
+  registrationUrl      String?     @map("registration_url")
+  registrationDeadline DateTime?   @map("registration_deadline")
+  capacity             Int?
+  isFree               Boolean     @default(true) @map("is_free")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  faqs      Faq[] @relation("EventFaqs")
+  createdBy User? @relation("EventCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("EventUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, startsAt])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("events")
+}
+
+model Skill {
+  id        String  @id @default(cuid())
+  title     String  @unique
+  shortDesc String? @map("short_desc")
+  icon      String?
+
+  status      Status    @default(DRAFT)
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  categories Category[] @relation("SkillCategories")
+  tags       Tag[]      @relation("SkillTags")
+  profiles   Profile[]  @relation("ProfileSkills")
+  createdBy  User?      @relation("SkillCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy  User?      @relation("SkillUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("skills")
+}
+
+model Technology {
+  id        String  @id @default(cuid())
+  title     String  @unique
+  shortDesc String? @map("short_desc")
+  logo      String?
+
+  status      Status    @default(DRAFT)
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  categories  Category[]   @relation("TechnologyCategories")
+  tags        Tag[]        @relation("TechnologyTags")
+  projects    Project[]    @relation("ProjectTechnologies")
+  services    Service[]    @relation("ServiceTechnologies")
+  experiences Experience[] @relation("ExperienceTechnologies")
+  createdBy   User?        @relation("TechnologyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?        @relation("TechnologyUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("technologies")
+}
+
+model Testimonial {
+  id      String @id @default(cuid())
+  message String
+  rating  Int    @default(5)
+
+  type       TestimonialType @default(CLIENT)
+  clientId   String?         @map("client_id")
+  employeeId String?         @map("employee_id")
+
+  authorName     String? @map("author_name")
+  authorPosition String? @map("author_position")
+  authorImage    String? @map("author_image")
+
+  source      TestimonialSource @default(ADMIN)
+  email       String?
+  submittedAt DateTime?         @map("submitted_at")
+  consentAt   DateTime?         @map("consent_at")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  client      Client?     @relation("ClientTestimonials", fields: [clientId], references: [id], onDelete: SetNull)
+  employee    User?       @relation("EmployeeTestimonials", fields: [employeeId], references: [id], onDelete: SetNull)
+  caseStudies CaseStudy[] @relation("CaseStudyTestimonials")
+  services    Service[]   @relation("ServiceTestimonials")
+  createdBy   User?       @relation("TestimonialCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?       @relation("TestimonialUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([clientId])
+  @@index([employeeId])
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("testimonials")
+}
+
+model Achievement {
+  id         String          @id @default(cuid())
+  title      String
+  slug       String          @unique
+  type       AchievementType @default(AWARD)
+  issuer     String
+  achievedAt DateTime?       @map("achieved_at")
+
+  shortDesc   String? @map("short_desc")
+  contentJson Json?   @map("content_json")
+
+  icon           String?
+  image          String?
+  cardImage      String? @map("card_image")
+  heroImage      String? @map("hero_image")
+  certificateUrl String? @map("certificate_url")
+  ogImage        String? @map("og_image")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("AchievementCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("AchievementUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([achievedAt])
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("achievements")
+}
+
+model Gallery {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+
+  coverImage String? @map("cover_image")
+  ogImage    String? @map("og_image")
+
+  status      Status    @default(DRAFT)
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User?         @relation("GalleryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User?         @relation("GalleryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  items     GalleryItem[] @relation("GalleryItems")
+
+  @@index([status, order])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("galleries")
+}
+
+model GalleryItem {
+  id        String @id @default(cuid())
+  galleryId String @map("gallery_id")
+
+  title     String?
+  shortDesc String? @map("short_desc")
+
+  type      GalleryType @default(IMAGE)
+  image     String?
+  videoUrl  String?     @map("video_url")
+  thumbnail String?
+
+  order       Int       @default(0)
+  status      Status    @default(DRAFT)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  gallery Gallery @relation("GalleryItems", fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId, status, order])
+  @@index([type])
+  @@map("gallery_items")
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  title       String   @unique
+  slug        String   @unique
+  shortDesc   String?  @map("short_desc")
+  contentJson Json?    @map("content_json")
+
+  logo      String?
+  heroImage String? @map("hero_image")
+  ogImage   String? @map("og_image")
+  website   String?
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  projects     Project[]     @relation("ClientProjects")
+  testimonials Testimonial[] @relation("ClientTestimonials")
+  createdBy    User?         @relation("ClientCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy    User?         @relation("ClientUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("clients")
+}
+
+model Partner {
+  id        String      @id @default(cuid())
+  title     String      @unique
+  shortDesc String?     @map("short_desc")
+  logo      String?
+  website   String?
+  type      PartnerType @default(TECHNOLOGY)
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("PartnerUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("partners")
+}
+
+model Faq {
+  id       String @id @default(cuid())
+  question String
+  answer   String
+
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  status      Status    @default(DRAFT)
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  categories Category[] @relation("FaqCategories")
+  events     Event[]    @relation("EventFaqs")
+  services   Service[]  @relation("ServiceFaqs")
+  createdBy  User?      @relation("FaqCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy  User?      @relation("FaqUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("faqs")
+}
+
+model Contact {
+  id         String        @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String
+  serviceId  String?       @map("service_id")
+  status     ContactStatus @default(NEW)
+  repliedAt  DateTime?     @map("replied_at")
+  archivedAt DateTime?     @map("archived_at")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  service Service? @relation("ServiceContacts", fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([serviceId])
+  @@index([status, createdAt])
+  @@map("contacts")
+}
+
+model Experience {
+  id             String         @id @default(cuid())
+  companyName    String         @map("company_name")
+  companyUrl     String?        @map("company_url")
+  position       String
+  employmentType EmploymentType @default(FULL_TIME) @map("employment_type")
+  location       String?
+  locationType   String?        @map("location_type")
+
+  startDate      DateTime       @map("start_date")
+  endDate        DateTime?      @map("end_date")
+  isCurrent      Boolean        @default(false) @map("is_current")
+
+  shortDesc      String?        @map("short_desc")
+  contentJson    Json?          @map("content_json")
+
+  logo           String?
+  cardImage      String?        @map("card_image")
+  ogImage        String?        @map("og_image")
+
+  status       Status    @default(DRAFT)
+  isFeatured   Boolean   @default(false) @map("is_featured")
+  order        Int       @default(0)
+  publishedAt  DateTime? @map("published_at")
+  archivedAt   DateTime? @map("archived_at")
+
+  createdById  String?   @map("created_by_id")
+  updatedById  String?   @map("updated_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  projects     Project[]    @relation("ExperienceProjects")
+  technologies Technology[] @relation("ExperienceTechnologies")
+
+  createdBy    User?        @relation("ExperienceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy    User?        @relation("ExperienceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([startDate])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("experiences")
+}
+
+model Education {
+  id             String    @id @default(cuid())
+  institution    String
+  institutionUrl String?   @map("institution_url")
+  degree         String
+  fieldOfStudy   String?   @map("field_of_study")
+  grade          String?
+
+  startDate      DateTime  @map("start_date")
+  endDate        DateTime? @map("end_date")
+  isCurrent      Boolean   @default(false) @map("is_current")
+
+  shortDesc      String?   @map("short_desc")
+  contentJson    Json?     @map("content_json")
+
+  logo           String?
+  certificateUrl String?   @map("certificate_url")
+
+  status         Status    @default(DRAFT)
+  isFeatured     Boolean   @default(false) @map("is_featured")
+  order          Int       @default(0)
+  publishedAt    DateTime? @map("published_at")
+  archivedAt     DateTime? @map("archived_at")
+
+  createdById    String?   @map("created_by_id")
+  updatedById    String?   @map("updated_by_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  createdBy      User?     @relation("EducationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy      User?     @relation("EducationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("educations")
+}

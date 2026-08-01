@@ -1,0 +1,23 @@
+import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+import path from "path";
+
+const withNextIntl = createNextIntlPlugin("./src/shared/i18n/request.ts");
+
+const nextConfig: NextConfig = {
+  outputFileTracingRoot: path.join(process.cwd(), "./"),
+
+  serverExternalPackages: ["@blocknote/server-util", "@blocknote/react", "yjs"],
+  transpilePackages: ["@blocknote/core", "@blocknote/shadcn"],
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
+};
+
+export default withNextIntl(nextConfig);
