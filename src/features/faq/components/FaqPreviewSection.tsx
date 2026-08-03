@@ -1,22 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Sparkles,
-  HelpCircle,
-  Plus,
-  Compass,
-  ChevronDown,
-  ArrowUpRight,
-  MessageSquare,
-} from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import I18n from "@/shared/components/I18n";
 import { usePublishedFaqs } from "../hooks/useFaq";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollReveal } from "@/shared/components/ScrollReveal";
-import { Link } from "@/shared/i18n";
+import { PreviewSectionHeader } from "@/shared/components";
 
 import {
   Accordion,
@@ -33,11 +24,21 @@ export type PublicFaqItem = {
 };
 
 const containerVariants = cva(
-  "relative w-full overflow-hidden bg-background text-foreground transition-all duration-300",
+  "relative w-full overflow-hidden bg-background text-foreground transition-all duration-300 font-sans",
   {
     variants: {
-      variant: { classic: "", glassmorphic: "", brutalist: "", "gradient-glow": "", minimal: "" },
-      size: { sm: "py-6 sm:py-10", default: "py-14 sm:py-20", lg: "py-20 sm:py-28" },
+      variant: {
+        classic: "bg-background",
+        glassmorphic: "bg-background/80 backdrop-blur-md",
+        brutalist: "bg-background border-y-2 border-border-strong",
+        "gradient-glow": "bg-background",
+        minimal: "bg-background"
+      },
+      size: {
+        sm: "py-8 sm:py-12",
+        default: "py-16 sm:py-24",
+        lg: "py-24 sm:py-32"
+      },
     },
     defaultVariants: { variant: "classic", size: "default" },
   }
@@ -47,23 +48,24 @@ const faqItemVariants = cva("w-full transition-all select-none box-border border
   variants: {
     variant: {
       classic: "border-b border-border hover:border-border-strong",
-      glassmorphic: "border-b border-border hover:border-border-strong backdrop-blur-3xs",
-      brutalist: "border-b-2 border-border-strong py-1",
-      "gradient-glow": "border-b border-border hover:border-primary/50",
-      minimal: "border-b border-border/20 hover:border-foreground/20",
+      glassmorphic: "border-b border-border bg-card/10 backdrop-blur-xs hover:bg-card/20",
+      brutalist: "border-2 border-border-strong bg-card p-4 my-3 shadow-xs hover:translate-x-1 hover:-translate-y-1 hover:shadow-sm transition-all duration-200",
+      "gradient-glow": "border-b border-border hover:border-primary/50 relative overflow-hidden",
+      minimal: "border-b border-border/40 hover:border-foreground/20",
     },
   },
   defaultVariants: { variant: "classic" },
 });
 
 const faqTriggerVariants = cva(
-  "flex flex-1 items-start justify-between py-5 text-left outline-none cursor-pointer w-full hover:no-underline [&>svg]:hidden",
+  // 🟢 [&>svg]:hidden ক্লাসটি বাদ দেওয়া হয়েছে যাতে shadcn/ui-এর নিজস্ব আইকন দৃশ্যমান হয়
+  "flex flex-1 items-center justify-between py-5 text-left outline-hidden cursor-pointer w-full hover:no-underline [&>svg]:transition-transform [&>svg]:duration-300",
   {
     variants: {
       variant: {
         classic: "font-sans duration-300",
         glassmorphic: "font-sans duration-500 ease-out",
-        brutalist: "font-mono uppercase duration-75 ease-linear",
+        brutalist: "font-mono uppercase duration-100 ease-in-out",
         "gradient-glow": "font-sans duration-500 cubic-bezier(0.16, 1, 0.3, 1)",
         minimal: "font-sans duration-200 hover:translate-x-0.5",
       },
@@ -77,30 +79,11 @@ const faqContentVariants = cva(
   {
     variants: {
       variant: {
-        classic: "pl-12 transition-all duration-300",
-        glassmorphic: "pl-12 transition-all duration-500 ease-out",
-        brutalist: "pl-12 transition-all duration-75",
-        "gradient-glow": "pl-12 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)",
-        minimal: "pl-0 pt-1 pb-3 transition-all duration-200",
-      },
-    },
-    defaultVariants: { variant: "classic" },
-  }
-);
-
-const faqIconVariants = cva(
-  "flex h-9 w-9 shrink-0 items-center justify-center transition-all duration-300",
-  {
-    variants: {
-      variant: {
-        classic:
-          "rounded-xl border border-primary/10 bg-primary/5 text-primary group-hover/row:scale-105",
-        glassmorphic:
-          "rounded-full bg-info/10 border border-info/20 text-info group-hover/row:scale-105",
-        brutalist: "rounded-none border-2 border-border-strong bg-warning text-foreground",
-        "gradient-glow":
-          "rounded-xl bg-primary/10 border border-primary/20 shadow-glow text-primary group-hover/row:scale-105",
-        minimal: "bg-transparent p-0 border-0 text-muted-foreground group-hover/row:text-primary",
+        classic: "pl-0 transition-all duration-300 font-sans",
+        glassmorphic: "pl-0 transition-all duration-500 ease-out font-sans",
+        brutalist: "pl-0 transition-all duration-100 font-mono text-foreground/90",
+        "gradient-glow": "pl-0 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) font-sans",
+        minimal: "pl-0 pt-1 pb-3 transition-all duration-200 font-sans",
       },
     },
     defaultVariants: { variant: "classic" },
@@ -118,6 +101,7 @@ interface FaqSectionProps extends VariantProps<typeof containerVariants> {
   href?: string;
   ctaLabel?: string;
   hideHeader?: boolean;
+  headerVariant?: "split" | "center" | "stacked" | "minimal";
 
   emptyLabel?: string;
   className?: string;
@@ -133,6 +117,7 @@ export function FaqPreviewSection({
   href = "/faqs",
   ctaLabel = "Explore All FAQs",
   hideHeader = false,
+  headerVariant = "split",
   emptyLabel = "No FAQs found at the moment.",
   variant = "classic",
   size,
@@ -153,36 +138,19 @@ export function FaqPreviewSection({
 
   const isBrutalist = variant === "brutalist";
 
-  const renderFaqIcon = () => {
-    switch (variant) {
-      case "gradient-glow":
-        return <Sparkles className="h-4 w-4" />;
-      case "glassmorphic":
-        return <Compass className="h-4 w-4" />;
-      case "brutalist":
-        return <Plus className="h-4 w-4" />;
-      case "minimal":
-      case "classic":
-      default:
-        return <HelpCircle className="h-4 w-4" />;
-    }
-  };
-
   if (isLoading) {
     return (
       <section className={cn(containerVariants({ variant, size }), className)}>
-        <div className="container-custom mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[380px_1fr] lg:gap-16">
-            <div className="space-y-4">
-              <Skeleton className="h-4 w-28 rounded" />
-              <Skeleton className="h-10 w-3/4 rounded" />
-              <Skeleton className="h-20 w-full rounded" />
-            </div>
-            <div className="space-y-4">
-              <Skeleton className="h-16 w-full rounded-lg" />
-              <Skeleton className="h-16 w-full rounded-lg" />
-              <Skeleton className="h-16 w-full rounded-lg" />
-            </div>
+        <div className="container-custom mx-auto px-4 sm:px-6 max-w-4xl">
+          <div className="space-y-4 mb-10 animate-pulse">
+            <Skeleton className="h-4 w-28 rounded bg-muted" />
+            <Skeleton className="h-10 w-3/4 rounded bg-muted" />
+            <Skeleton className="h-16 w-full rounded bg-muted" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-16 w-full rounded-lg bg-muted/65 animate-pulse" />
+            <Skeleton className="h-16 w-full rounded-lg bg-muted/65 animate-pulse" />
+            <Skeleton className="h-16 w-full rounded-lg bg-muted/65 animate-pulse" />
           </div>
         </div>
       </section>
@@ -208,126 +176,65 @@ export function FaqPreviewSection({
         </>
       )}
 
-      <div className="container-custom mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[360px_1fr] lg:gap-16 xl:grid-cols-[400px_1fr]">
-          {/* LEFT COLUMN */}
-          {!hideHeader && (
-            <ScrollReveal className="sticky top-28 space-y-6">
-              <div className="space-y-3">
-                <span className="text-primary block text-xs font-bold tracking-[0.2em] uppercase">
-                  <I18n>{eyebrow}</I18n>
-                </span>
-                <h2 className="text-foreground text-2xl leading-tight font-bold tracking-tight sm:text-3xl lg:text-4xl">
-                  <I18n>{title}</I18n>
-                </h2>
-                <p className="text-muted-foreground text-xs leading-relaxed font-medium sm:text-sm">
-                  <I18n>{description}</I18n>
-                </p>
-              </div>
+      {/* Full Width Container */}
+      <div className="container-custom mx-auto px-4 sm:px-6 max-w-5xl">
+        {/* TOP HEADER SECTION */}
+        {!hideHeader && (
+          <PreviewSectionHeader
+            eyebrow={eyebrow}
+            title={title}
+            description={description}
+            href={href}
+            ctaLabel={ctaLabel}
+            variant={headerVariant}
+          />
+        )}
 
-              <div className="bg-card/60 border-border space-y-4 rounded-xl border p-6 shadow-xs">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary rounded-lg p-2.5">
-                    <MessageSquare className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-foreground text-sm font-bold">
-                      <I18n>Still have questions?</I18n>
-                    </h4>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      <I18n>Can't find the answer you are looking for?</I18n>
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href="/contact"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-bold tracking-wider uppercase shadow-xs transition-all hover:-translate-y-0.5"
+        {/* BOTTOM FULL WIDTH FAQ LIST */}
+        <div className="w-full min-w-0 mt-8 lg:mt-12">
+          {filteredFaqsLengthCheck(faqs) ? (
+            <Accordion
+              {...({
+                type: "single",
+                collapsible: "true",
+                className: "w-full space-y-3",
+              } as Record<string, unknown>)}
+            >
+              {faqs.map((faq: PublicFaqItem, index: number) => (
+                <AccordionItem
+                  key={faq.id ? String(faq.id) : index}
+                  value={faq.id ? String(faq.id) : String(index)}
+                  className={faqItemVariants({ variant })}
                 >
-                  <I18n>Talk to an Architect</I18n>
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </div>
+                  <AccordionTrigger className={cn("group border-0", faqTriggerVariants({ variant }))}>
+                    {/* Question Text */}
+                    <span className={cn(
+                      "group-hover:text-primary group-data-[state=open]:text-primary block text-left text-sm font-bold tracking-tight transition-colors duration-200 sm:text-base pr-4",
+                      isBrutalist ? "font-mono" : "font-sans"
+                    )}>
+                      {faq.question}
+                    </span>
+                  </AccordionTrigger>
 
-              {href && ctaLabel && (
-                <div className="pt-2">
-                  <Link
-                    href={href}
-                    className="text-primary hover:text-primary/80 inline-flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase transition-colors"
-                  >
-                    <I18n>{ctaLabel}</I18n>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </div>
+                  <AccordionContent className={faqContentVariants({ variant })}>
+                    <p className={isBrutalist ? "font-mono" : "font-sans"}>{faq.answer}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <div
+              className={cn(
+                "border-border bg-card/40 text-muted-foreground w-full rounded-xl border border-dashed px-6 py-12 text-center text-sm font-medium",
+                isBrutalist && "border-border-strong rounded-none border-2 font-mono uppercase"
               )}
-            </ScrollReveal>
+            >
+              <HelpCircle className="text-muted-foreground/40 mx-auto mb-3 h-8 w-8 stroke-[1.5]" />
+              <p>
+                <I18n>{emptyLabel}</I18n>
+              </p>
+            </div>
           )}
-
-          {/* RIGHT COLUMN */}
-          <div className="w-full min-w-0">
-            {filteredFaqsLengthCheck(faqs) ? (
-              /* 🟢 FIX 1: Spread Object for Safe Base UI / Radix Props Compatibility */
-              <Accordion
-                {...({
-                  type: "single",
-                  collapsible: "true",
-                  className: "w-full space-y-2",
-                } as Record<string, unknown>)}
-              >
-                {faqs.map((faq: PublicFaqItem, index: number) => (
-                  <AccordionItem
-                    key={faq.id ? String(faq.id) : index}
-                    value={faq.id ? String(faq.id) : String(index)}
-                    className={faqItemVariants({ variant })}
-                  >
-                    <AccordionTrigger className={cn("group", faqTriggerVariants({ variant }))}>
-                      <div className="flex min-w-0 flex-1 items-start gap-3.5 pr-4">
-                        <div
-                          className={cn(
-                            faqIconVariants({ variant }),
-                            isBrutalist && "group-data-[state=open]:rotate-45"
-                          )}
-                        >
-                          {renderFaqIcon()}
-                        </div>
-
-                        <span className="group-hover:text-primary group-data-[state=open]:text-primary block pt-2 text-left text-sm font-bold tracking-tight transition-colors duration-200 sm:text-base">
-                          {faq.question}
-                        </span>
-                      </div>
-
-                      <div
-                        className={cn(
-                          "text-muted-foreground/60 group-hover:text-foreground shrink-0 pt-2 transition-all duration-300 group-data-[state=open]:rotate-180",
-                          isBrutalist && "hidden",
-                          variant === "gradient-glow" &&
-                            "group-data-[state=open]:cubic-bezier(0.16, 1, 0.3, 1) group-data-[state=open]:duration-500"
-                        )}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </div>
-                    </AccordionTrigger>
-
-                    <AccordionContent className={faqContentVariants({ variant })}>
-                      <p>{faq.answer}</p>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            ) : (
-              <div
-                className={cn(
-                  "border-border bg-card/40 text-muted-foreground w-full rounded-xl border border-dashed px-6 py-12 text-center text-sm font-medium",
-                  isBrutalist && "border-border-strong rounded-none border-2 font-mono uppercase"
-                )}
-              >
-                <HelpCircle className="text-muted-foreground/40 mx-auto mb-3 h-8 w-8 stroke-[1.5]" />
-                <p>
-                  <I18n>{emptyLabel}</I18n>
-                </p>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </section>

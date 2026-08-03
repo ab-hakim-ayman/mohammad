@@ -74,9 +74,40 @@ export function TestimonialPreviewSection({
 
   if (isLoading) {
     return (
-      <section className="bg-background py-16 w-full border-t border-border/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-muted h-64 w-full animate-pulse rounded-xl" />
+      <section className="relative w-full bg-background/50 border-t border-border/40 py-16 lg:py-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto w-full px-6 lg:px-8">
+          <div className="relative w-full flex flex-col md:flex-row items-center gap-8 lg:gap-14 animate-pulse">
+            {/* Left Image Skeleton */}
+            <div className="relative aspect-square w-52 sm:w-60 lg:w-72 shrink-0 bg-muted/60 rounded-2xl border border-border/60" />
+            {/* Right Text Skeleton */}
+            <div className="flex flex-col justify-between flex-1 space-y-6 w-full text-left">
+              <div className="space-y-4">
+                {/* Rating stars skeleton */}
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="h-4 w-4 bg-muted/70 rounded-full" />
+                  ))}
+                </div>
+                {/* Message line skeleton */}
+                <div className="space-y-2.5">
+                  <div className="h-6 bg-muted/70 rounded-md w-full" />
+                  <div className="h-6 bg-muted/70 rounded-md w-5/6" />
+                  <div className="h-6 bg-muted/70 rounded-md w-2/3" />
+                </div>
+              </div>
+              {/* Bottom Row skeleton */}
+              <div className="flex items-end justify-between w-full pt-2">
+                <div className="space-y-2">
+                  <div className="h-5 bg-muted/70 rounded-md w-36" />
+                  <div className="h-3.5 bg-muted/70 rounded-md w-24" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-10 w-10 bg-muted/60 rounded-xl border border-border/60" />
+                  <div className="h-10 w-10 bg-muted/60 rounded-xl border border-border/60" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     );
@@ -90,7 +121,7 @@ export function TestimonialPreviewSection({
   const authorMeta = currentTestimonial.authorPosition || "Client Partner";
 
   return (
-    <section className="relative w-full bg-background/50 border-t border-border/40 py-16 lg:py-20 overflow-hidden">
+    <section className="relative w-full bg-background/30 dark:bg-background/10 border-t border-border/40 py-16 lg:py-20 overflow-hidden transition-colors duration-300">
       {/* Standard Container matching other sections (max-w-7xl) */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
 
@@ -110,8 +141,8 @@ export function TestimonialPreviewSection({
         {/* Testimonial Content Wrapper */}
         <div className="relative w-full flex flex-col md:flex-row items-center gap-8 lg:gap-14">
 
-          {/* Left Side: Client Image (Sharp/Square corners as per screenshot) */}
-          <div className="relative aspect-square w-52 sm:w-60 lg:w-72 shrink-0 overflow-hidden rounded-none bg-muted border border-border/80">
+          {/* Left Side: Client Image */}
+          <div className="relative aspect-square w-52 sm:w-60 lg:w-72 shrink-0 overflow-hidden rounded-2xl bg-muted/50 border border-border/80 shadow-xs">
             {avatarSource ? (
               <Image
                 src={avatarSource}
@@ -133,10 +164,21 @@ export function TestimonialPreviewSection({
 
             <div className="space-y-4">
               {/* Rating Stars */}
-              <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-current" />
-                ))}
+              <div className="flex items-center gap-0.5 text-amber-500">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const isFilled = i < (currentTestimonial.rating || 5);
+                  return (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "h-4 w-4 transition-colors",
+                        isFilled
+                          ? "fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400"
+                          : "text-muted-foreground/20 fill-transparent"
+                      )}
+                    />
+                  );
+                })}
               </div>
 
               {/* Message */}
@@ -151,7 +193,7 @@ export function TestimonialPreviewSection({
                 <h4 className="text-foreground font-semibold text-base sm:text-lg">
                   {currentTestimonial.authorName}
                 </h4>
-                <p className="text-muted-foreground text-xs sm:text-sm mt-0.5">
+                <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 font-medium">
                   {authorMeta}
                 </p>
               </div>
@@ -162,7 +204,7 @@ export function TestimonialPreviewSection({
                   type="button"
                   onClick={handlePrev}
                   aria-label="Previous testimonial"
-                  className="flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:border-border-strong transition cursor-pointer"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-card/65 text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border-strong transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -170,7 +212,7 @@ export function TestimonialPreviewSection({
                   type="button"
                   onClick={handleNext}
                   aria-label="Next testimonial"
-                  className="flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:border-border-strong transition cursor-pointer"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-card/65 text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border-strong transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>

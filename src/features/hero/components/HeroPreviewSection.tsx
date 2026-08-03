@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveHero } from "../hooks/useHero";
 import { usePublicSiteInfo } from "@/features/site-info/hooks/useSiteInfo";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaBehance, FaGithub, FaLinkedin } from "react-icons/fa";
+import { SiHuggingface, SiLeetcode } from "react-icons/si";
+
 
 type HeroSlide = {
   id?: string | number;
@@ -33,6 +35,9 @@ type SiteInfoType = {
   shortDesc?: string | null;
   github?: string | null;
   linkedin?: string | null;
+  behance?: string | null;
+  leetcode?: string | null;
+  huggingface?: string | null;
   resumeUrl?: string | null;
 };
 
@@ -189,7 +194,7 @@ export function HeroPreviewSection({
         <div className="hidden lg:flex lg:col-span-1 flex-col items-center justify-between self-stretch py-2">
           {/* Top Avatar & Rotated Text */}
           <div className="flex flex-col items-center space-y-4">
-            <div className="relative w-11 h-11 rounded-full overflow-hidden border border-border shadow-sm">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-border shadow-sm">
               {siteInfo.logo ? (
                 <Image
                   src={siteInfo.logo}
@@ -205,13 +210,13 @@ export function HeroPreviewSection({
               )}
             </div>
 
-            <span className="text-[11px] font-mono tracking-widest text-muted-foreground [writing-mode:vertical-lr] rotate-180 pt-2">
+            <span className="text-[11px] font-mono tracking-widest text-muted-foreground [writing-mode:vertical-lr] pt-2">
               {siteInfo.title || "hafiq.dev"}
             </span>
           </div>
 
           {/* Longer vertical line connecting towards bottom icons */}
-          <div className="w-px h-56 bg-border my-auto" />
+          <div className="w-px h-36 bg-border my-auto" />
 
           {/* Bottom Social Icons */}
           <div className="flex flex-col space-y-5 text-muted-foreground">
@@ -235,12 +240,26 @@ export function HeroPreviewSection({
                 <FaLinkedin className="w-4 h-4" />
               </a>
             )}
-            <Link href="/blog" className="hover:text-primary transition-colors">
-              <FileText className="w-4 h-4" />
-            </Link>
-            <Link href="/contact" className="hover:text-primary transition-colors">
-              <Edit3 className="w-4 h-4" />
-            </Link>
+            {siteInfo.behance && (
+              <a
+                href={siteInfo.behance}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                <FaBehance className="w-4 h-4" />
+              </a>
+            )}
+            {siteInfo.leetcode && (
+              <a
+                href={siteInfo.leetcode}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                <SiLeetcode className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
 
