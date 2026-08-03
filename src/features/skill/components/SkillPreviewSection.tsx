@@ -1,16 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
+import { useMemo } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
-import { Link } from "@/shared/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-
-import { Marquee } from "@/components/ui/marquee";
 import { usePublishedSkills } from "../hooks/useSkill";
-import { Skill } from "../types/skill.types";
+import type { Skill } from "../types/skill.types";
+import { SkillCard } from "./SkillCard";
 
 const sectionVariants = cva(
   "relative w-full transition-all duration-300 overflow-hidden flex justify-center items-center mx-auto",
@@ -64,65 +61,6 @@ interface SkillPreviewSectionProps
   hideHeader?: boolean;
 }
 
-function isImageLike(value: string | null | undefined) {
-  if (!value) return false;
-  return /^(https?:\/\/|\/|data:image\/)/i.test(value);
-}
-
-function getFallbackLabel(skill: Skill) {
-  const rawIcon = skill.icon?.trim();
-  if (rawIcon && !isImageLike(rawIcon) && rawIcon.length <= 3 && !/\s/.test(rawIcon)) {
-    return rawIcon;
-  }
-  return (
-    skill.title
-      .split(/[\s./_-]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((item) => item.charAt(0).toUpperCase())
-      .join("") || "S"
-  );
-}
-
-function splitIntoRows(skills: Skill[]) {
-  const middle = Math.ceil(skills.length / 2);
-  return [skills.slice(0, middle), skills.slice(middle)] as const;
-}
-
-function SkillCard({ skill }: { skill: Skill }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const hasImage = isImageLike(skill.icon) && !imageFailed;
-  const fallbackLabel = getFallbackLabel(skill);
-
-  return (
-    <Link
-      href={`/skills/${skill.id}`}
-      className="group border-border bg-surface-elevated/60 shadow-3xs hover:border-primary/40 hover:bg-primary-subtle flex h-24 w-40 shrink-0 flex-col items-center justify-center gap-2 rounded-xl border p-4 text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xs sm:w-44"
-    >
-      <div className="relative flex h-10 w-10 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105">
-        {hasImage ? (
-          <Image
-            src={skill.icon || ""}
-            alt={skill.title}
-            fill
-            sizes="40px"
-            unoptimized
-            className="object-contain p-0.5 opacity-80 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="text-muted-foreground group-hover:text-primary max-w-full truncate px-1 text-xs font-bold tracking-wider">
-            {fallbackLabel}
-          </span>
-        )}
-      </div>
-      <p className="text-foreground/80 group-hover:text-primary w-full truncate text-xs font-semibold transition-colors">
-        {skill.title}
-      </p>
-    </Link>
-  );
-}
-
 export function SkillPreviewSection({
   limit = 16,
   items: externalItems,
@@ -161,8 +99,6 @@ export function SkillPreviewSection({
       .slice(0, requestedLimit);
   }, [initialItems, data, requestedLimit]);
 
-  const rows = useMemo(() => splitIntoRows(skills), [skills]);
-
   const isLoading = shouldFetch && isApiLoading;
 
   if (isLoading) {
@@ -175,15 +111,9 @@ export function SkillPreviewSection({
               <Skeleton className="h-11 w-full max-w-2xl self-center rounded" />
             </div>
           )}
-          <div className="mt-10 w-full space-y-4">
-            {Array.from({ length: 2 }).map((_, rIndex) => (
-              <div key={rIndex} className="flex justify-center gap-4 overflow-hidden py-1">
-                {Array.from({ length: Math.min(Math.ceil(requestedLimit / 2), 6) }).map(
-                  (__, index) => (
-                    <Skeleton key={index} className="h-24 w-44 shrink-0 rounded-xl" />
-                  )
-                )}
-              </div>
+          <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
+            {Array.from({ length: Math.min(requestedLimit, 8) }).map((_, index) => (
+              <Skeleton key={index} className="h-24 w-40 sm:w-44 shrink-0 rounded-xl" />
             ))}
           </div>
         </div>
@@ -224,29 +154,19 @@ export function SkillPreviewSection({
           </div>
         )}
 
-        <div className="relative mx-auto mt-10 flex w-full flex-col items-center justify-center overflow-hidden py-1">
-          <div className="from-background via-background/60 pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r to-transparent lg:w-24" />
-          <div className="from-background via-background/60 pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l to-transparent lg:w-24" />
-
-          <div className="flex w-full flex-col items-center justify-center space-y-4">
-            <Marquee pauseOnHover className="w-full justify-center [--duration:35s] [--gap:1rem]">
-              {rows[0].map((skill, index) => (
-                <SkillCard key={`row1-${skill.id ? String(skill.id) : index}`} skill={skill} />
-              ))}
-            </Marquee>
-
-            {rows[1].length > 0 && (
-              <Marquee
-                reverse
-                pauseOnHover
-                className="w-full justify-center [--duration:40s] [--gap:1rem]"
-              >
-                {rows[1].map((skill, index) => (
-                  <SkillCard key={`row2-${skill.id ? String(skill.id) : index}`} skill={skill} />
-                ))}
-              </Marquee>
-            )}
-          </div>
+        {/* 🔧 REUSABLE SKILL CARD STANDARD GRID MATRIX (Marquee Removed) */}
+        <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
+          {skills.map((skill, index) => (
+            <div
+              key={skill.id ? String(skill.id) : index}
+              className="flex shrink-0"
+            >
+              <SkillCard
+                skill={skill}
+                className="h-full w-40 sm:w-44"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>

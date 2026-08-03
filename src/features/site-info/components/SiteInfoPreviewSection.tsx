@@ -67,7 +67,7 @@ export function SiteInfoPreviewSection({ variant, size }: SiteInfoPreviewSection
       <div className="container-custom">
         <PreviewSectionHeader
           eyebrow="Site profile"
-          title={siteInfo.companyTitle}
+          title={siteInfo.fullName}
           description={
             siteInfo.shortDesc || siteInfo.tagline || "Public company profile and contact signals."
           }
@@ -81,7 +81,7 @@ export function SiteInfoPreviewSection({ variant, size }: SiteInfoPreviewSection
                 <div className="relative h-14 w-14">
                   <Image
                     src={siteInfo.logo}
-                    alt={siteInfo.siteTitle}
+                    alt={siteInfo.title}
                     fill
                     sizes="56px"
                     unoptimized
@@ -95,7 +95,7 @@ export function SiteInfoPreviewSection({ variant, size }: SiteInfoPreviewSection
               )}
               <div>
                 <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">
-                  {siteInfo.siteTitle}
+                  {siteInfo.title}
                 </p>
                 {siteInfo.tagline ? (
                   <p className="text-foreground mt-2 text-2xl font-semibold tracking-tighter">

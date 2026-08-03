@@ -25,21 +25,12 @@ export function ClientCard({ client, className, size = "md", layout }: ClientCar
       mediaPosition="top"
       imageBleed="edge-to-edge"
       shadow="md"
+      alignment="center"
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
         href: (item) => `/clients/${item.id}`,
         titleKey: "title",
         logoKey: "logo",
-        actionLabel: "View details",
-        getMetaItems: (item) =>
-          item.website
-            ? [
-                {
-                  icon: <Globe className="h-3.5 w-3.5" />,
-                  text: item.website.replace(/^https?:\/\//, ""),
-                },
-              ]
-            : [],
       }}
     />
   );

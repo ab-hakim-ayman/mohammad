@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
+import { useMemo } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
-import { Link } from "@/shared/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { usePublishedTechnologies } from "../hooks/useTechnology";
-import type { Technology } from "../types/technology.types"; // 👈 আপনার প্রজেক্টের Technology টাইপ নিশ্চিত করুন
+import type { Technology } from "../types/technology.types";
+import { TechnologyCard } from "./TechnologyCard"; // 👈 আপনার তৈরি করা TechnologyCard ইমপোর্ট করা হলো
 
 const sectionVariants = cva(
   "relative w-full container-custom transition-all duration-300 overflow-hidden flex justify-center items-center mx-auto",
@@ -60,52 +59,6 @@ interface TechnologyPreviewSectionProps
   href?: string;
   ctaLabel?: string;
   hideHeader?: boolean;
-}
-
-function isImageSource(value?: string | null) {
-  if (!value) return false;
-  return /^(https?:\/\/|\/|data:image\/)/i.test(value);
-}
-
-function getFallbackLabel(technology: Technology) {
-  const rawIcon = technology.logo?.trim();
-  if (rawIcon && !isImageSource(rawIcon)) return rawIcon;
-  return "T";
-}
-
-function TechnologyCard({ technology }: { technology: Technology }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const hasImageIcon = isImageSource(technology.logo) && !imageFailed;
-  const fallbackLabel = getFallbackLabel(technology);
-
-  return (
-    <Link
-      href={`/technologies/${technology.id}`}
-      className="group border-border bg-card/50 shadow-3xs hover:border-primary/40 hover:bg-card focus-visible:ring-primary/20 mx-auto flex h-[104px] w-full flex-col items-center justify-center gap-2.5 rounded-lg border px-3 py-4 text-center transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xs focus-visible:ring-2 focus-visible:outline-hidden"
-    >
-      <div className="relative flex h-10 w-10 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105">
-        {hasImageIcon ? (
-          <Image
-            src={technology.logo!}
-            alt={`${technology.title} logo`}
-            fill
-            sizes="40px"
-            unoptimized
-            className="object-contain p-0.5 opacity-80 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="text-muted-foreground group-hover:text-primary max-w-full truncate px-1 text-xs font-bold tracking-wider transition-colors">
-            {fallbackLabel}
-          </span>
-        )}
-      </div>
-
-      <p className="text-foreground/85 group-hover:text-primary line-clamp-1 max-w-full text-xs font-semibold tracking-tight transition-colors duration-300">
-        {technology.title}
-      </p>
-    </Link>
-  );
 }
 
 export function TechnologyPreviewSection({
@@ -204,13 +157,17 @@ export function TechnologyPreviewSection({
           </div>
         )}
 
+        {/* 🔧 REUSABLE TECHNOLOGY CARD MATRIX */}
         <div className="3xl:mt-20 5xl:mt-24 mx-auto mt-10 flex w-full flex-wrap items-stretch justify-center gap-3 md:mt-14 lg:mt-16">
           {technologies.map((technology, index) => (
             <div
               key={technology.id ? String(technology.id) : index}
               className="flex w-[calc(50%-0.5rem)] max-w-[200px] shrink-0 flex-col sm:w-[calc(33.333%-0.85rem)] md:w-[calc(25%-0.95rem)] lg:w-[calc(20%-1rem)] xl:w-[calc(16.666%-1.05rem)]"
             >
-              <TechnologyCard technology={technology} />
+              <TechnologyCard
+                technology={technology}
+                className="h-full w-full"
+              />
             </div>
           ))}
         </div>

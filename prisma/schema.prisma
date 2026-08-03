@@ -391,9 +391,10 @@ model SiteInfo {
   id  String @id @default(cuid())
   key String @unique @default("main")
 
-  siteTitle    String  @map("site_title")
-  companyTitle String  @map("company_title")
+  title    String  @map("title")
+  fullName String  @map("full_name")
   tagline      String?
+  resumeUrl String? @map("resume_url")
   shortDesc    String? @map("short_desc")
   siteUrl      String? @map("site_url")
 
@@ -406,13 +407,12 @@ model SiteInfo {
   phone       String?
   address     String?
   mapEmbedUrl String? @map("map_embed_url")
-  officeHours String? @map("office_hours")
 
   linkedin String?
   github   String?
   behance  String?
-  youtube  String?
-  facebook String?
+  leetcode String?
+  huggingface String?
 
   seoTitle       String?  @map("seo_title")
   seoDescription String?  @map("seo_description")
@@ -420,8 +420,8 @@ model SiteInfo {
 
   primaryColor   String? @map("primary_color")
   secondaryColor String? @map("secondary_color")
-  businessType   String? @map("business_type")
-  foundedYear    Int?    @map("founded_year")
+  availability      String? @map("availability")
+  careerStartYear Int? @map("career_start_year")
 
   copyrightText    String? @map("copyright_text")
   privacyPolicyUrl String? @map("privacy_policy_url")
@@ -471,6 +471,7 @@ model About {
 
 model Hero {
   id           String  @id @default(cuid())
+  key          String  @unique @default("main")
   title        String
   shortDesc    String? @map("short_desc")
   heroImage    String? @map("hero_image")

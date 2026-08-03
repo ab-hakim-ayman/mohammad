@@ -4,6 +4,11 @@ import { Status } from "@/shared/types/enums";
 import { z } from "zod";
 import { emptyStringToNull } from "@/shared/utils/schema";
 const HeroBaseSchema = z.object({
+  key: z
+    .string()
+    .regex(/^[a-z0-9-]+$/, "Only lowercase letters, numbers, and hyphens allowed")
+    .max(50)
+    .default("main"),
   title: z.string().min(1, "Title is required").max(200),
   shortDesc: z.string().max(500).optional().nullable(),
   heroImage: z.preprocess(emptyStringToNull, z.string().optional().nullable()),

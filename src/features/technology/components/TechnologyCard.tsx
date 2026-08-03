@@ -22,12 +22,12 @@ export function TechnologyCard({ technology, className, size = "md", layout }: T
       mediaPosition="top"
       imageBleed="edge-to-edge"
       shadow="md"
+      alignment="center"
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
         titleKey: "title",
         logoKey: "logo",
         href: (item) => `/technologies/${item.title}`,
-        actionLabel: "View details",
       }}
     />
   );

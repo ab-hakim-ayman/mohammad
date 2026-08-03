@@ -33,13 +33,14 @@ export function createSiteInfoSeedData(options?: {
   createdByIds?: string[];
   updatedByIds?: string[];
 }) {
-  return SITE_INFO_NAMES.map(([siteTitle, companyTitle], index) => ({
-    key: `site-${String(index + 1).padStart(2, "0")}`,
-    siteTitle,
-    companyTitle,
-    tagline: `High-trust digital systems for ${companyTitle.toLowerCase()}.`,
-    shortDesc: `${companyTitle} delivers reliable software, brand systems, and growth-ready web experiences for modern teams.`,
-    siteUrl: `https://${siteTitle.toLowerCase().replace(/\s+/g, "-")}.example.com`,
+  return SITE_INFO_NAMES.map(([title, fullName], index) => ({
+    key: index === 0 ? "main" : `site-${String(index + 1).padStart(2, "0")}`,
+    title,
+    fullName,
+    tagline: `High-trust digital systems for ${fullName.toLowerCase()}.`,
+    resumeUrl: `/seed/site-info/resume-${String(index + 1).padStart(2, "0")}.pdf`,
+    shortDesc: `${fullName} delivers reliable software, brand systems, and growth-ready web experiences for modern teams.`,
+    siteUrl: `https://${title.toLowerCase().replace(/\s+/g, "-")}.example.com`,
     logo: `/seed/site-info/logo-${String(index + 1).padStart(2, "0")}.svg`,
     darkLogo: `/seed/site-info/logo-dark-${String(index + 1).padStart(2, "0")}.svg`,
     favicon: `/seed/site-info/favicon-${String(index + 1).padStart(2, "0")}.png`,
@@ -48,21 +49,17 @@ export function createSiteInfoSeedData(options?: {
     phone: `+8801700${String(index + 1).padStart(4, "0")}`,
     address: `${20 + index}, Business Avenue, Dhaka, Bangladesh`,
     mapEmbedUrl: `https://maps.example.com/embed/location-${index + 1}`,
-    officeHours: index % 2 === 0 ? "Sun-Thu, 9:00 AM - 6:00 PM" : "Mon-Fri, 10:00 AM - 7:00 PM",
-    linkedin: `https://linkedin.com/company/${siteTitle.toLowerCase().replace(/\s+/g, "-")}`,
+    linkedin: `https://linkedin.com/company/${title.toLowerCase().replace(/\s+/g, "-")}`,
     github:
-      index % 2 === 0 ? `https://github.com/${siteTitle.toLowerCase().replace(/\s+/g, "-")}` : null,
-    youtube:
-      index % 4 === 0
-        ? `https://youtube.com/@${siteTitle.toLowerCase().replace(/\s+/g, "")}`
-        : null,
+      index % 2 === 0 ? `https://github.com/${title.toLowerCase().replace(/\s+/g, "-")}` : null,
     behance:
-      index % 5 === 0 ? `https://behance.net/${siteTitle.toLowerCase().replace(/\s+/g, "")}` : null,
-    facebook: `https://facebook.com/${siteTitle.toLowerCase().replace(/\s+/g, "")}`,
-    seoTitle: `${companyTitle} | Software, design, and digital growth`,
-    seoDescription: `${companyTitle} builds thoughtful websites, scalable software products, and polished digital experiences for growing organizations.`,
+      index % 5 === 0 ? `https://behance.net/${title.toLowerCase().replace(/\s+/g, "")}` : null,
+    leetcode: `https://leetcode.com/${title.toLowerCase().replace(/\s+/g, "")}`,
+    huggingface: `https://huggingface.co/${title.toLowerCase().replace(/\s+/g, "")}`,
+    seoTitle: `${fullName} | Software, design, and digital growth`,
+    seoDescription: `${fullName} builds thoughtful websites, scalable software products, and polished digital experiences for growing organizations.`,
     seoKeywords: [
-      companyTitle,
+      fullName,
       "software agency",
       "web development",
       "digital product",
@@ -70,11 +67,11 @@ export function createSiteInfoSeedData(options?: {
     ],
     primaryColor: PRIMARY_COLORS[index % PRIMARY_COLORS.length],
     secondaryColor: SECONDARY_COLORS[index % SECONDARY_COLORS.length],
-    businessType: BUSINESS_TYPES[index % BUSINESS_TYPES.length],
-    foundedYear: 2010 + index,
-    copyrightText: `© ${2026 + index} ${companyTitle}. All rights reserved.`,
-    privacyPolicyUrl: `/policies/${siteTitle.toLowerCase().replace(/\s+/g, "-")}/privacy`,
-    termsUrl: `/policies/${siteTitle.toLowerCase().replace(/\s+/g, "-")}/terms`,
+    availability: index % 2 === 0 ? "Available for freelance" : "Unavailable",
+    careerStartYear: 2010 + index,
+    copyrightText: `© ${2026 + index} ${fullName}. All rights reserved.`,
+    privacyPolicyUrl: `/policies/${title.toLowerCase().replace(/\s+/g, "-")}/privacy`,
+    termsUrl: `/policies/${title.toLowerCase().replace(/\s+/g, "-")}/terms`,
     createdById: options?.createdByIds?.[index % (options.createdByIds?.length || 1)] ?? null,
     updatedById: options?.updatedByIds?.[index % (options.updatedByIds?.length || 1)] ?? null,
   }));

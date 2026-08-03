@@ -32,25 +32,12 @@ export function PartnerCard({ partner, className, size = "md", layout }: Partner
       mediaPosition="top"
       imageBleed="edge-to-edge"
       shadow="md"
+      alignment="center"
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
         href: (item) => `/partners/${item.id}`,
         titleKey: "title",
-        descriptionKey: "shortDesc",
         logoKey: "logo",
-        actionLabel: "View details",
-        getBadges: (item) => [{ label: item.type }],
-        getMetaItems: (item) => {
-          const website = normalizeWebsite(item.website);
-          return website
-            ? [
-                {
-                  icon: <Globe className="h-3.5 w-3.5" />,
-                  text: website.replace(/^https?:\/\//, ""),
-                },
-              ]
-            : [];
-        },
       }}
     />
   );

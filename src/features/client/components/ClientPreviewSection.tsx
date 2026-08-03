@@ -1,15 +1,13 @@
 "use client";
 
-import Image from "next/image";
-import { Building2 } from "lucide-react";
 import { useMemo } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card } from "@/components/ui/card";
 import { PreviewSectionHeader } from "@/shared/components";
 import { ScrollReveal } from "@/shared/components/ScrollReveal";
-import { Link } from "@/shared/i18n";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { usePublishedClients } from "../hooks/useClient";
-import { Client } from "../types/client.types"; // 👈 আপনার প্রজেক্টের Client টাইপ অনুযায়ী নিশ্চিত করুন
+import type { Client } from "../types/client.types";
+import { ClientCard } from "./ClientCard"; // 👈 আপনার তৈরি করা ClientCard ইম্পোর্ট করা হলো
 
 interface ClientPreviewSectionProps {
   limit?: number;
@@ -74,13 +72,12 @@ export function ClientPreviewSection({
 
           <div className="flex w-full flex-wrap items-stretch justify-center gap-3">
             {Array.from({ length: requestedLimit }).map((_, i) => (
-              <Card
+              <div
                 key={i}
-                className="border-border bg-card/50 flex min-h-[118px] w-[calc(50%-0.5rem)] max-w-[200px] flex-col items-center justify-center gap-3 border p-4 sm:w-[calc(33.333%-0.85rem)] md:w-[calc(25%-0.95rem)] lg:w-[calc(20%-1rem)] xl:w-[calc(16.666%-1.05rem)]"
+                className="flex w-[calc(50%-0.5rem)] max-w-[200px] shrink-0 flex-col sm:w-[calc(33.333%-0.85rem)] md:w-[calc(25%-0.95rem)] lg:w-[calc(20%-1rem)] xl:w-[calc(16.666%-1.05rem)]"
               >
-                <Skeleton className="h-12 w-12 rounded-md" />
-                <Skeleton className="h-3 w-16" />
-              </Card>
+                <Skeleton className="h-[130px] w-full rounded-xl" />
+              </div>
             ))}
           </div>
         </div>
@@ -110,42 +107,18 @@ export function ClientPreviewSection({
           </ScrollReveal>
         )}
 
-        {/* 🔧 EXACT SAME CARD GRID MATRIX */}
+        {/* 🔧 REUSABLE CLIENT CARD MATRIX */}
         <div className="flex w-full flex-wrap items-stretch justify-center gap-3">
           {visibleClients.map((client, index) => (
             <ScrollReveal
-              key={client.id}
+              key={client.id ? String(client.id) : index}
               delay={(index % 7) * 40}
               className="flex w-[calc(50%-0.5rem)] max-w-[200px] shrink-0 flex-col sm:w-[calc(33.333%-0.85rem)] md:w-[calc(25%-0.95rem)] lg:w-[calc(20%-1rem)] xl:w-[calc(16.666%-1.05rem)]"
             >
-              <Card className="group border-border bg-card hover:border-primary/40 hover:bg-primary-subtle flex h-full min-h-[118px] w-full cursor-pointer flex-col items-center justify-center gap-3 border p-4 text-center transition-all duration-300 ease-out hover:-translate-y-1">
-                <Link
-                  href={`/clients/${client.id}`}
-                  className="flex w-full flex-col items-center gap-3"
-                >
-                  <span className="sr-only">{client.title}</span>
-                  <div className="relative h-12 w-12 shrink-0 transition-transform duration-300 group-hover:scale-105">
-                    {client.logo ? (
-                      <Image
-                        src={client.logo}
-                        alt={`${client.title} logo`}
-                        fill
-                        sizes="48px"
-                        unoptimized
-                        className="object-contain"
-                      />
-                    ) : (
-                      <span className="text-muted-foreground flex h-full w-full items-center justify-center">
-                        <Building2 className="h-7 w-7" />
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-foreground group-hover:text-primary line-clamp-2 text-xs leading-snug font-semibold transition-colors duration-300 sm:text-sm">
-                    {client.title}
-                  </p>
-                </Link>
-              </Card>
+              <ClientCard
+                client={client}
+                className="h-full w-full"
+              />
             </ScrollReveal>
           ))}
         </div>

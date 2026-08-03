@@ -20,6 +20,7 @@ export interface HeroQueryParams {
 export type HeroQueryValidated = z.infer<typeof HeroQuerySchema>;
 export interface Hero {
   id: string;
+  key: string;
   title: string;
   shortDesc: string | null;
   heroImage: string | null;

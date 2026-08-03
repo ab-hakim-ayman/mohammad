@@ -3,6 +3,7 @@ export * from './api/achievement.api';
 export * from './components/AchievementCard';
 export * from './components/AchievementForm';
 export * from './components/AchievementPreviewSection';
+export * from './components/AchEduExeSection';
 export * from './components/AchievementSection';
 export * from './components/AchievementTableColumns';
 export * from './hooks/useAchievement';

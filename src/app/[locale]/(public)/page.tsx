@@ -1,5 +1,5 @@
 import { AboutPreviewSection } from "@/features/about/server";
-import { AchievementPreviewSection } from "@/features/achievement";
+import { AchEduExeSection } from "@/features/achievement";
 import { BlogPreviewSection } from "@/features/blog";
 import { CaseStudyPreviewSection } from "@/features/case-study";
 import { ClientPreviewSection } from "@/features/client";
@@ -24,6 +24,7 @@ export default async function HomePage() {
       <ServicePreviewSection />
       <ProjectPreviewSection />
       <CaseStudyPreviewSection />
+      <AchEduExeSection />
 
       <TestimonialPreviewSection />
       <ClientPreviewSection />
@@ -34,7 +35,6 @@ export default async function HomePage() {
       <SkillPreviewSection />
       <BlogPreviewSection />
       <EventPreviewSection />
-      <AchievementPreviewSection />
       <GalleryPreviewSection />
 
       <FaqPreviewSection />

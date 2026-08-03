@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 interface SiteInfoCardProps {
   siteInfo: {
     id: string;
-    siteTitle: string;
+    title: string;
     tagline?: string | null;
     logo?: string | null;
     email?: string | null;
@@ -32,7 +32,7 @@ export function SiteInfoCard({ siteInfo, className, size = "md", layout }: SiteI
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
         href: (item) => `/site-infos/${item.id}`,
-        titleKey: "siteTitle",
+        titleKey: "title",
         descriptionKey: "tagline",
         logoKey: "logo",
         actionLabel: "View details",

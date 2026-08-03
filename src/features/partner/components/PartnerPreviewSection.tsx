@@ -1,16 +1,13 @@
 "use client";
 
-import I18n from "@/shared/components/I18n";
-import { useMemo, useState } from "react";
-import Image from "next/image";
+import { useMemo } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-
-import { Marquee } from "@/components/ui/marquee";
 import { usePublishedPartners } from "../hooks/usePartner";
-import { Partner } from "../types/partner.types";
+import type { Partner } from "../types/partner.types";
+import { PartnerCard } from "./PartnerCard";
 
 const sectionVariants = cva(
   "relative w-full transition-all duration-300 overflow-hidden flex justify-center items-center mx-auto",
@@ -61,56 +58,6 @@ interface PartnerPreviewSectionProps
   hideHeader?: boolean;
 }
 
-function normalizeWebsite(url: string | null | undefined) {
-  if (!url) return null;
-  return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
-}
-
-function PartnerLogoCard({ partner }: { partner: Partner }) {
-  const website = normalizeWebsite(partner.website);
-  const [imageFailed, setImageFailed] = useState(false);
-
-  const content = (
-    <div className="group border-border bg-card/50 shadow-3xs hover:border-primary/40 hover:bg-card flex h-[100px] w-36 shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-none border px-3 py-4 text-center transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xs sm:w-40 sm:rounded-lg">
-      <div className="relative flex h-10 w-full items-center justify-center">
-        {partner.logo && !imageFailed ? (
-          <Image
-            src={partner.logo}
-            alt={partner.title}
-            width={160}
-            height={48}
-            unoptimized
-            sizes="120px"
-            className="h-auto max-h-[32px] w-auto max-w-full object-contain opacity-65 grayscale transition-all duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0 dark:brightness-110"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="text-muted-foreground/80 group-hover:text-primary truncate px-1 text-xs font-bold transition-colors">
-            {partner.title}
-          </span>
-        )}
-      </div>
-
-      <p className="text-muted-foreground group-hover:text-primary mt-1 line-clamp-1 max-w-full text-xs font-bold tracking-wider uppercase transition-colors duration-300">
-        {partner.title}
-      </p>
-    </div>
-  );
-
-  if (!website) return <div className="mx-auto inline-flex">{content}</div>;
-
-  return (
-    <a
-      href={website}
-      target="_blank"
-      rel="noreferrer"
-      className="focus-visible:ring-primary/20 mx-auto inline-flex rounded-none outline-hidden focus-visible:ring-2 sm:rounded-lg"
-    >
-      {content}
-    </a>
-  );
-}
-
 export function PartnerPreviewSection({
   limit = 16,
   items: externalItems,
@@ -159,9 +106,9 @@ export function PartnerPreviewSection({
               <Skeleton className="h-11 w-full max-w-2xl self-center rounded" />
             </div>
           )}
-          <div className="mt-10 flex w-full justify-center gap-3 overflow-hidden py-1">
-            {Array.from({ length: Math.min(requestedLimit, 6) }).map((_, index) => (
-              <Skeleton key={index} className="h-[100px] w-40 shrink-0 rounded-lg" />
+          <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
+            {Array.from({ length: Math.min(requestedLimit, 8) }).map((_, index) => (
+              <Skeleton key={index} className="h-[200px] w-48 shrink-0 rounded-lg" />
             ))}
           </div>
         </div>
@@ -202,20 +149,19 @@ export function PartnerPreviewSection({
           </div>
         )}
 
-        <div className="relative mx-auto mt-10 flex w-full flex-col items-center justify-center overflow-hidden py-1">
-          <div className="from-background via-background/40 pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r to-transparent lg:w-24" />
-          <div className="from-background via-background/40 pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l to-transparent lg:w-24" />
-
-          <div className="flex w-full flex-col items-center justify-center">
-            <Marquee
-              pauseOnHover
-              className="w-full justify-center [--duration:40s] [--gap:0.75rem]"
+        {/* 🔧 REUSABLE PARTNER CARD STANDARD GRID MATRIX (Marquee Removed) */}
+        <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
+          {partners.map((partner, index) => (
+            <div
+              key={partner.id ? String(partner.id) : index}
+              className="flex shrink-0"
             >
-              {partners.map((partner, index) => (
-                <PartnerLogoCard key={partner.id ? String(partner.id) : index} partner={partner} />
-              ))}
-            </Marquee>
-          </div>
+              <PartnerCard
+                partner={partner}
+                className="w-48 h-full"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>

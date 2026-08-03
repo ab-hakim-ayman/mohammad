@@ -5,9 +5,10 @@ const nullableString = z.preprocess(emptyStringToNull, z.string().optional().nul
 const nullableUrl = z.preprocess(emptyStringToNull, z.string().optional().nullable());
 const nullableEmail = z.preprocess(emptyStringToNull, z.string().email().optional().nullable());
 export const SiteInfoSchema = z.object({
-  siteTitle: z.string().min(1, "Site title is required").max(200),
-  companyTitle: z.string().min(1, "Company title is required").max(200),
+  title: z.string().min(1, "Title is required").max(200),
+  fullName: z.string().min(1, "Full name is required").max(200),
   tagline: nullableString,
+  resumeUrl: nullableUrl,
   shortDesc: nullableString,
   siteUrl: nullableUrl,
   logo: nullableUrl,
@@ -18,12 +19,11 @@ export const SiteInfoSchema = z.object({
   phone: nullableString,
   address: nullableString,
   mapEmbedUrl: nullableUrl,
-  officeHours: nullableString,
   linkedin: nullableUrl,
   github: nullableUrl,
-  youtube: nullableUrl,
   behance: nullableUrl,
-  facebook: nullableUrl,
+  leetcode: nullableUrl,
+  huggingface: nullableUrl,
   seoTitle: nullableString,
   seoDescription: nullableString,
   seoKeywords: z.array(z.string().min(1)).default([]),
@@ -34,10 +34,10 @@ export const SiteInfoSchema = z.object({
   faviconAlt: z.string().max(500).optional().nullable(),
   ogImageAlt: z.string().max(500).optional().nullable(),
   secondaryColor: nullableString,
-  businessType: nullableString,
-  foundedYear: z.preprocess(
+  availability: nullableString,
+  careerStartYear: z.preprocess(
     emptyStringToNull,
-    z.coerce.number().int().min(1800).max(3000).optional().nullable()
+    z.coerce.number().int().min(1900).max(3000).optional().nullable()
   ),
   copyrightText: nullableString,
   privacyPolicyUrl: nullableUrl,
@@ -54,8 +54,8 @@ export const SiteInfoQuerySchema = z.object({
       "createdAt_asc",
       "updatedAt_desc",
       "updatedAt_asc",
-      "siteTitle_asc",
-      "siteTitle_desc",
+      "title_asc",
+      "title_desc",
     ])
     .default("updatedAt_desc"),
 });

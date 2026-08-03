@@ -26,10 +26,9 @@ export const siteInfoRepository = {
     const where: Prisma.SiteInfoWhereInput = search
       ? {
           OR: [
-            { siteTitle: { contains: search, mode: "insensitive" } },
-            { companyTitle: { contains: search, mode: "insensitive" } },
+            { title: { contains: search, mode: "insensitive" } },
+            { fullName: { contains: search, mode: "insensitive" } },
             { tagline: { contains: search, mode: "insensitive" } },
-            { businessType: { contains: search, mode: "insensitive" } },
           ],
           key: "main",
         }
@@ -40,8 +39,8 @@ export const siteInfoRepository = {
     if (sort === "createdAt_desc") orderBy = { createdAt: "desc" };
     if (sort === "createdAt_asc") orderBy = { createdAt: "asc" };
     if (sort === "updatedAt_asc") orderBy = { updatedAt: "asc" };
-    if (sort === "siteTitle_asc") orderBy = { siteTitle: "asc" };
-    if (sort === "siteTitle_desc") orderBy = { siteTitle: "desc" };
+    if (sort === "title_asc") orderBy = { title: "asc" };
+    if (sort === "title_desc") orderBy = { title: "desc" };
     const [data, total] = await Promise.all([
       prisma.siteInfo.findMany({
         where,

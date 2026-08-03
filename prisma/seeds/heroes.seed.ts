@@ -8,6 +8,7 @@ export default async function seedHeroes(prisma: PrismaClient, users?: Array<{ i
 
   await prisma.hero.createMany({
     data: TOPICS.map((topic, index) => ({
+      key: index === 0 ? "main" : `hero-${String(index + 1).padStart(2, "0")}`,
       title: `Build ${topic.title}`,
       shortDesc: `${topic.title} for modern teams`,
       heroImage: buildImage("heroes", topic.slug),

@@ -5,21 +5,21 @@ import { SiteInfoRecord } from "../types/site-info.types";
 export const siteInfoTableColumns = (locale: string): ColumnConfig<SiteInfoRecord>[] => [
   // 1. Basic Info
   {
-    key: "siteTitle",
-    header: "Site Title",
+    key: "title",
+    header: "Title",
     sortable: true,
     render: (item) => (
       <Link
         href={`/${locale}/admin/site-info/${item.id}`}
         className="text-foreground block max-w-xs truncate font-medium hover:underline"
       >
-        {item.siteTitle}
+        {item.title}
       </Link>
     ),
   },
   {
-    key: "companyTitle",
-    header: "Company Title",
+    key: "fullName",
+    header: "Full Name",
     type: "text",
   },
   {
@@ -27,6 +27,19 @@ export const siteInfoTableColumns = (locale: string): ColumnConfig<SiteInfoRecor
     header: "Tagline",
     type: "text",
     render: (item) => item.tagline ? <span className="truncate max-w-xs block">{item.tagline}</span> : <span className="text-muted-foreground/40">—</span>,
+  },
+  {
+    key: "resumeUrl",
+    header: "Resume URL",
+    type: "link",
+    render: (item) =>
+      item.resumeUrl ? (
+        <a href={item.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate block max-w-[180px]">
+          {item.resumeUrl}
+        </a>
+      ) : (
+        <span className="text-muted-foreground/40">—</span>
+      ),
   },
   {
     key: "siteUrl",
@@ -61,12 +74,6 @@ export const siteInfoTableColumns = (locale: string): ColumnConfig<SiteInfoRecor
     type: "text",
     render: (item) => item.address ? <span className="truncate max-w-xs block">{item.address}</span> : <span className="text-muted-foreground/40">—</span>,
   },
-  {
-    key: "officeHours",
-    header: "Office Hours",
-    type: "text",
-    render: (item) => item.officeHours || <span className="text-muted-foreground/40">—</span>,
-  },
 
   // 3. Social Links
   {
@@ -82,22 +89,22 @@ export const siteInfoTableColumns = (locale: string): ColumnConfig<SiteInfoRecor
     render: (item) => item.github ? <a href={item.github} target="_blank" rel="noreferrer" className="text-primary hover:underline">Link</a> : <span className="text-muted-foreground/40">—</span>,
   },
   {
-    key: "youtube",
-    header: "YouTube",
-    type: "link",
-    render: (item) => item.youtube ? <a href={item.youtube} target="_blank" rel="noreferrer" className="text-primary hover:underline">Link</a> : <span className="text-muted-foreground/40">—</span>,
-  },
-  {
     key: "behance",
     header: "Behance",
     type: "link",
     render: (item) => item.behance ? <a href={item.behance} target="_blank" rel="noreferrer" className="text-primary hover:underline">Link</a> : <span className="text-muted-foreground/40">—</span>,
   },
   {
-    key: "facebook",
-    header: "Facebook",
+    key: "leetcode",
+    header: "LeetCode",
     type: "link",
-    render: (item) => item.facebook ? <a href={item.facebook} target="_blank" rel="noreferrer" className="text-primary hover:underline">Link</a> : <span className="text-muted-foreground/40">—</span>,
+    render: (item) => item.leetcode ? <a href={item.leetcode} target="_blank" rel="noreferrer" className="text-primary hover:underline">Link</a> : <span className="text-muted-foreground/40">—</span>,
+  },
+  {
+    key: "huggingface",
+    header: "Hugging Face",
+    type: "link",
+    render: (item) => item.huggingface ? <a href={item.huggingface} target="_blank" rel="noreferrer" className="text-primary hover:underline">Link</a> : <span className="text-muted-foreground/40">—</span>,
   },
 
   // 4. SEO & Business Info
@@ -117,18 +124,6 @@ export const siteInfoTableColumns = (locale: string): ColumnConfig<SiteInfoRecor
         <span className="text-muted-foreground/40">—</span>
       ),
   },
-  {
-    key: "businessType",
-    header: "Business Type",
-    type: "text",
-    render: (item) => item.businessType || <span className="text-muted-foreground/40">—</span>,
-  },
-  {
-    key: "foundedYear",
-    header: "Founded Year",
-    type: "text",
-    render: (item) => item.foundedYear || <span className="text-muted-foreground/40">—</span>,
-  },
 
   // 5. Branding Colors & Footer URLs
   {
@@ -143,6 +138,31 @@ export const siteInfoTableColumns = (locale: string): ColumnConfig<SiteInfoRecor
       ) : (
         <span className="text-muted-foreground/40">—</span>
       ),
+  },
+  {
+    key: "secondaryColor",
+    header: "Secondary Color",
+    render: (item) =>
+      item.secondaryColor ? (
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: item.secondaryColor }} />
+          <span className="text-xs">{item.secondaryColor}</span>
+        </div>
+      ) : (
+        <span className="text-muted-foreground/40">—</span>
+      ),
+  },
+  {
+    key: "availability",
+    header: "Availability",
+    type: "text",
+    render: (item) => item.availability || <span className="text-muted-foreground/40">—</span>,
+  },
+  {
+    key: "careerStartYear",
+    header: "Career Start Year",
+    type: "text",
+    render: (item) => item.careerStartYear || <span className="text-muted-foreground/40">—</span>,
   },
   {
     key: "copyrightText",

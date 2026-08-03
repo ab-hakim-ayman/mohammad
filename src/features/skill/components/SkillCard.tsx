@@ -23,12 +23,12 @@ export function SkillCard({ skill, className, size = "md", layout }: SkillCardPr
       mediaPosition="top"
       imageBleed="edge-to-edge"
       shadow="md"
+      alignment="center"
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
         titleKey: "title",
         iconKey: "icon",
         href: (item) => `/skills/${item.id}`,
-        actionLabel: "View details",
       }}
     />
   );

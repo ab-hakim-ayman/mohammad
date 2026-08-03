@@ -1,39 +1,40 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ChevronRight, ChevronLeft, Pause, Play, ArrowRight } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
-import I18n from "@/shared/components/I18n";
+import { useState, useMemo } from "react";
+import { ArrowRight, Download, FileText, Edit3, Copy, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveHero } from "../hooks/useHero";
-
-const AUTO_CHANGE_MS = 6 * 1000;
+import { usePublicSiteInfo } from "@/features/site-info/hooks/useSiteInfo";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 type HeroSlide = {
-  id?: number | string;
+  id?: string | number;
   slug?: string;
   badge?: string | null;
   title?: string | null;
   shortDesc?: string | null;
+  heroVideoUrl?: string | null;
+  heroImage?: string | null;
   ctaText?: string | null;
   ctaLink?: string | null;
   secondaryCtaText?: string | null;
   secondaryCtaLink?: string | null;
-  heroVideoUrl?: string | null;
-  heroImage?: string | null;
 };
 
-function isExternalLink(value: string) {
-  return /^https?:\/\//i.test(value);
-}
-
-function getHeroKey(hero: HeroSlide, index: number) {
-  return `${String(hero.id ?? hero.slug ?? "hero")}-${index}`;
-}
+type SiteInfoType = {
+  logo?: string | null;
+  title?: string | null;
+  fullName?: string | null;
+  tagline?: string | null;
+  shortDesc?: string | null;
+  github?: string | null;
+  linkedin?: string | null;
+  resumeUrl?: string | null;
+};
 
 function normalizeHeroes(payload: unknown): HeroSlide[] {
   if (Array.isArray(payload)) return payload as HeroSlide[];
@@ -44,153 +45,132 @@ function normalizeHeroes(payload: unknown): HeroSlide[] {
   return [payload as HeroSlide];
 }
 
-// 🟢 ফিক্সড ১: min-h-[100vh] এর জায়গায় min-h-[calc(100vh-4rem)] সেট করা হলো
-const heroSectionVariants = cva(
-  "relative isolate flex min-h-[calc(100vh-4rem)] w-full items-center overflow-hidden transition-colors duration-300",
-  {
-    variants: {
-      variant: {
-        classic: "bg-background text-foreground",
-        glassmorphic: "bg-background/80 text-foreground backdrop-blur-xs",
-        brutalist: "bg-card border-b-4 border-border-strong text-foreground",
-        "gradient-glow": "bg-black text-background shadow-inset-bottom",
-        minimal: "bg-background text-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "classic",
-    },
-  }
-);
-
-const overlayVariants = cva("absolute inset-0 -z-10 transition-all duration-300", {
-  variants: {
-    variant: {
-      classic: "bg-gradient-to-r from-black/60 via-black/35 to-transparent",
-      glassmorphic: "bg-gradient-to-r from-black/70 via-black/40 to-transparent backdrop-blur-3xs",
-      brutalist: "bg-transparent",
-      "gradient-glow": "bg-gradient-to-r from-black/70 via-black/30 to-transparent",
-      minimal: "bg-gradient-to-r from-black/50 to-transparent",
-    },
-  },
-  defaultVariants: {
-    variant: "classic",
-  },
-});
-
-function ScrollReveal({
-  children,
-  className = "",
-  delay = 0,
+export function HeroPreviewSection({
+  projectCount = 20,
+  sideProjectCount = 3,
+  yearsCount = 10,
 }: {
-  children: ReactNode;
-  className?: string;
-  delay?: number;
+  projectCount?: number;
+  sideProjectCount?: number;
+  yearsCount?: number;
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node || isVisible) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.05 }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [isVisible]);
-
-  return (
-    <div
-      ref={ref}
-      className={[
-        "transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
-        className,
-      ].join(" ")}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
-
-export interface HeroPreviewSectionProps extends VariantProps<typeof heroSectionVariants> {}
-
-export function HeroPreviewSection({ variant = "classic" }: HeroPreviewSectionProps) {
-  const { data, isLoading, error } = useActiveHero();
   const router = useRouter();
+  const { data: heroData, isLoading, error } = useActiveHero();
+  const { data: siteInfoData } = usePublicSiteInfo();
 
-  const heroes = useMemo(() => normalizeHeroes(data?.data ?? data), [data]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isManuallyPaused, setIsManuallyPaused] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const heroes = useMemo(() => normalizeHeroes(heroData?.data ?? heroData), [heroData]);
+  const [activeIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
 
-  const safeIndex = activeIndex >= heroes.length ? 0 : Math.max(activeIndex, 0);
-  const activeHero = heroes[safeIndex];
-  const activeHeroKey = activeHero ? getHeroKey(activeHero, safeIndex) : "";
-  const isAutoPaused = isManuallyPaused || isHovered;
+  const activeHero: HeroSlide = heroes[activeIndex] || heroes[0] || {};
+  const siteInfo = (siteInfoData?.data || {}) as SiteInfoType;
 
-  const goToSlide = useCallback(
-    (index: number) => {
-      if (!heroes.length) return;
-      setActiveIndex(index);
-    },
-    [heroes.length]
-  );
+  const handleCopyMcp = () => {
+    const domain = siteInfo.title || "hafiq.dev";
+    const cleanDomain = domain.replace(/^https?:\/\//i, "");
+    navigator.clipboard.writeText(`https://${cleanDomain}/api/mcp`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-  const goNext = useCallback(() => {
-    if (heroes.length <= 1) return;
-    setActiveIndex((current) => (current >= heroes.length - 1 ? 0 : current + 1));
-  }, [heroes.length]);
+  const handleCtaClick = (url?: string | null) => {
+    if (!url) return;
+    if (/^https?:\/\//i.test(url)) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else {
+      router.push(url);
+    }
+  };
 
-  const goPrevious = useCallback(() => {
-    if (heroes.length <= 1) return;
-    setActiveIndex((current) => (current <= 0 ? heroes.length - 1 : current - 1));
-  }, [heroes.length]);
-
-  const handleCtaClick = useCallback(
-    (url: string) => {
-      if (!url) return;
-      if (isExternalLink(url)) {
-        window.open(url, "_blank", "noopener,noreferrer");
-      } else {
-        router.push(url);
-      }
-    },
-    [router]
-  );
-
-  useEffect(() => {
-    setActiveIndex((current) => {
-      if (!heroes.length) return 0;
-      return current >= heroes.length ? 0 : current;
-    });
-  }, [heroes.length]);
-
-  useEffect(() => {
-    if (heroes.length <= 1 || isAutoPaused) return;
-    const timer = window.setTimeout(goNext, AUTO_CHANGE_MS);
-    return () => window.clearTimeout(timer);
-  }, [activeIndex, goNext, heroes.length, isAutoPaused]);
+  const fallbackInitials = useMemo(() => {
+    if (siteInfo.fullName) {
+      return siteInfo.fullName
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+    }
+    return "MH";
+  }, [siteInfo.fullName]);
 
   if (isLoading) {
     return (
-      <section className="bg-background relative w-full py-20 md:py-28">
-        <div className="container-custom mx-auto w-full space-y-6 px-4 sm:px-6">
-          <Skeleton className="h-5 w-40 rounded-full" />
-          <Skeleton className="h-12 w-full max-w-xl rounded-lg" />
-          <Skeleton className="h-8 w-full max-w-lg rounded-lg" />
-          <div className="flex gap-4 pt-2">
-            <Skeleton className="h-10 w-32 rounded-full" />
-            <Skeleton className="h-10 w-32 rounded-full" />
+      <section className="relative bg-background text-foreground min-h-[92vh] w-full flex items-center overflow-hidden">
+        {/* Background Grid Texture */}
+        <div
+          className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 dark:opacity-20 pointer-events-none"
+        />
+
+        <div className="max-w-7xl mx-auto w-full px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 relative z-10 items-center">
+
+          {/* 1. Left Vertical Sidebar Skeleton */}
+          <div className="hidden lg:flex lg:col-span-1 flex-col items-center justify-between self-stretch py-2">
+            <div className="flex flex-col items-center space-y-4">
+              <Skeleton className="w-11 h-11 rounded-full animate-pulse" />
+              <Skeleton className="w-3 h-20 rounded animate-pulse" />
+            </div>
+            <div className="w-px h-56 bg-border my-6" />
+            <div className="flex flex-col space-y-5">
+              <Skeleton className="w-4 h-4 rounded-full animate-pulse" />
+              <Skeleton className="w-4 h-4 rounded-full animate-pulse" />
+              <Skeleton className="w-4 h-4 rounded-full animate-pulse" />
+              <Skeleton className="w-4 h-4 rounded-full animate-pulse" />
+            </div>
           </div>
+
+          {/* 2. Center Content Skeleton */}
+          <div className="lg:col-span-7 space-y-6">
+            <Skeleton className="h-7 w-56 rounded-full animate-pulse" />
+            <div className="space-y-3">
+              <Skeleton className="h-6 w-40 rounded animate-pulse" />
+              <Skeleton className="h-16 w-full max-w-xl rounded-lg animate-pulse" />
+            </div>
+            <Skeleton className="h-20 w-full max-w-lg rounded-lg animate-pulse" />
+
+            <div className="flex gap-4 pt-2">
+              <Skeleton className="h-12 w-36 rounded-full animate-pulse" />
+              <Skeleton className="h-12 w-36 rounded-full animate-pulse" />
+            </div>
+
+            <Skeleton className="h-10 w-80 rounded-xl animate-pulse" />
+
+            <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border/85 max-w-md">
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-16 rounded animate-pulse" />
+                <Skeleton className="h-3 w-12 rounded animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-16 rounded animate-pulse" />
+                <Skeleton className="h-3 w-12 rounded animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-16 rounded animate-pulse" />
+                <Skeleton className="h-3 w-12 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Right Bento Card Skeleton */}
+          <div className="lg:col-span-4 flex justify-center lg:justify-end w-full">
+            <div className="border border-border/80 p-6 sm:p-7 rounded-3xl shadow-xl w-full max-w-sm space-y-6 bg-card/50">
+              <div className="flex justify-between items-center">
+                <Skeleton className="h-5 w-24 rounded-full animate-pulse" />
+                <Skeleton className="h-4 w-12 rounded animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-28 rounded animate-pulse" />
+                <Skeleton className="h-10 w-44 rounded-lg animate-pulse" />
+              </div>
+              <div className="space-y-3 border-t border-b border-border/80 py-4">
+                <Skeleton className="h-4 w-full rounded animate-pulse" />
+                <Skeleton className="h-4 w-5/6 rounded animate-pulse" />
+                <Skeleton className="h-4 w-4/5 rounded animate-pulse" />
+              </div>
+              <Skeleton className="h-11 w-full rounded-xl animate-pulse" />
+            </div>
+          </div>
+
         </div>
       </section>
     );
@@ -198,204 +178,214 @@ export function HeroPreviewSection({ variant = "classic" }: HeroPreviewSectionPr
 
   if (error || !heroes.length || !activeHero) return null;
 
-  const hasCta = Boolean(activeHero.ctaText && activeHero.ctaLink);
-  const hasSecondaryCta = Boolean(activeHero.secondaryCtaText && activeHero.secondaryCtaLink);
-  const isBrutalist = variant === "brutalist";
-
   return (
-    <section
-      aria-label="Featured showcase canvas"
-      className={heroSectionVariants({ variant })}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="absolute inset-0 -z-20 h-full w-full overflow-hidden select-none">
-        {activeHero.heroVideoUrl ? (
-          <video
-            key={`video-${activeHeroKey}`}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 h-full w-full scale-[1.01] object-cover brightness-[0.85] transition-all duration-1000"
-          >
-            <source src={activeHero.heroVideoUrl} type="video/mp4" />
-          </video>
-        ) : activeHero.heroImage ? (
-          <div
-            key={`image-${activeHeroKey}`}
-            className="animate-in fade-in zoom-in-95 absolute inset-0 h-full w-full transition-all duration-1000"
-          >
-            <Image
-              src={activeHero.heroImage}
-              alt={activeHero.title || "Hero banner"}
-              fill
-              priority
-              unoptimized
-              className="object-cover object-center brightness-[0.85]"
-            />
+    <section className="relative bg-background text-foreground min-h-[92vh] w-full flex items-center overflow-hidden transition-colors duration-300">
+      {/* Background Grid Texture */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 dark:opacity-20 pointer-events-none" />
+
+      {/* Main Wrapper */}
+      <div className="max-w-7xl mx-auto w-full px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 relative z-10 items-center">
+        {/* 1. Left Vertical Sidebar (Right border removed, line extended closer) */}
+        <div className="hidden lg:flex lg:col-span-1 flex-col items-center justify-between self-stretch py-2">
+          {/* Top Avatar & Rotated Text */}
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative w-11 h-11 rounded-full overflow-hidden border border-border shadow-sm">
+              {siteInfo.logo ? (
+                <Image
+                  src={siteInfo.logo}
+                  alt={siteInfo.title || "Avatar"}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="bg-primary w-full h-full flex items-center justify-center font-bold text-primary-foreground text-xs">
+                  {fallbackInitials}
+                </div>
+              )}
+            </div>
+
+            <span className="text-[11px] font-mono tracking-widest text-muted-foreground [writing-mode:vertical-lr] rotate-180 pt-2">
+              {siteInfo.title || "hafiq.dev"}
+            </span>
           </div>
-        ) : null}
-      </div>
 
-      <div
-        className={`absolute inset-0 -z-10 ${variant === "gradient-glow" ? "bg-[radial-gradient(circle_at_15%_30%,hsl(var(--primary)/0.15),transparent_50%)]" : "bg-[radial-gradient(circle_at_15%_30%,hsl(var(--primary)/0.06),transparent_50%)]"}`}
-      />
+          {/* Longer vertical line connecting towards bottom icons */}
+          <div className="w-px h-56 bg-border my-auto" />
 
-      <div className={overlayVariants({ variant })} />
+          {/* Bottom Social Icons */}
+          <div className="flex flex-col space-y-5 text-muted-foreground">
+            {siteInfo.github && (
+              <a
+                href={siteInfo.github}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                <FaGithub className="w-4 h-4" />
+              </a>
+            )}
+            {siteInfo.linkedin && (
+              <a
+                href={siteInfo.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                <FaLinkedin className="w-4 h-4" />
+              </a>
+            )}
+            <Link href="/blog" className="hover:text-primary transition-colors">
+              <FileText className="w-4 h-4" />
+            </Link>
+            <Link href="/contact" className="hover:text-primary transition-colors">
+              <Edit3 className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
 
-      {/* 🟢 ফিক্সড ২: py-24 sm:py-32 lg:py-40 এর বদলে py-12 sm:py-16 lg:py-20 ব্যবহার করা হলো */}
-      <div className="container-custom relative z-10 mx-auto w-full px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-        <ScrollReveal
-          key={`content-${activeHeroKey}`}
-          className="flex w-full max-w-2xl flex-col items-start text-left xl:max-w-3xl"
-        >
-          {activeHero.badge ? (
-            <div
-              className={`animate-in fade-in slide-in-from-top-2 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black tracking-[0.2em] uppercase shadow-2xs backdrop-blur-md duration-300 ${
-                isBrutalist
-                  ? "bg-card text-foreground border-border-strong border-2 font-mono shadow-md"
-                  : "border border-white/15 bg-white/10 font-semibold text-white"
-              }`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-80" />
-                <span className="bg-primary relative inline-flex h-2 w-2 rounded-full" />
-              </span>
-              {activeHero.badge}
-            </div>
-          ) : null}
+        {/* 2. Center / Main Hero Content */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Freelance & Collab Badge */}
+          <div className="inline-flex items-center gap-2 bg-success/10 border border-success/30 px-3.5 py-1.5 rounded-full text-xs font-medium text-success">
+            <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+            {activeHero.badge || "OPEN FOR FREELANCE & COLLAB"}
+          </div>
 
-          {activeHero.title ? (
-            <h1
-              className={cn(
-                "drop-shadow-hero mt-6 max-w-xl text-3xl leading-[1.15] font-black tracking-tight text-white sm:text-4xl lg:text-5xl xl:max-w-2xl xl:text-5xl 2xl:text-5xl",
-                isBrutalist &&
-                  "shadow-brand border-border-strong bg-warning text-foreground border-2 p-4 font-mono uppercase drop-shadow-none"
-              )}
-            >
-              {activeHero.title}
-            </h1>
-          ) : null}
-
-          {activeHero.shortDesc ? (
-            <p
-              className={cn(
-                "drop-shadow-hero-sm mt-4 max-w-xl text-sm leading-relaxed font-medium text-white/85 opacity-95 sm:text-base",
-                isBrutalist &&
-                  "bg-card text-foreground shadow-brand border-border-strong border-2 p-4 font-mono drop-shadow-none"
-              )}
-            >
-              {activeHero.shortDesc}
+          <div className="space-y-3">
+            <p className="text-lg text-muted-foreground font-normal">
+              Hi, I'm{" "}
+              <span className="text-foreground font-semibold">
+                {siteInfo.fullName || "Hafiq Iqbal"}
+              </span>{" "}
+              —
             </p>
-          ) : null}
+            <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-foreground leading-[1.05]">
+              {activeHero.title || "Software Engineer."}
+            </h1>
+          </div>
 
-          {hasCta || hasSecondaryCta ? (
-            <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
-              {hasCta ? (
-                <Button
-                  onClick={() => handleCtaClick(activeHero.ctaLink!)}
-                  className={cn(
-                    "h-10 px-5 text-xs font-bold tracking-wider uppercase shadow-sm transition-all hover:cursor-pointer active:scale-98",
-                    isBrutalist
-                      ? "shadow-brand border-border-strong bg-info hover:bg-info/80 text-foreground rounded-none border-2 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
-                      : "hover:bg-primary/90 rounded-md"
-                  )}
-                >
-                  {activeHero.ctaText}
-                  <ArrowRight className="ml-1.5 h-3.5 w-3.5 shrink-0" />
-                </Button>
-              ) : null}
+          <p className="text-muted-foreground text-base sm:text-lg max-w-xl leading-relaxed font-light">
+            {activeHero.shortDesc ||
+              "Code craftsman with a thing for clean architecture and products that actually ship. Always up for a freelance build, a tricky problem, or a good collaboration."}
+          </p>
 
-              {hasSecondaryCta ? (
-                <Button
-                  variant={isBrutalist ? "default" : "outline"}
-                  onClick={() => handleCtaClick(activeHero.secondaryCtaLink!)}
-                  className={cn(
-                    "h-10 px-5 text-xs font-bold tracking-wider uppercase transition-all hover:cursor-pointer active:scale-98",
-                    isBrutalist
-                      ? "bg-card text-foreground shadow-brand hover:bg-surface-elevated border-border-strong rounded-none border-2 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
-                      : "rounded-md border-white/20 bg-white/5 text-white backdrop-blur-xs hover:bg-white/15"
-                  )}
-                >
-                  {activeHero.secondaryCtaText}
-                </Button>
-              ) : null}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            <Button
+              onClick={() => handleCtaClick(activeHero.ctaLink || "/contact")}
+              className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold px-6 py-3 rounded-full text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer h-auto"
+            >
+              {activeHero.ctaText || "Get in touch"}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleCtaClick(activeHero.secondaryCtaLink || "/projects")}
+              className="px-6 py-3 rounded-full text-sm font-semibold transition-all cursor-pointer h-auto"
+            >
+              {activeHero.secondaryCtaText || "View my work"}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="inline-flex items-center gap-3 bg-secondary/50 border border-border px-3.5 py-2 rounded-xl text-xs text-muted-foreground">
+            <span className="font-mono font-bold text-success bg-success/15 px-1.5 py-0.5 rounded">
+              MCP SERVER
+            </span>
+            <span className="text-muted-foreground/30">|</span>
+            <span className="text-foreground font-mono">
+              {siteInfo.title
+                ? `https://${siteInfo.title.replace(/^https?:\/\//i, "")}/api/mcp`
+                : "https://hafiq.dev/api/mcp"}
+            </span>
+            <button
+              onClick={handleCopyMcp}
+              className="text-muted-foreground hover:text-foreground transition ml-2 cursor-pointer"
+            >
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-success" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border/80 max-w-md">
+            <div>
+              <h3 className="text-2xl font-bold text-foreground">{yearsCount}+</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Years</p>
             </div>
-          ) : null}
+            <div>
+              <h3 className="text-2xl font-bold text-foreground">{projectCount}+</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">Projects</p>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-foreground">{sideProjectCount}</h3>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">
+                Side Projects
+              </p>
+            </div>
+          </div>
+        </div>
 
-          {heroes.length > 1 ? (
-            <div className="mt-12 flex flex-wrap items-center gap-3.5 select-none">
+        {/* 3. Right "Hire Me" Floating Bento Card */}
+        <div className="lg:col-span-4 flex justify-center lg:justify-end">
+          <div className="bg-card border border-border/80 hover:border-border-strong p-6 sm:p-7 rounded-3xl shadow-xl dark:shadow-2xl w-full max-w-xs space-y-6 relative group transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-success animate-ping absolute" />
+                <span className="h-2.5 w-2.5 rounded-full bg-success relative" />
+                <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                  Available
+                </span>
+              </div>
+              <span className="text-xs text-muted-foreground/60 font-mono">2026</span>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                Open to work
+              </p>
+              <h2 className="text-3xl font-black text-foreground tracking-tight">HIRE ME.</h2>
+            </div>
+
+            <ul className="space-y-3 text-sm text-muted-foreground border-t border-b border-border/80 py-4">
+              <li className="flex items-center gap-2.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                Freelance projects
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                Consulting & advisory
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                Side collab & OSS
+              </li>
+            </ul>
+
+            {siteInfo.resumeUrl ? (
+              <a
+                href={siteInfo.resumeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border/80 py-3 rounded-xl text-xs font-semibold transition shadow-sm h-11"
+              >
+                <Download className="h-4 w-4 text-success" />
+                Download CV
+              </a>
+            ) : (
               <Button
-                variant={isBrutalist ? "default" : "outline"}
-                size="icon"
-                aria-label={isManuallyPaused ? "Resume rotation" : "Pause rotation"}
-                onClick={() => setIsManuallyPaused((value) => !value)}
-                className={`border-border h-8 w-8 hover:cursor-pointer ${isBrutalist ? "border-border-strong rounded-none border-2 shadow-md" : "rounded-md border-white/10 bg-white/10 text-white backdrop-blur-md hover:bg-white/20"}`}
+                variant="secondary"
+                className="w-full h-11 py-3 rounded-xl text-xs font-semibold"
               >
-                {isManuallyPaused ? (
-                  <Play className="h-3.5 w-3.5" />
-                ) : (
-                  <Pause className="h-3.5 w-3.5" />
-                )}
+                <Download className="h-4 w-4 text-success mr-2" />
+                Download CV
               </Button>
-
-              <div className="flex items-center gap-2" role="tablist" aria-label="Slides">
-                {heroes.map((hero, index) => {
-                  const status = index === safeIndex;
-                  return (
-                    <button
-                      key={getHeroKey(hero, index)}
-                      type="button"
-                      aria-label={`Slide ${index + 1}`}
-                      aria-current={status ? "true" : "false"}
-                      onClick={() => goToSlide(index)}
-                      className={[
-                        "h-1 transition-all duration-500 hover:cursor-pointer",
-                        isBrutalist
-                          ? status
-                            ? "bg-foreground w-6"
-                            : "bg-surface-elevated w-1"
-                          : status
-                            ? "bg-primary w-6"
-                            : "w-1 bg-white/20 hover:bg-white/40",
-                        isBrutalist ? "rounded-none" : "rounded-full",
-                      ].join(" ")}
-                    />
-                  );
-                })}
-              </div>
-
-              <span
-                className={`font-mono text-xs font-semibold tracking-wider ${isBrutalist ? "text-foreground" : "text-white/70"}`}
-              >
-                {String(safeIndex + 1).padStart(2, "0")} / {String(heroes.length).padStart(2, "0")}
-              </span>
-
-              <div className="ml-1 flex items-center gap-1.5">
-                <Button
-                  variant={isBrutalist ? "default" : "outline"}
-                  size="icon"
-                  onClick={goPrevious}
-                  aria-label="Previous slide"
-                  className={`border-border h-8 w-8 hover:cursor-pointer ${isBrutalist ? "border-border-strong rounded-none border-2 shadow-md" : "rounded-md border-white/10 bg-white/10 text-white backdrop-blur-md hover:bg-white/20"}`}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-
-                <Button
-                  variant={isBrutalist ? "default" : "outline"}
-                  size="icon"
-                  onClick={goNext}
-                  aria-label="Next slide"
-                  className={`border-border h-8 w-8 hover:cursor-pointer ${isBrutalist ? "border-border-strong rounded-none border-2 shadow-md" : "rounded-md border-white/10 bg-white/10 text-white backdrop-blur-md hover:bg-white/20"}`}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ) : null}
-        </ScrollReveal>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
