@@ -21,7 +21,6 @@ const auditUserSelect = {
 
 const faqInclude = {
   categories: { select: { id: true, title: true, slug: true } },
-  events: { select: { id: true, title: true, slug: true } },
   services: { select: { id: true, title: true, slug: true } },
   createdBy: { select: auditUserSelect },
   updatedBy: { select: auditUserSelect },

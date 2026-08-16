@@ -11,5 +11,8 @@ export { AdminHeader } from "./AdminHeader";
 export { Pagination } from "./Pagination";
 export { PreviewSectionHeader } from "./PreviewSectionHeader";
 export * from "./FormattedDate";
+export { CategoryWidget } from "./CategoryWidget";
+export { TagWidget } from "./TagWidget";
+export { ShareWidget } from "./ShareWidget";
 
 export * from "./CustomIntlProvider";

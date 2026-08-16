@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from "react";
 
 export type CardSize = "sm" | "md" | "lg";
 export type CardLayout = "vertical" | "horizontal";
@@ -10,7 +10,7 @@ export type Alignment = "start" | "center" | "right";
 export type ImageBleed = "edge-to-edge" | "padded";
 
 export interface CardMetaItem {
-    icon?: React.ReactNode;
+    icon?: ReactNode;
     text: string;
 }
 
@@ -19,14 +19,17 @@ export interface CardBadge {
     href?: string;
 }
 
-export interface CardConfig<T> {
-    titleKey?: keyof T | string;
-    descriptionKey?: keyof T | string;
-    imageKey?: keyof T | string;
-    videoKey?: keyof T | string;
-    logoKey?: keyof T | string;
-    iconKey?: keyof T | string;
-    avatarKey?: keyof T | string;
+// IntelliSense Autocomplete + Custom String Support
+type DataKey<T> = keyof T | (string & {});
+
+export interface CardConfig<T extends Record<string, any> = Record<string, any>> {
+    titleKey?: DataKey<T>;
+    descriptionKey?: DataKey<T>;
+    imageKey?: DataKey<T>;
+    videoKey?: DataKey<T>;
+    logoKey?: DataKey<T>;
+    iconKey?: DataKey<T>;
+    avatarKey?: DataKey<T>;
 
     getTitle?: (data: T) => string;
     getDescription?: (data: T) => string | undefined;
@@ -43,7 +46,7 @@ export interface CardConfig<T> {
     actionLabel?: string;
 }
 
-export interface CardEngineProps<T> {
+export interface CardEngineProps<T extends Record<string, any> = Record<string, any>> {
     data: T;
     config: CardConfig<T>;
     size?: CardSize;

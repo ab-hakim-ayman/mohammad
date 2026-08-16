@@ -24,7 +24,7 @@ interface ProjectPreviewSectionProps {
 }
 
 export function ProjectPreviewSection({
-  limit = 8,
+  limit = 4,
   featured = true,
   items: externalItems,
   eyebrow = "Projects",
@@ -79,8 +79,8 @@ export function ProjectPreviewSection({
 
   if (isLoading) {
     return (
-      <section className="bg-background 3xl:py-32 5xl:py-40 relative isolate overflow-hidden py-14 sm:py-20 lg:py-24">
-        <div className="container-custom">
+      <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
+        <div className="container-custom mx-auto w-full">
           {!hideHeader && (
             <div className="bg-surface-elevated/50 h-10 w-56 animate-pulse rounded-sm" />
           )}
@@ -103,8 +103,8 @@ export function ProjectPreviewSection({
   if (!projects.length) return null;
 
   return (
-    <section className="bg-background 3xl:py-32 5xl:py-40 relative isolate overflow-hidden py-14 sm:py-20 lg:py-24">
-      <div className="container-custom">
+    <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
+      <div className="container-custom mx-auto w-full">
         {/* 🎯 hideHeader = false হলেই কেবল হেডার দেখাবে */}
         {!hideHeader && (
           <PreviewSectionHeader

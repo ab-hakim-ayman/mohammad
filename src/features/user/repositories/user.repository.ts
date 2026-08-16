@@ -197,7 +197,6 @@ export const userRepository = {
     if (!user) return { deleted: false };
 
     await prisma.$transaction(async (tx) => {
-      await cleanupMediaAttachmentsForEntity(tx, "user", id);
       if (user.profile) {
         await cleanupMediaAttachmentsForEntity(tx, "profile", user.profile.id);
       }

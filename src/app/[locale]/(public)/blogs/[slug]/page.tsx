@@ -2,13 +2,19 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { blogService } from "@/features/blog/server";
-import { StickyTableOfContents, BadgeList, ImageGallery } from "@/components/content/details";
+import {
+  StickyTableOfContents,
+  ImageGallery,
+} from "@/components/content/details";
+import {
+  CategoryWidget,
+  TagWidget,
+  ShareWidget,
+} from "@/shared/components";
 import { ScrollReveal } from "@/shared/components/ScrollReveal";
 import { ContentRenderer, extractToc, extractFaqJsonLd } from "@/components/content";
 import { Link } from "@/shared/i18n";
-import { ArrowUpRight, Calendar, Clock, User, Share2, Tag, BookOpen, Layers, Sparkles } from "lucide-react";
-import { FaTwitter, FaLinkedin, FaFacebook } from "react-icons/fa";
-
+import { ArrowUpRight, User } from "lucide-react";
 import I18n from "@/shared/components/I18n";
 import { FeatureDetailsBanner } from "@/shared/components/FeatureDetailsBanner";
 
@@ -34,7 +40,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: blog.seoTitle || blog.title,
         description,
-        images: blog.heroImage || blog.cardImage || blog.ogImage ? [blog.heroImage || blog.cardImage || blog.ogImage || ""] : [],
+        images:
+          blog.heroImage || blog.cardImage || blog.ogImage
+            ? [blog.heroImage || blog.cardImage || blog.ogImage || ""]
+            : [],
         type: "article",
         publishedTime: blog.publishedAt?.toISOString() || blog.createdAt.toISOString(),
         modifiedTime: blog.updatedAt.toISOString(),
@@ -43,7 +52,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         card: "summary_large_image",
         title: blog.seoTitle || blog.title,
         description,
-        images: blog.heroImage || blog.cardImage || blog.ogImage ? [blog.heroImage || blog.cardImage || blog.ogImage || ""] : [],
+        images:
+          blog.heroImage || blog.cardImage || blog.ogImage
+            ? [blog.heroImage || blog.cardImage || blog.ogImage || ""]
+            : [],
       },
     };
   } catch {
@@ -54,17 +66,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PublicBlogDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  let blog;
+  let blog: any;
   try {
     blog = await blogService.getPublicBySlug(slug);
   } catch {
     notFound();
   }
 
-  const categorySlugs = blog.categories.map((c: any) => c.slug);
-  const tagSlugs = blog.tags.map((t: any) => t.slug);
+  const categorySlugs = (blog.categories || []).map((c: any) => c.slug);
+  const tagSlugs = (blog.tags || []).map((t: any) => t.slug);
 
-  // Fetch Related Blogs
   const relatedResponse = await blogService.getRelatedBlogs(blog.id, categorySlugs, tagSlugs);
   const relatedBlogs = relatedResponse?.slice(0, 4) || [];
 
@@ -76,7 +87,7 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
   const authorAvatar = profile?.avatar || blog.createdBy?.avatar || null;
 
   const rawTocItems = extractToc(json, "BLOG") || [];
-  const tocItems = rawTocItems.length >= 2 ? rawTocItems : [];
+  const tocItems = rawTocItems.length >= 1 ? rawTocItems : [];
   const extractedFaqLd = extractFaqJsonLd(json, "BLOG");
 
   const jsonLd = {
@@ -97,12 +108,10 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
   };
 
   const shareUrl = `https://a2icoders.com/blogs/${blog.slug}`;
-  const shareTitle = encodeURIComponent(blog.title);
-
   const publishedDate = new Date(blog.publishedAt || blog.createdAt).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
-    year: "numeric"
+    year: "numeric",
   });
 
   return (
@@ -112,18 +121,18 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 🟢 1. Hero Feature Banner */}
+      {/* 🟢 1. Hero Feature Banner (Author Removed & Zero Duplicate Data) */}
       <FeatureDetailsBanner
-        variant="gradient-glow"
+        variant="split"
         backHref="/blogs"
-        backLabel="Insights"
+        backLabel="Blogs"
         eyebrow="Technical Dispatch"
         title={blog.title}
-        description={blog.excerpt || `Deep dive architecture notes and engineering guidelines on ${blog.title}.`}
-        badges={[
-          ...blog.categories.slice(0, 2).map((c: any) => c.title),
-          ...(blog.readTime ? [`${blog.readTime} min read`] : [])
-        ]}
+        description={
+          blog.excerpt ||
+          `Deep dive architecture notes and engineering guidelines on ${blog.title}.`
+        }
+        badges={(blog.categories || []).slice(0, 2).map((c: any) => c.title)}
         videoSrc={blog.heroVideoUrl || undefined}
         imageSrc={blog.heroImage || blog.cardImage || undefined}
         imageAlt={`${blog.title} cover`}
@@ -131,167 +140,102 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
         stats={[
           {
             label: "Published",
-            value: publishedDate
+            value: publishedDate,
           },
           {
             label: "Read Time",
-            value: blog.readTime ? `${blog.readTime} mins` : "5 mins"
-          }
+            value: blog.readTime ? `${blog.readTime} mins` : "5 mins",
+          },
         ]}
-      >
-        <div className="flex items-center gap-3 pt-3 border-t border-white/10 mt-2">
-          {authorAvatar ? (
-            <Image
-              src={authorAvatar}
-              alt={authorName}
-              width={36}
-              height={36}
-              className="bg-muted border border-white/20 shadow-xs rounded-full object-cover shrink-0"
-            />
-          ) : (
-            <div className="bg-white/10 text-white flex h-9 w-9 items-center justify-center rounded-full shadow-xs">
-              <User className="h-4 w-4" />
-            </div>
-          )}
-          <div className="text-left">
-            <p className="text-white text-xs font-bold leading-none">{authorName}</p>
-            <p className="text-white/70 mt-1 text-xs font-medium">{authorRole}</p>
-          </div>
-        </div>
-      </FeatureDetailsBanner>
+      />
 
-      {/* 🟢 2. At-A-Glance Meta Bar */}
-      <section className="container-custom mx-auto mb-16 mt-8 px-4 sm:px-6">
-        <ScrollReveal delay={150}>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-card/60 border border-border backdrop-blur-md rounded-xl p-6 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                <Calendar className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase"><I18n>Date</I18n></p>
-                <p className="text-foreground text-xs font-bold truncate">{publishedDate}</p>
-              </div>
-            </div>
+      {/* 🟢 2. Main Reading Section */}
+      <section className="container-custom mt-12 mb-20 px-4 sm:px-6">
+        <div className="3xl:grid-cols-[260px_1fr] flex flex-col items-start gap-10 lg:grid lg:grid-cols-[240px_1fr] xl:gap-16">
 
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                <Clock className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase"><I18n>Est. Read</I18n></p>
-                <p className="text-foreground text-xs font-bold">{blog.readTime || 5} <I18n>mins</I18n></p>
-              </div>
-            </div>
+          {/* 📊 Left Sticky Sidebar: TOC -> Categories -> Tags -> Share */}
+          <aside className="border-border/60 bg-card/40 lg:border-none lg:bg-transparent top-24 w-full rounded-2xl border p-4 backdrop-blur-md sm:p-6 lg:sticky lg:top-28 lg:w-[240px] xl:w-[260px] lg:self-start lg:shrink-0 lg:p-0 lg:backdrop-blur-none">
+            <div className="flex flex-col space-y-6">
 
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                <Layers className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase"><I18n>Category</I18n></p>
-                <p className="text-foreground text-xs font-bold truncate">
-                  {blog.categories[0]?.title || "Engineering"}
-                </p>
-              </div>
-            </div>
+              {/* 1. Table of Contents */}
+              {tocItems.length > 0 && (
+                <div className="relative">
+                  <StickyTableOfContents items={tocItems} />
+                </div>
+              )}
 
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                <BookOpen className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase"><I18n>Level</I18n></p>
-                <p className="text-foreground text-xs font-bold"><I18n>Technical</I18n></p>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
-      </section>
+              {/* 2. Categories Widget */}
+              {blog.categories && blog.categories.length > 0 && (
+                <div className="border-border/60 border-t pt-6">
+                  <CategoryWidget
+                    items={blog.categories}
+                    label="Categories"
+                    itemPattern="listRow"
+                    hrefPrefix="/blogs?category="
+                    showCount={false}
+                  />
+                </div>
+              )}
 
-      {/* 🟢 3. Main Reading Area (Two-Column Layout) */}
-      <section className="container-custom px-4 sm:px-6 mb-20">
-        <div className="grid items-start gap-12 lg:grid-cols-[240px_1fr] xl:gap-16 3xl:grid-cols-[260px_1fr]">
+              {/* 3. Tags Widget */}
+              {blog.tags && blog.tags.length > 0 && (
+                <div className="border-border/60 border-t pt-6">
+                  <TagWidget
+                    items={blog.tags}
+                    label="Tags"
+                    itemPattern="capsulePill"
+                    hrefPrefix="/blogs?tag="
+                  />
+                </div>
+              )}
 
-          {/* 📊 Left Sticky Rail (TOC & Share) */}
-          <aside className="hidden lg:block sticky top-28 self-start space-y-10">
-            {tocItems.length > 0 && (
-              <div className="border-l-2 border-border pl-4">
-                <p className="text-muted-foreground mb-4 text-xs font-black tracking-widest uppercase select-none">
-                  <I18n>On This Page</I18n>
-                </p>
-                <StickyTableOfContents items={tocItems} />
+              {/* 4. Share Widget */}
+              <div className="border-border/60 border-t pt-6">
+                <ShareWidget
+                  url={shareUrl}
+                  title={blog.title}
+                  label="Share Insight"
+                  variant="classic"
+                  layout="vertical"
+                  showLabels={true}
+                  showCopy={true}
+                />
               </div>
-            )}
 
-            <div className="border-l-2 border-border pl-4">
-              <p className="text-muted-foreground mb-4 text-xs font-black tracking-widest uppercase select-none">
-                <I18n>Share Insight</I18n>
-              </p>
-              <div className="flex flex-col gap-2.5">
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-xs font-semibold"
-                >
-                  <div className="bg-surface-elevated w-8 h-8 rounded-full flex items-center justify-center border border-border"><FaTwitter className="w-3.5 h-3.5" /></div>
-                  Twitter
-                </a>
-                <a
-                  href={`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-xs font-semibold"
-                >
-                  <div className="bg-surface-elevated w-8 h-8 rounded-full flex items-center justify-center border border-border"><FaLinkedin className="w-3.5 h-3.5" /></div>
-                  LinkedIn
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-xs font-semibold"
-                >
-                  <div className="bg-surface-elevated w-8 h-8 rounded-full flex items-center justify-center border border-border"><FaFacebook className="w-3.5 h-3.5" /></div>
-                  Facebook
-                </a>
-              </div>
             </div>
           </aside>
 
-          {/* Reading Column */}
+          {/* 📖 Right Reading Column */}
           <div className="w-full min-w-0">
-            {/* Mobile TOC */}
-            {tocItems.length > 0 && (
-              <div className="mb-8 lg:hidden border-l-2 border-border pl-4">
-                <p className="text-muted-foreground mb-3 text-xs font-black tracking-widest uppercase select-none">
-                  <I18n>On This Page</I18n>
-                </p>
-                <StickyTableOfContents items={tocItems} />
-              </div>
-            )}
-
-            {/* Content Renderer */}
-            <div className="prose prose-base sm:prose-lg dark:prose-invert max-w-none font-medium prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:leading-relaxed prose-img:rounded-xl">
-              {json && Object.keys(json).length > 0 && (
+            {/* Core Content Renderer */}
+            <div className="prose prose-base sm:prose-lg dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:leading-relaxed prose-img:rounded-xl max-w-none font-medium">
+              {json && Object.keys(json).length > 0 ? (
                 <ContentRenderer variant="blog" content={json} />
+              ) : (
+                <p className="text-muted-foreground leading-relaxed">{blog.excerpt}</p>
               )}
             </div>
 
-            {/* Gallery Images */}
+            {/* Visual Exhibits Gallery */}
             {blog.galleryImages && blog.galleryImages.length > 0 && (
-              <div className="mt-14 pt-10 border-t border-border">
-                <h3 className="text-xl font-bold tracking-tight mb-6"><I18n>Visual Exhibits</I18n></h3>
+              <div className="border-border mt-14 border-t pt-10">
+                <h3 className="mb-6 text-xl font-bold tracking-tight">
+                  <I18n>Visual Exhibits</I18n>
+                </h3>
                 <ImageGallery images={blog.galleryImages} />
               </div>
             )}
 
-            {/* Demo Video Embed */}
+            {/* Technical Walkthrough Video Embed */}
             {blog.demoVideoUrl && (
-              <div className="mt-14 pt-10 border-t border-border">
-                <h3 className="text-xl font-bold tracking-tight mb-6"><I18n>Technical Walkthrough</I18n></h3>
-                <div className="relative aspect-video w-full rounded-xl overflow-hidden shadow-md border border-border bg-muted">
+              <div className="border-border mt-14 border-t pt-10">
+                <h3 className="mb-6 text-xl font-bold tracking-tight">
+                  <I18n>Technical Walkthrough</I18n>
+                </h3>
+                <div className="border-border bg-muted relative aspect-video w-full overflow-hidden rounded-xl border shadow-md">
                   <iframe
                     src={blog.demoVideoUrl.replace("watch?v=", "embed/")}
-                    className="w-full h-full border-0"
+                    className="h-full w-full border-0"
                     allowFullScreen
                     title="Demo Video"
                   />
@@ -299,84 +243,48 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Categories & Tags Cloud (Prisma Category & Tag Model) */}
-            {(blog.categories.length > 0 || blog.tags.length > 0) && (
-              <div className="mt-12 flex flex-col gap-4 border-t border-border pt-8">
-                {blog.categories.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-bold tracking-wider uppercase select-none mr-2">
-                      <Layers className="h-3.5 w-3.5 text-primary" />
-                      <I18n>Categories:</I18n>
-                    </div>
-                    <BadgeList items={blog.categories} hrefPrefix="/blogs?category=" />
-                  </div>
-                )}
-
-                {blog.tags.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-bold tracking-wider uppercase select-none mr-2">
-                      <Tag className="h-3.5 w-3.5 text-primary" />
-                      <I18n>Topics:</I18n>
-                    </div>
-                    <BadgeList items={blog.tags} hrefPrefix="/blogs?tag=" />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Mobile Share Bar */}
-            <div className="mt-8 pt-8 border-t border-border flex lg:hidden items-center justify-between">
-              <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase select-none flex items-center gap-2">
-                <Share2 className="h-3.5 w-3.5" />
-                <I18n>Share Insight:</I18n>
-              </span>
-              <div className="flex items-center gap-2.5">
-                <a href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`} target="_blank" rel="noopener noreferrer" className="bg-surface-elevated w-9 h-9 rounded-full flex items-center justify-center border border-border text-foreground hover:text-primary transition-all"><FaTwitter className="w-3.5 h-3.5" /></a>
-                <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`} target="_blank" rel="noopener noreferrer" className="bg-surface-elevated w-9 h-9 rounded-full flex items-center justify-center border border-border text-foreground hover:text-primary transition-all"><FaLinkedin className="w-3.5 h-3.5" /></a>
-                <a href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`} target="_blank" rel="noopener noreferrer" className="bg-surface-elevated w-9 h-9 rounded-full flex items-center justify-center border border-border text-foreground hover:text-primary transition-all"><FaFacebook className="w-3.5 h-3.5" /></a>
-              </div>
-            </div>
-
             {/* Author Bio Box */}
-            <div className="mt-12 bg-card/60 border border-border shadow-xs rounded-xl p-6 sm:p-8 transition-colors hover:bg-card">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="bg-card/60 border-border hover:bg-card shadow-xs mt-12 rounded-xl border p-6 transition-colors sm:p-8">
+              <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-6">
                 {authorAvatar ? (
                   <Image
                     src={authorAvatar}
                     alt={authorName}
                     width={72}
                     height={72}
-                    className="bg-muted border border-border shadow-xs rounded-full object-cover shrink-0"
+                    className="bg-muted border-border shadow-xs h-16 w-16 shrink-0 rounded-full border object-cover sm:h-18 sm:w-18"
                   />
                 ) : (
-                  <div className="bg-primary/10 text-primary flex h-16 w-16 shrink-0 items-center justify-center rounded-full shadow-xs">
-                    <User className="h-7 w-7" />
+                  <div className="bg-primary/10 text-primary shadow-xs flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:h-16 sm:w-16">
+                    <User className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
                 )}
                 <div>
-                  <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1"><I18n>Written By</I18n></p>
-                  <h3 className="text-foreground text-lg font-bold mb-1">{authorName}</h3>
-                  <p className="text-muted-foreground text-xs font-semibold mb-2.5">{authorRole}</p>
+                  <p className="text-primary mb-1 text-xs font-bold tracking-widest uppercase">
+                    <I18n>Written By</I18n>
+                  </p>
+                  <h3 className="text-foreground mb-1 text-lg font-bold">{authorName}</h3>
+                  <p className="text-muted-foreground mb-2.5 text-xs font-semibold">{authorRole}</p>
                   {profile?.headline && (
-                    <p className="text-muted-foreground text-xs leading-relaxed max-w-lg">{profile.headline}</p>
+                    <p className="text-muted-foreground max-w-lg text-xs leading-relaxed">
+                      {profile.headline}
+                    </p>
                   )}
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-
-      {/* 🟢 5. Technology Stack Ecosystem (Prisma Technology Model) */}
+      {/* 🟢 3. Technology Stack Ecosystem */}
       <TechnologyPreviewSection
         limit={12}
         eyebrow="Tech Ecosystem"
         title="Technologies & tools highlighted in this insight"
       />
 
-      {/* 🟢 6. Related Execution Offerings (Prisma Service Model) */}
+      {/* 🟢 4. Related Execution Offerings */}
       <ServicePreviewSection
         limit={3}
         eyebrow="Execution Offerings"
@@ -384,22 +292,21 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
         description="Our engineering teams help bring these architectural principles to production."
       />
 
-      {/* 🟢 7. Applied Projects & Case Studies (Prisma Project Model) */}
+      {/* 🟢 5. Applied Projects & Case Studies */}
       <ProjectPreviewSection
         limit={3}
         eyebrow="Applied Work"
         title="Real-world implementations of these concepts"
       />
 
-      {/* 🟢 8. Social Proof & Endorsements (Prisma Testimonial Model) */}
+      {/* 🟢 6. Social Proof & Endorsements */}
       <TestimonialPreviewSection
         limit={3}
         eyebrow="Social Proof"
         title="What partners say about our architectural rigor"
       />
 
-
-      {/* 🟢 10. Related Insights (Using Universal Preview Component) */}
+      {/* 🟢 7. Related Insights */}
       {relatedBlogs.length > 0 && (
         <BlogPreviewSection
           items={relatedBlogs}
@@ -412,22 +319,25 @@ export default async function PublicBlogDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* 🟢 11. Final High-Conversion CTA */}
-      <section className="container-custom px-4 sm:px-6 mt-16 text-center">
+      {/* 🟢 8. Final High-Conversion CTA */}
+      <section className="container-custom mt-16 px-4 text-center sm:px-6">
         <ScrollReveal>
-          <div className="bg-card border border-border shadow-xl rounded-2xl p-10 sm:p-14 relative overflow-hidden text-center">
+          <div className="bg-card border-border shadow-xl relative overflow-hidden rounded-2xl border p-10 text-center sm:p-14">
             <div className="bg-primary/5 pointer-events-none absolute -top-10 -right-10 h-64 w-64 rounded-full blur-3xl" />
-            <div className="relative z-10 max-w-2xl mx-auto space-y-5">
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            <div className="relative z-10 mx-auto max-w-2xl space-y-5">
+              <h2 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
                 <I18n>Need help implementing this architecture?</I18n>
               </h2>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                <I18n>Connect directly with our senior cloud architects and software engineers to review your infrastructure setup.</I18n>
+              <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">
+                <I18n>
+                  Connect directly with our senior cloud architects and software engineers to review
+                  your infrastructure setup.
+                </I18n>
               </p>
-              <div className="pt-2 flex flex-wrap justify-center gap-4">
+              <div className="flex flex-wrap justify-center gap-4 pt-2">
                 <Link
                   href="/contact"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-7 py-3 text-xs font-bold uppercase tracking-wider shadow-md transition-all hover:-translate-y-0.5"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-7 py-3 text-xs font-bold tracking-wider uppercase shadow-md transition-all hover:-translate-y-0.5"
                 >
                   <I18n>Talk to an Architect</I18n>
                   <ArrowUpRight className="h-4 w-4" />

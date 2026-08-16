@@ -455,7 +455,18 @@ export default function ContentEditor({
         </div>
       </header>
 
-      <div className="flex-1 rounded-b-[18px] bg-transparent">
+      <div
+        onKeyDown={(e) => {
+          if (
+            e.key === "Enter" &&
+            (e.target instanceof HTMLInputElement || (e.target as HTMLElement)?.tagName === "INPUT")
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+        className="flex-1 rounded-b-[18px] bg-transparent"
+      >
         <div className="relative max-h-[760px] min-h-[460px] overflow-y-auto px-2 sm:px-6 [&_.bn-block-content]:w-full! [&_.bn-block-content>div]:w-full! [&_.bn-container]:bg-transparent! [&_.bn-editor]:max-w-full! [&_.bn-editor]:bg-transparent!">
           <BlockNoteView
             editor={editor}

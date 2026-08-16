@@ -29,10 +29,6 @@ export const CreateServiceSchema = z.object({
     z.number().int().min(0).default(0)
   ),
   status: z.nativeEnum(Status).default(Status.DRAFT),
-  industryIds: z.preprocess(
-    (v) => (Array.isArray(v) ? v.filter(Boolean) : []),
-    z.array(z.string()).default([])
-  ),
   technologyIds: z.preprocess(
     (v) => (Array.isArray(v) ? v.filter(Boolean) : []),
     z.array(z.string()).default([])

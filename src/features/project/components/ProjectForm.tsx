@@ -9,8 +9,6 @@ import { useCategories } from "@/features/category";
 import { useTags } from "@/features/tag";
 import { useTechnologies } from "@/features/technology";
 import { useServices } from "@/features/service";
-import { useClients } from "@/features/client";
-import { useIndustries } from "@/features/industry";
 import { SelectOption } from "@/shared/components/Select";
 
 interface ProjectFormProps {
@@ -21,8 +19,6 @@ interface ProjectFormProps {
   tagOptions?: SelectOption[];
   technologyOptions?: SelectOption[];
   serviceOptions?: SelectOption[];
-  clientOptions?: SelectOption[];
-  industryOptions?: SelectOption[];
   [key: string]: any;
 }
 
@@ -34,8 +30,6 @@ export function ProjectForm({
   tagOptions: externalTagOptions,
   technologyOptions: externalTechnologyOptions,
   serviceOptions: externalServiceOptions,
-  clientOptions: externalClientOptions,
-  industryOptions: externalIndustryOptions,
 }: ProjectFormProps) {
   const { data: categoriesData } = useCategories(
     externalCategoryOptions ? undefined : { scope: "PROJECT", limit: 100 }
@@ -46,10 +40,6 @@ export function ProjectForm({
   );
   const { data: servicesData } = useServices(
     externalServiceOptions ? undefined : { limit: 100 }
-  );
-  const { data: clientsData } = useClients(externalClientOptions ? undefined : { limit: 100 });
-  const { data: industriesData } = useIndustries(
-    externalIndustryOptions ? undefined : { limit: 100 }
   );
 
   const categoryOptions = useMemo(() => {
@@ -84,22 +74,6 @@ export function ProjectForm({
     return Array.isArray(items) ? items.map((item: any) => ({ label: item.title, value: item.id })) : [];
   }, [externalServiceOptions, servicesData]);
 
-  const clientOptions = useMemo(() => {
-    const baseOpts = externalClientOptions || (Array.isArray(clientsData)
-      ? clientsData
-      : (clientsData as any)?.data?.data || (clientsData as any)?.data || []);
-    const opts = Array.isArray(baseOpts) ? baseOpts.map((item: any) => ({ label: item.title || item.name, value: item.id })) : [];
-    return [{ label: "None", value: "" }, ...opts];
-  }, [externalClientOptions, clientsData]);
-
-  const industryOptions = useMemo(() => {
-    const baseOpts = externalIndustryOptions || (Array.isArray(industriesData)
-      ? industriesData
-      : (industriesData as any)?.data?.data || (industriesData as any)?.data || []);
-    const opts = Array.isArray(baseOpts) ? baseOpts.map((item: any) => ({ label: item.title, value: item.id })) : [];
-    return [{ label: "None", value: "" }, ...opts];
-  }, [externalIndustryOptions, industriesData]);
-
   const config: FormEngineConfig<CreateProjectPayload> = {
     sections: [
       {
@@ -122,8 +96,6 @@ export function ProjectForm({
           { name: "order", label: "Order", type: "number", gridSpan: 6 },
           { name: "shortDesc", label: "Short Desc", type: "textarea", gridSpan: 12 },
           { name: "isFeatured", label: "Is Featured", type: "switch", gridSpan: 12 },
-          { name: "clientId", label: "Client", type: "select", options: clientOptions, gridSpan: 6 },
-          { name: "industryId", label: "Industry", type: "select", options: industryOptions, gridSpan: 6 },
           { name: "categoryIds" as any, label: "Categories", type: "multiselect", options: categoryOptions, gridSpan: 6 },
           { name: "tagIds" as any, label: "Tags", type: "multiselect", options: tagOptions, gridSpan: 6 },
           { name: "technologyIds" as any, label: "Technologies", type: "multiselect", options: technologyOptions, gridSpan: 6 },
@@ -172,8 +144,6 @@ export function ProjectForm({
     return {
       ...initialData,
       shortDesc: initialData.shortDesc || "",
-      clientId: initialData.clientId || "",
-      industryId: initialData.industryId || "",
       startDate: initialData.startDate
         ? new Date(initialData.startDate).toISOString().split("T")[0]
         : "",
@@ -197,12 +167,7 @@ export function ProjectForm({
   }, [initialData]);
 
   const onFormSubmit = async (data: CreateProjectPayload) => {
-    const payload = {
-      ...data,
-      clientId: data.clientId || null,
-      industryId: data.industryId || null,
-    };
-    await onSubmit(payload);
+    await onSubmit(data);
   };
 
   return (

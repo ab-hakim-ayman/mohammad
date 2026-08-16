@@ -95,7 +95,7 @@ export default async function GalleryDetailPage({ params }: PageProps) {
 
       {/* 🟢 1. Hero Feature Banner */}
       <FeatureDetailsBanner
-        variant="gradient-glow"
+        variant="split"
         backHref="/galleries"
         backLabel="All Collections"
         eyebrow="Visual Portfolio"

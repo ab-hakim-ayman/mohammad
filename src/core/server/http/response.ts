@@ -99,7 +99,7 @@ export class ApiResponse {
     return {
       success: true,
       message,
-      statusCode: 204,
+      statusCode: 200,
       data: null,
       meta: {
         timestamp: new Date().toISOString(),

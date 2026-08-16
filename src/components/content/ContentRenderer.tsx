@@ -17,6 +17,7 @@ import {
   CustomVideoRenderer,
   CustomAudioRenderer,
   CustomFileRenderer,
+  TakeawaysRenderer,
 } from "./renderers/CustomBlockRenderer";
 import React from "react";
 
@@ -44,16 +45,7 @@ export function extractPlainText(contentJson: any): string {
   return text.trim();
 }
 
-export function extractToc(contentJson: any, contentType: string) {
-  if (
-    contentType !== "blog" &&
-    contentType !== "caseStudy" &&
-    contentType !== "BLOG" &&
-    contentType !== "CASE_STUDY" &&
-    contentType !== "specialization"
-  )
-    return [];
-
+export function extractToc(contentJson: any, _contentType?: string) {
   const toc: { id: string; text: string; level: number }[] = [];
 
   const parsed = parseRichContentDocument(contentJson);
@@ -133,21 +125,7 @@ export function extractFaqJsonLd(contentJson: any, contentType: string) {
   };
 }
 
-function TakeawaysRenderer({ block }: { block: any }) {
-  const items = getValidTakeaways(block.props.itemsJson);
-  if (items.length === 0) return null;
 
-  return (
-    <section className="bg-primary/5 border-border not-prose my-8 rounded-none sm:rounded-xl border p-6">
-      <h3 className="text-foreground mb-4 text-xl font-bold">{block.props.title}</h3>
-      <ul className="text-muted-foreground list-disc space-y-2 pl-5">
-        {items.map((item, i) => (
-          <li key={i}>{item}</li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 function FaqRenderer({ block }: { block: any }) {
   const items = getValidFaqs(block.props.itemsJson);
@@ -271,15 +249,9 @@ function renderInlineContent(content: any[]): React.ReactNode {
               {text}
             </code>
           );
-        if (c.styles.textColor)
+        if (c.styles.textColor && c.styles.textColor !== "default")
           text = (
             <span style={{ color: c.styles.textColor }} key={i}>
-              {text}
-            </span>
-          );
-        if (c.styles.backgroundColor)
-          text = (
-            <span style={{ backgroundColor: c.styles.backgroundColor }} key={i}>
               {text}
             </span>
           );
@@ -399,6 +371,33 @@ function renderStandardBlocks(blocks: any[]): React.ReactNode {
             {children}
           </li>
         );
+      case "codeBlock":
+      case "code_block":
+      case "code": {
+        const language = block.props?.language || "code";
+        let codeText = "";
+        if (Array.isArray(block.content)) {
+          codeText = block.content.map((c: any) => c.text || "").join("");
+        } else if (typeof block.content === "string") {
+          codeText = block.content;
+        } else if (block.props?.code) {
+          codeText = block.props.code;
+        }
+
+        return (
+          <div
+            key={key}
+            className="not-prose border-border/80 bg-muted/80 my-6 overflow-hidden rounded-2xl border shadow-xs"
+          >
+            <div className="border-border/60 bg-muted flex items-center justify-between border-b px-4 py-2 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
+              <span>{language}</span>
+            </div>
+            <pre className="text-foreground overflow-x-auto p-4 font-mono text-xs leading-relaxed whitespace-pre font-medium sm:text-sm">
+              <code>{codeText}</code>
+            </pre>
+          </div>
+        );
+      }
       case "image":
         return (
           <figure
@@ -448,7 +447,7 @@ function renderStandardBlocks(blocks: any[]): React.ReactNode {
   return <>{elements}</>;
 }
 
-export async function ContentRenderer({
+export function ContentRenderer({
   content,
   variant,
   className,

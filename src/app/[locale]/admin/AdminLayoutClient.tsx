@@ -25,10 +25,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       return;
     }
 
-    if (userRole === "EMPLOYEE" && !pathname.includes("/admin/profiles/me")) {
-      router.push(`/${locale}/admin/profiles/me`);
-      return;
-    }
+
 
     window.scrollTo(0, 0);
   }, [isLoading, isAuthenticated, userRole, pathname, locale, router]);

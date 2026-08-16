@@ -24,7 +24,7 @@ export function ExperienceCard({ experience, className, size = "md", layout }: E
         titleKey: "companyName",
         descriptionKey: "shortDesc",
         imageKey: "logo",
-        href: (item) => `/experiences/${item.id}`,
+        href: (item: any) => `/experiences/${item.slug || item.id}`,
         actionLabel: "View Details",
         getMetaItems: (item) => {
           const items = [];
@@ -52,8 +52,8 @@ export function ExperienceCard({ experience, className, size = "md", layout }: E
             badges.push({ label: item.employmentType.replace("_", " ") });
           }
           if (item.technologies) {
-            item.technologies.slice(0, 3).forEach((tech) => {
-              badges.push({ label: tech.title, href: `/technologies/${tech.id}` });
+            item.technologies.slice(0, 3).forEach((tech: any) => {
+              badges.push({ label: tech.title, href: `/technologies/${tech.slug || tech.id}` });
             });
           }
           return badges;

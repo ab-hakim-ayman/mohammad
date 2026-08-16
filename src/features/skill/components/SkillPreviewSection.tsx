@@ -9,43 +9,33 @@ import { usePublishedSkills } from "../hooks/useSkill";
 import type { Skill } from "../types/skill.types";
 import { SkillCard } from "./SkillCard";
 
-const sectionVariants = cva(
-  "relative w-full transition-all duration-300 overflow-hidden flex justify-center items-center mx-auto",
-  {
-    variants: {
-      variant: {
-        classic: "bg-background border-border shadow-2xs",
-        glassmorphic: "bg-card/40 backdrop-blur-md border-border shadow-xs",
-        brutalist: "bg-background border-3 border-foreground shadow-brutal rounded-none",
-        "gradient-glow":
-          "bg-background border-border shadow-glow-lg relative after:absolute after:bottom-0 after:left-1/4 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-primary/30 after:to-transparent",
-        minimal: "bg-transparent border-0 shadow-none p-0",
-      },
+const sectionVariants = cva("relative w-full transition-all duration-500 overflow-hidden", {
+  variants: {
+    variant: {
+      classic: "bg-transparent",
+      glassmorphic: "bg-transparent",
+      brutalist: "bg-transparent",
+      "gradient-glow": "bg-transparent",
+      minimal: "bg-transparent",
     },
-    defaultVariants: {
-      variant: "classic",
+    size: {
+      sm: "py-6",
+      default: "py-12",
+      lg: "py-16",
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "classic",
+    size: "default",
+  },
+});
 
 const containerVariants = cva(
-  "container-custom flex flex-col justify-center items-center text-center",
-  {
-    variants: {
-      size: {
-        sm: "py-6",
-        default: "py-10",
-        lg: "py-16",
-      },
-    },
-    defaultVariants: {
-      size: "default",
-    },
-  }
+  "container-custom mx-auto w-full flex flex-col justify-center items-center text-center"
 );
 
 interface SkillPreviewSectionProps
-  extends VariantProps<typeof sectionVariants>, VariantProps<typeof containerVariants> {
+  extends VariantProps<typeof sectionVariants> {
   limit?: number;
 
   // 🟢 ১. কাস্টম স্কিল ডাটা পাস করার প্রপ্স
@@ -103,8 +93,8 @@ export function SkillPreviewSection({
 
   if (isLoading) {
     return (
-      <section className={sectionVariants({ variant })}>
-        <div className={cn(containerVariants({ size }))}>
+      <section className={cn("bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6", sectionVariants({ variant, size }))}>
+        <div className={cn(containerVariants())}>
           {!hideHeader && (
             <div className="flex flex-col items-center justify-center space-y-3">
               <Skeleton className="h-5 w-28 self-center rounded" />
@@ -127,11 +117,11 @@ export function SkillPreviewSection({
   return (
     <section
       className={cn(
-        "relative isolate mx-auto w-full justify-center overflow-hidden",
-        sectionVariants({ variant })
+        "bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6",
+        sectionVariants({ variant, size })
       )}
     >
-      <div className={containerVariants({ size })}>
+      <div className={containerVariants()}>
         <div
           aria-hidden="true"
           className="bg-primary/5 pointer-events-none absolute top-12 -left-28 h-64 w-64 rounded-full blur-3xl"
@@ -144,7 +134,7 @@ export function SkillPreviewSection({
         {!hideHeader && (
           <div className="flex w-full flex-col items-center justify-center text-center">
             <PreviewSectionHeader
-              variant="center"
+              variant="split"
               eyebrow={eyebrow}
               title={title}
               description={description}
@@ -154,18 +144,17 @@ export function SkillPreviewSection({
           </div>
         )}
 
-        {/* 🔧 REUSABLE SKILL CARD STANDARD GRID MATRIX (Marquee Removed) */}
-        <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
+        {/* 🟢 FULL WIDTH GRID MATRIX */}
+        <div className="mx-auto mt-10 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 md:mt-14 md:grid-cols-4 lg:mt-16 lg:grid-cols-6">
           {skills.map((skill, index) => (
-            <div
+            <SkillCard
               key={skill.id ? String(skill.id) : index}
-              className="flex shrink-0"
-            >
-              <SkillCard
-                skill={skill}
-                className="h-full w-40 sm:w-44"
-              />
-            </div>
+              size="sm"
+              layout="horizontal"
+              alignment="center"
+              skill={skill}
+              className="h-16 w-full rounded-lg"
+            />
           ))}
         </div>
       </div>

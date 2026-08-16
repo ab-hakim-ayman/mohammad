@@ -212,7 +212,7 @@
   --drop-shadow-hero-sm: 0 2px 8px oklch(0 0 0 / 0.3);
 }
 
-@source "../../node_modules/@blocknote/shadcn/dist/**/*.{js,ts,jsx,tsx}";
+@source "../../node_modules/@blocknote/shadcn/dist/index.js";
 @custom-variant dark (&:is(.dark *));
 
 /* 🟢 STRICT WCAG AAA & OKLCH COLOR PALETTE */

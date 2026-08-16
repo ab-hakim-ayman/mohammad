@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 interface TestimonialCardProps {
   testimonial: {
     id: string;
+    slug?: string | null;
     message: string;
     rating: number;
     authorName?: string | null;
@@ -33,7 +34,7 @@ export function TestimonialCard({ testimonial, className, size = "md", layout }:
         titleKey: "authorName",
         getDescription: (item) => `"${item.message}"`,
         imageKey: "authorImage",
-        href: (item) => `/testimonials/${item.id}`,
+        href: (item: any) => `/testimonials/${item.slug || item.id}`,
         actionLabel: "Details",
         getMetaItems: (item) => [
           ...(item.authorPosition

@@ -5,7 +5,7 @@ import { TestimonialQueryValidated } from "../types/testimonial.types";
 
 export const testimonialRepository = {
   async findAll(params: TestimonialQueryValidated) {
-    const { page = 1, limit = 10, search, sort, status, isFeatured, type, source } = params;
+    const { page = 1, limit = 10, search, sort, status, isFeatured } = params;
     const where: Prisma.TestimonialWhereInput = {
       ...(search && {
         OR: [
@@ -16,8 +16,6 @@ export const testimonialRepository = {
       }),
       ...(status !== undefined && { status }),
       ...(isFeatured !== undefined && { isFeatured }),
-      ...(type !== undefined && { type }),
-      ...(source !== undefined && { source }),
     };
     let orderBy: Prisma.TestimonialOrderByWithRelationInput = { order: "asc" };
 
@@ -32,8 +30,6 @@ export const testimonialRepository = {
         take: limit,
         orderBy,
         include: {
-          client: { select: { id: true, title: true, logo: true } },
-          employee: { select: { id: true, name: true, avatar: true } },
           caseStudies: { select: { id: true, title: true, slug: true } },
           services: { select: { id: true, title: true, slug: true } },
         },
@@ -49,8 +45,6 @@ export const testimonialRepository = {
     return prisma.testimonial.findUnique({
       where: { id },
       include: {
-        client: { select: { id: true, title: true, logo: true } },
-        employee: { select: { id: true, name: true, avatar: true } },
         caseStudies: { select: { id: true, title: true, slug: true } },
         services: { select: { id: true, title: true, slug: true } },
       },
@@ -66,15 +60,6 @@ export const testimonialRepository = {
       orderBy: { order: "asc" },
       take: params?.limit || undefined,
       include: {
-        client: { select: { id: true, title: true, logo: true } },
-        employee: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            profile: { select: { designation: true } },
-          },
-        },
         caseStudies: { select: { id: true, title: true, slug: true } },
         services: { select: { id: true, title: true, slug: true } },
       },

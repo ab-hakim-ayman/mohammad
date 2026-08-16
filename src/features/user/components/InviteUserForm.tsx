@@ -37,7 +37,7 @@ export function InviteUserForm({
 
   const defaultValues = {
     email: "",
-    role: "EMPLOYEE" as const,
+    role: "MODERATOR" as const,
     name: null,
     phone: null,
   };

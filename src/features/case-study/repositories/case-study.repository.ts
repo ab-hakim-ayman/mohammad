@@ -30,8 +30,6 @@ const caseStudyInclude = {
       id: true,
       title: true,
       slug: true,
-      client: { select: { id: true, title: true } },
-      industry: { select: { id: true, title: true } },
       technologies: { select: { id: true, title: true, logo: true } },
       services: { select: { id: true, title: true, slug: true } },
     },
@@ -58,8 +56,6 @@ const caseStudyPublicInclude = {
       cardImage: true,
       startDate: true,
       endDate: true,
-      client: { select: { id: true, title: true, status: true } },
-      industry: { select: { id: true, title: true, status: true, slug: true } },
       technologies: {
         where: { status: "PUBLISHED" as const },
         select: { id: true, title: true, logo: true },

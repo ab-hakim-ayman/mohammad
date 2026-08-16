@@ -54,7 +54,7 @@ export function ExperienceForm({
             options: createSelectOptions(EmploymentType),
           },
           { name: "location", label: "Location", type: "text", gridSpan: 6 },
-          { name: "locationType", label: "Location Type (e.g. Remote, Onsite)", type: "text", gridSpan: 6 },
+          { name: "locationType", label: "Location Type", type: "text", gridSpan: 6 },
           { name: "startDate", label: "Start Date", type: "date", required: true, gridSpan: 6 },
           { name: "endDate", label: "End Date", type: "date", gridSpan: 6 },
           { name: "isCurrent", label: "Current Job", type: "switch", gridSpan: 6 },
@@ -93,10 +93,10 @@ export function ExperienceForm({
 
   const formattedDefaults = initialData
     ? {
-        ...initialData,
-        projects: initialData.projects?.map((p) => p.id) || [],
-        technologies: initialData.technologies?.map((t) => t.id) || [],
-      }
+      ...initialData,
+      projects: initialData.projects?.map((p) => p.id) || [],
+      technologies: initialData.technologies?.map((t) => t.id) || [],
+    }
     : undefined;
 
   return (

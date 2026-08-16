@@ -15,6 +15,16 @@ type RedisResponse<T = unknown> = {
 
 class MemoryCacheBackend implements CacheBackend {
   private values = new Map<string, { value: string; expiresAt?: number }>();
+  private readonly maxEntries = 500;
+
+  private cleanupExpiredKeys(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.values.entries()) {
+      if (entry.expiresAt && entry.expiresAt < now) {
+        this.values.delete(key);
+      }
+    }
+  }
 
   async get(key: string): Promise<string | null> {
     const entry = this.values.get(key);
@@ -27,6 +37,14 @@ class MemoryCacheBackend implements CacheBackend {
   }
 
   async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
+    if (this.values.size >= this.maxEntries) {
+      this.cleanupExpiredKeys();
+      if (this.values.size >= this.maxEntries) {
+        const firstKey = this.values.keys().next().value;
+        if (firstKey) this.values.delete(firstKey);
+      }
+    }
+
     this.values.set(key, {
       value,
       expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : undefined,
@@ -40,7 +58,7 @@ class MemoryCacheBackend implements CacheBackend {
   async incr(key: string): Promise<number> {
     const entry = this.values.get(key);
     const existing =
-      entry && (!entry.expiresAt || entry.expiresAt > Date.now()) ? parseInt(entry.value) : 0;
+      entry && (!entry.expiresAt || entry.expiresAt > Date.now()) ? parseInt(entry.value, 10) : 0;
     const next = existing + 1;
     this.values.set(key, { value: String(next), expiresAt: entry?.expiresAt });
     return next;

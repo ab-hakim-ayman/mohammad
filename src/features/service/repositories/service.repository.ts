@@ -23,7 +23,6 @@ const auditUserSelect = {
 const serviceInclude = {
   createdBy: { select: auditUserSelect },
   updatedBy: { select: auditUserSelect },
-  industries: { select: { id: true, title: true, slug: true } },
   technologies: { select: { id: true, title: true } },
   projects: { select: { id: true, title: true, slug: true } },
   faqs: { select: { id: true, question: true } },
@@ -34,10 +33,6 @@ const serviceInclude = {
 } as const;
 
 const servicePublicInclude = {
-  industries: {
-    where: { status: "PUBLISHED" as const },
-    select: { id: true, title: true, slug: true, shortDesc: true, icon: true },
-  },
   technologies: {
     where: { status: "PUBLISHED" as const },
     select: { id: true, title: true, logo: true },
@@ -51,7 +46,6 @@ const servicePublicInclude = {
       shortDesc: true,
       heroImage: true,
       isFeatured: true,
-      industry: { select: { id: true, title: true, slug: true } },
       technologies: { where: { status: "PUBLISHED" as const }, select: { id: true, title: true } },
       caseStudy: {
         select: {

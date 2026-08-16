@@ -24,7 +24,7 @@ export function EducationCard({ education, className, size = "md", layout }: Edu
         titleKey: "institution",
         descriptionKey: "shortDesc",
         imageKey: "logo",
-        href: (item) => `/educations/${item.id}`,
+        href: (item: any) => `/educations/${item.slug || item.id}`,
         actionLabel: "View Details",
         getMetaItems: (item) => {
           const items = [];

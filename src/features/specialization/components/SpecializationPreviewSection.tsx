@@ -8,43 +8,33 @@ import { usePublishedSpecializations } from "../hooks/useSpecialization";
 import type { Specialization } from "../types/specialization.types";
 import { SpecializationCard } from "./SpecializationCard"; // 👈 আপনার তৈরি করা SpecializationCard ইমপোর্ট করা হলো
 
-const sectionVariants = cva(
-  "relative w-full transition-all duration-300 overflow-hidden flex justify-center items-center mx-auto",
-  {
-    variants: {
-      variant: {
-        classic: "bg-background border-border shadow-xs",
-        glassmorphic: "bg-background/60 backdrop-blur-md border-border shadow-xs",
-        brutalist: "bg-background border-3 border-foreground shadow-brutal rounded-none",
-        "gradient-glow":
-          "bg-background border-border shadow-brand relative after:absolute after:bottom-0 after:left-1/4 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-primary/30 after:to-transparent",
-        minimal: "bg-transparent border-0 shadow-none p-0",
-      },
+const sectionVariants = cva("relative w-full transition-all duration-500 overflow-hidden", {
+  variants: {
+    variant: {
+      classic: "bg-transparent",
+      glassmorphic: "bg-transparent",
+      brutalist: "bg-transparent",
+      "gradient-glow": "bg-transparent",
+      minimal: "bg-transparent",
     },
-    defaultVariants: {
-      variant: "classic",
+    size: {
+      sm: "py-6",
+      default: "py-12",
+      lg: "py-16",
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "classic",
+    size: "default",
+  },
+});
 
 const containerVariants = cva(
-  "container-custom flex flex-col items-center justify-center text-center",
-  {
-    variants: {
-      size: {
-        sm: "py-12",
-        default: "py-16",
-        lg: "py-20",
-      },
-    },
-    defaultVariants: {
-      size: "default",
-    },
-  }
+  "container-custom mx-auto w-full flex flex-col items-center justify-center text-center"
 );
 
 interface SpecializationPreviewSectionProps
-  extends VariantProps<typeof sectionVariants>, VariantProps<typeof containerVariants> {
+  extends VariantProps<typeof sectionVariants> {
   limit?: number;
 
   // 🟢 ১. যেকোনো Details Page থেকে কাস্টম স্পেশালাইজেশন অ্যারে পাস করার প্রপ্স
@@ -61,7 +51,7 @@ interface SpecializationPreviewSectionProps
 }
 
 export function SpecializationPreviewSection({
-  limit = 8,
+  limit = 4,
   items: externalItems,
   specializations: legacySpecializations,
   eyebrow = "Specializations",
@@ -94,8 +84,8 @@ export function SpecializationPreviewSection({
 
   if (isLoading) {
     return (
-      <section className={sectionVariants({ variant })}>
-        <div className={containerVariants({ size })}>
+      <section className={cn("bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6", sectionVariants({ variant, size }))}>
+        <div className={cn(containerVariants())}>
           {!hideHeader && (
             <div className="bg-surface-elevated/50 mb-8 h-10 w-64 animate-pulse rounded" />
           )}
@@ -120,15 +110,15 @@ export function SpecializationPreviewSection({
   return (
     <section
       className={cn(
-        "relative isolate mx-auto justify-center overflow-hidden",
-        sectionVariants({ variant })
+        "bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6",
+        sectionVariants({ variant, size })
       )}
     >
-      <div className={containerVariants({ size })}>
+      <div className={containerVariants()}>
         {!hideHeader && (
           <div className="flex w-full flex-col items-center justify-center text-center">
             <PreviewSectionHeader
-              variant="center"
+              variant="split"
               eyebrow={eyebrow}
               title={title}
               description={description}

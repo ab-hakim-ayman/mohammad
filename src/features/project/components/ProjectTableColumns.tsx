@@ -27,38 +27,6 @@ export const projectTableColumns: ColumnConfig<Project>[] = [
     type: "text",
   },
   {
-    key: "client",
-    header: "Client",
-    render: (item) => {
-      const client = item.client;
-      if (!client) return <span className="text-muted-foreground text-sm">—</span>;
-      return (
-        <Link
-          href={`/admin/clients/${client.id}`}
-          className="text-muted-foreground hover:text-foreground text-sm hover:underline"
-        >
-          {client.title}
-        </Link>
-      );
-    },
-  },
-  {
-    key: "industry",
-    header: "Industry",
-    render: (item) => {
-      const industry = item.industry;
-      if (!industry) return <span className="text-muted-foreground text-sm">—</span>;
-      return (
-        <Link
-          href={`/admin/industries/${industry.id}`}
-          className="text-muted-foreground hover:text-foreground text-sm hover:underline"
-        >
-          {industry.title}
-        </Link>
-      );
-    },
-  },
-  {
     key: "categories",
     header: "Categories",
     type: "relation",

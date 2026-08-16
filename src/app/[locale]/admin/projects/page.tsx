@@ -8,8 +8,6 @@ import { FolderKanban, Plus, Trash2 } from "lucide-react";
 
 import { useDeleteProject, useProjects, projectTableColumns } from "@/features/project";
 import { useProjectStore } from "@/features/project";
-import { useClients } from "@/features/client";
-import { useIndustries } from "@/features/industry";
 import { StateScreen } from "@/shared/components/StateScreen";
 import { DataTableEngine } from "@/shared/components/tables/DataTableEngine";
 import { DataTableFilterConfig } from "@/shared/components/tables/data-table-engine.types";
@@ -32,23 +30,12 @@ export default function AdminProjectsPage() {
     rawFeatured === "true" ? true :
       rawFeatured === "false" ? false :
         undefined;
-  const clientFilter = filterValues["clientId"] === "All" ? undefined : filterValues["clientId"];
-  const industryFilter = filterValues["industryId"] === "All" ? undefined : filterValues["industryId"];
-
-  const { data: clientsData } = useClients({ limit: 100 });
-  const { data: industriesData } = useIndustries({ limit: 100 });
-
-  const clients = clientsData?.data?.data || [];
-  const industries = industriesData?.data?.data || [];
-
   const { data, isLoading, error } = useProjects({
     page,
     limit: 10,
     search: searchQuery.trim() !== "" ? searchQuery : undefined,
     status: statusFilter,
     isFeatured: featuredFilter,
-    clientId: clientFilter,
-    industryId: industryFilter,
   });
 
   const deleteProject = useDeleteProject();
@@ -82,22 +69,6 @@ export default function AdminProjectsPage() {
       options: [
         { label: "Featured", value: "true" },
         { label: "Not Featured", value: "false" },
-      ],
-    },
-    {
-      key: "clientId",
-      placeholder: "Client",
-      options: [
-        { label: "All Clients", value: "All" },
-        ...clients.map((c) => ({ label: c.title, value: c.id })),
-      ],
-    },
-    {
-      key: "industryId",
-      placeholder: "Industry",
-      options: [
-        { label: "All Industries", value: "All" },
-        ...industries.map((i) => ({ label: i.title, value: i.id })),
       ],
     },
   ];

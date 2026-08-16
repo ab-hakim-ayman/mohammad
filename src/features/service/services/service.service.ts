@@ -60,7 +60,6 @@ export const serviceService = {
       isFeatured: validated.isFeatured,
       publishedAt: validated.status === "PUBLISHED" ? new Date() : null,
       archivedAt: validated.status === "ARCHIVED" ? new Date() : null,
-      industries: { connect: validated.industryIds?.map((id) => ({ id })) || [] },
       technologies: { connect: validated.technologyIds?.map((id) => ({ id })) || [] },
       projects: { connect: validated.projectIds?.map((id) => ({ id })) || [] },
       faqs: { connect: validated.faqIds?.map((id) => ({ id })) || [] },
@@ -176,8 +175,6 @@ export const serviceService = {
       updateData.archivedAt = null;
     }
 
-    if (validated.industryIds)
-      updateData.industries = { set: validated.industryIds.map((id) => ({ id })) };
     if (validated.technologyIds)
       updateData.technologies = { set: validated.technologyIds.map((id) => ({ id })) };
     if (validated.projectIds)

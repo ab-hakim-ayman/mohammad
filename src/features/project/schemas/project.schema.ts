@@ -34,8 +34,6 @@ export const CreateProjectSchema = z.object({
   ogImageAlt: z.string().max(500).optional().nullable(),
   galleryImagesAltTexts: z.array(z.string().max(255).nullable()).optional(),
   order: z.coerce.number().int().min(0).default(0),
-  clientId: z.preprocess((v) => (v === "" ? null : v), z.string().optional().nullable()),
-  industryId: z.preprocess((v) => (v === "" ? null : v), z.string().optional().nullable()),
   technologyIds: z.array(z.string()).default([]),
   serviceIds: z.array(z.string()).default([]),
   categoryIds: z.array(z.string()).default([]),
@@ -64,8 +62,6 @@ export const ProjectQuerySchema = z.object({
     z.boolean().optional()
   ),
   technology: z.string().optional(),
-  clientId: z.string().optional(),
-  industryId: z.string().optional(),
   serviceId: z.string().optional(),
 });
 

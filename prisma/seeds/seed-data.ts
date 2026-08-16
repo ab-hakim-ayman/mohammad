@@ -1,8 +1,6 @@
 import {
   Status,
   ContactStatus,
-  SubscriptionStatus,
-  PartnerType,
 } from "@prisma/client";
 
 export const TOTAL = 15;
@@ -286,28 +284,6 @@ export const TECH_STACK = [
   { title: "Framer Motion", category: "Motion", experience: 4, color: "#8b5cf6" },
 ] as const;
 
-export const CLIENTS = Array.from({ length: TOTAL }, (_, index) => ({
-  title: [
-    "Aster Retail",
-    "Nova Health",
-    "Skyline Finance",
-    "Orbit Logistics",
-    "Luma Studio",
-    "Northstar Energy",
-    "Summit Academy",
-    "Riverbank Media",
-    "Pulse Commerce",
-    "BluePeak SaaS",
-    "Vertex Travel",
-    "BrightMart",
-    "Cloud Nine HR",
-    "Horizon Labs",
-    "TrueNorth Homes",
-  ][index],
-  logo: `/seed/clients/client-${String(index + 1).padStart(2, "0")}.svg`,
-  website: `https://client-${String(index + 1).padStart(2, "0")}.example.com`,
-}));
-
 export const ACHIEVEMENTS = Array.from({ length: TOTAL }, (_, index) => ({
   title: [
     "Delivered 100+ releases",
@@ -347,55 +323,6 @@ export const ACHIEVEMENTS = Array.from({ length: TOTAL }, (_, index) => ({
   shortDesc: `Achievement entry ${index + 1} for the A2ICoders knowledge base.`,
   icon: "/seed/achievements/icon.svg",
   image: `/seed/achievements/achievement-${String(index + 1).padStart(2, "0")}.jpg`,
-}));
-
-export const INDUSTRIES = [
-  {
-    title: "Healthcare",
-    slug: "healthcare",
-    shortDesc: "Digital transformation for healthcare providers.",
-  },
-  {
-    title: "FinTech",
-    slug: "fintech",
-    shortDesc: "Innovative financial technology solutions.",
-  },
-  {
-    title: "E-commerce",
-    slug: "ecommerce",
-    shortDesc: "Scalable e-commerce platforms.",
-  },
-  {
-    title: "Education",
-    slug: "education",
-    shortDesc: "EdTech platforms and e-learning solutions.",
-  },
-];
-
-export const PARTNERS = Array.from({ length: TOTAL }, (_, index) => ({
-  title: [
-    "CloudForge",
-    "PixelBridge",
-    "RouteStack",
-    "OpenLane",
-    "DeskFlow",
-    "MentorCloud",
-    "LaunchGrid",
-    "BrightScale",
-    "DataDock",
-    "SecureFrame",
-    "FormKit",
-    "ShopLane",
-    "EdgePilot",
-    "SyncWorks",
-    "PartnerHive",
-  ][index],
-  logo: `/seed/partners/partner-${String(index + 1).padStart(2, "0")}.svg`,
-  website: `https://partner-${String(index + 1).padStart(2, "0")}.example.com`,
-  shortDesc: `Partner ${index + 1} supporting delivery, tooling, or ecosystem growth.`,
-  type: [PartnerType.TECHNOLOGY, PartnerType.RESELLER, PartnerType.ALLIANCE, PartnerType.AFFILIATE][
-    index % 4
-  ],
 }));
 
 export const GALLERY_TITLES = [

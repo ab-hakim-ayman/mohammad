@@ -303,7 +303,21 @@ export function FormEngine<TFieldValues extends FieldValues>({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit, onError)} className="w-full space-y-6 select-none">
+      <form
+        onSubmit={handleSubmit(onSubmit, onError)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            const target = e.target as HTMLElement;
+            if (target && target.getAttribute("type") !== "submit") {
+              if (target.tagName === "TEXTAREA") {
+                return;
+              }
+              e.preventDefault();
+            }
+          }
+        }}
+        className="w-full space-y-6 select-none"
+      >
         {config.sections.map((section, idx) => (
           <div
             key={idx}

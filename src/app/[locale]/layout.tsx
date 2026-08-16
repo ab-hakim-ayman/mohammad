@@ -44,6 +44,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     <html
       lang={locale}
       dir={direction}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn(
         manrope.variable,

@@ -52,47 +52,7 @@ export function TestimonialForm({
               { label: "Archived", value: "ARCHIVED" },
             ],
           },
-          {
-            name: "type",
-            label: "Type",
-            type: "select",
-            required: true,
-            gridSpan: 6,
-            options: [
-              { label: "Client", value: "CLIENT" },
-              { label: "Employee", value: "EMPLOYEE" },
-            ],
-          },
-          {
-            name: "source",
-            label: "Source",
-            type: "select",
-            required: true,
-            gridSpan: 6,
-            options: [
-              { label: "Admin Source", value: "ADMIN" },
-              { label: "Request Link Source", value: "REQUEST_LINK" },
-              { label: "Public Form Source", value: "PUBLIC_FORM" },
-            ],
-          },
           { name: "email", label: "Email", type: "text", placeholder: "email@example.com", gridSpan: 6 },
-          {
-            name: "clientId",
-            label: "Client Id",
-            type: "text",
-            placeholder: "Client Id Placeholder",
-            gridSpan: 12,
-            condition: (values) => values.type === "CLIENT",
-          },
-          {
-            name: "employeeId",
-            label: "Employee Id",
-            type: "text",
-            required: true,
-            placeholder: "Employee Id Placeholder",
-            gridSpan: 12,
-            condition: (values) => values.type === "EMPLOYEE",
-          },
           { name: "submittedAt", label: "Submitted At", type: "datetime-local" as any, gridSpan: 6 },
           { name: "consentAt", label: "Consent At", type: "datetime-local" as any, gridSpan: 6 },
           { name: "isFeatured", label: "Is Featured", type: "switch", gridSpan: 12 },
@@ -112,8 +72,6 @@ export function TestimonialForm({
     return {
       ...initialData,
       rating: initialData.rating || 5,
-      clientId: initialData.clientId || "",
-      employeeId: initialData.employeeId || "",
       submittedAt: initialData.submittedAt ? toDateTimeLocal(initialData.submittedAt) : "",
       consentAt: initialData.consentAt ? toDateTimeLocal(initialData.consentAt) : "",
       authorImage: initialData.authorImage || null,
@@ -124,8 +82,6 @@ export function TestimonialForm({
   const onFormSubmit = async (data: CreateTestimonialPayload) => {
     const payload = {
       ...data,
-      clientId: data.clientId || null,
-      employeeId: data.type === "EMPLOYEE" ? data.employeeId : null,
       submittedAt: data.submittedAt ? new Date(data.submittedAt).toISOString() : null,
       consentAt: data.consentAt ? new Date(data.consentAt).toISOString() : null,
     };

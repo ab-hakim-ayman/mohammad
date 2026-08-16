@@ -1,10 +1,8 @@
 import {
   AccountStatus,
   Status,
-  ContactStatus,
   AuditAction,
   GalleryType,
-  PartnerType,
   PrismaClient,
   UserRole,
 } from "@prisma/client";
@@ -21,12 +19,8 @@ import seedHeroes from "./heroes.seed";
 import seedTestimonials from "./testimonials.seed";
 import seedContacts from "./contacts.seed";
 import seedServices from "./services.seed";
-import seedClients from "./clients.seed";
 import seedAchievements from "./achievements.seed";
-import seedIndustries from "./industries.seed";
-import seedPartners from "./partners.seed";
 import seedGalleries from "./galleries.seed";
-import seedEvents from "./events.seed";
 import seedFaqs from "./faqs.seed";
 import seedProjects from "./projects.seed";
 import seedBlogs from "./blogs.seed";
@@ -34,18 +28,7 @@ import seedExperiences from "./experiences.seed";
 import seedEducations from "./educations.seed";
 
 import {
-  TOTAL,
   PEOPLE,
-  TOPICS,
-  TECH_STACK,
-  CLIENTS,
-  ACHIEVEMENTS,
-  INDUSTRIES,
-  PARTNERS,
-  GALLERY_TITLES,
-  FAQ_QUESTIONS,
-  TESTIMONIALS,
-  buildDate,
   buildImage,
   cycle,
   slugify,
@@ -65,11 +48,7 @@ async function clearExistingData(prisma: PrismaClient) {
   await prisma.contact.deleteMany();
   await prisma.faq.deleteMany();
   await prisma.gallery.deleteMany();
-  await prisma.event.deleteMany();
-  await prisma.client.deleteMany();
   await prisma.achievement.deleteMany();
-  await prisma.industry.deleteMany();
-  await prisma.partner.deleteMany();
   await prisma.siteInfo.deleteMany();
   await prisma.about.deleteMany();
   await prisma.hero.deleteMany();
@@ -159,12 +138,8 @@ async function seedReferenceData(
   await seedTestimonials(prisma);
   await seedContacts(prisma);
   await seedServices(prisma, users);
-  await seedClients(prisma);
   await seedAchievements(prisma);
-  await seedIndustries(prisma);
-  await seedPartners(prisma);
   await seedGalleries(prisma);
-  await seedEvents(prisma);
   await seedFaqs(prisma);
   await seedExperiences(prisma, users);
   await seedEducations(prisma, users);
@@ -174,9 +149,8 @@ async function seedReferenceData(
   const technologies = await prisma.technology.findMany({ orderBy: { title: "asc" } });
   const galleries = await prisma.gallery.findMany({ orderBy: { slug: "asc" } });
   const profiles = await prisma.profile.findMany({ orderBy: { userId: "asc" } });
-  const clientsDb = await prisma.client.findMany({ orderBy: { title: "asc" } });
 
-  await seedProjects(prisma, users, clientsDb);
+  await seedProjects(prisma, users);
 
   const projects = await prisma.project.findMany({ orderBy: { slug: "asc" } });
 
@@ -351,7 +325,6 @@ async function seedRelations(
           "case_study",
           "gallery",
           "contact",
-          "partner",
           "achievement",
           "faq",
         ],
@@ -391,7 +364,6 @@ async function syncCaseStudiesFromProjects(prisma: PrismaClient) {
       id: true,
       title: true,
       slug: true,
-      clientId: true,
       heroImage: true,
       ogImage: true,
       shortDesc: true,
@@ -418,7 +390,7 @@ async function syncCaseStudiesFromProjects(prisma: PrismaClient) {
 }
 
 export async function seedAllModels(prisma: PrismaClient) {
-  console.log("🌱 Seeding full 15-entry dataset...");
+  console.log("🌱 Seeding full dataset...");
   const hashedPassword = await hash("admin123", 12);
 
   await clearExistingData(prisma);
@@ -432,11 +404,8 @@ export async function seedAllModels(prisma: PrismaClient) {
     bumpPublicCacheVersion("projects"),
     bumpPublicCacheVersion("services"),
     bumpPublicCacheVersion("blogs"),
-    bumpPublicCacheVersion("events"),
     bumpPublicCacheVersion("achievements"),
     bumpPublicCacheVersion("galleries"),
-    bumpPublicCacheVersion("clients"),
-    bumpPublicCacheVersion("partners"),
     bumpPublicCacheVersion("faqs"),
     bumpPublicCacheVersion("heroes"),
     bumpPublicCacheVersion("technologies"),
@@ -444,7 +413,6 @@ export async function seedAllModels(prisma: PrismaClient) {
     bumpPublicCacheVersion("categories"),
     bumpPublicCacheVersion("tags"),
     bumpPublicCacheVersion("site-info"),
-    bumpPublicCacheVersion("industries"),
     bumpPublicCacheVersion("experiences"),
     bumpPublicCacheVersion("educations"),
   ]);

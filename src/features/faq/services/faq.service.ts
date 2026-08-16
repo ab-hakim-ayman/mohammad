@@ -31,9 +31,6 @@ export const faqService = {
       ...(data.categoryIds && data.categoryIds.length > 0
         ? { categories: { connect: data.categoryIds.map((id) => ({ id })) } }
         : {}),
-      ...(data.eventIds && data.eventIds.length > 0
-        ? { events: { connect: data.eventIds.map((id) => ({ id })) } }
-        : {}),
       ...(data.serviceIds && data.serviceIds.length > 0
         ? { services: { connect: data.serviceIds.map((id) => ({ id })) } }
         : {}),
@@ -71,9 +68,6 @@ export const faqService = {
         : {}),
       ...(data.categoryIds !== undefined
         ? { categories: { set: data.categoryIds.map((id) => ({ id })) } }
-        : {}),
-      ...(data.eventIds !== undefined
-        ? { events: { set: data.eventIds.map((id) => ({ id })) } }
         : {}),
       ...(data.serviceIds !== undefined
         ? { services: { set: data.serviceIds.map((id) => ({ id })) } }

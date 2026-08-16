@@ -53,7 +53,7 @@ export const profileService = {
     const validated = ProfileSchema.parse(data);
     const profile = await profileRepository.findById(id);
     if (!profile) throw AppError.notFound("Profile not found");
-    if (actor.role !== "OWNER" && actor.role !== "ADMIN" && profile.userId !== actor.id) {
+    if (actor.role !== "OWNER" && profile.userId !== actor.id) {
       throw AppError.forbidden("You cannot manage this profile");
     }
     const updatedProfile = await profileRepository.updateById(id, validated);
@@ -85,7 +85,7 @@ export const profileService = {
     const validated = ProfileVisibilitySchema.parse(data);
     const profile = await profileRepository.findById(id);
     if (!profile) throw AppError.notFound("Profile not found");
-    if (actor.role !== "OWNER" && actor.role !== "ADMIN" && profile.userId !== actor.id) {
+    if (actor.role !== "OWNER" && profile.userId !== actor.id) {
       throw AppError.forbidden("You cannot manage this profile");
     }
     return profileRepository.updateVisibility(id, validated);

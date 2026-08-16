@@ -9,43 +9,33 @@ import { usePublishedTechnologies } from "../hooks/useTechnology";
 import type { Technology } from "../types/technology.types";
 import { TechnologyCard } from "./TechnologyCard"; // 👈 আপনার তৈরি করা TechnologyCard ইমপোর্ট করা হলো
 
-const sectionVariants = cva(
-  "relative w-full container-custom transition-all duration-300 overflow-hidden flex justify-center items-center mx-auto",
-  {
-    variants: {
-      variant: {
-        classic: "bg-background border-border shadow-2xs",
-        glassmorphic: "bg-card/40 backdrop-blur-md border-border shadow-xs",
-        brutalist: "bg-background border-3 border-foreground shadow-brutal rounded-none",
-        "gradient-glow":
-          "bg-background border-border shadow-glow-lg relative after:absolute after:bottom-0 after:left-1/4 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-primary/30 after:to-transparent",
-        minimal: "bg-transparent border-0 shadow-none p-0",
-      },
+const sectionVariants = cva("relative w-full transition-all duration-500 overflow-hidden", {
+  variants: {
+    variant: {
+      classic: "bg-transparent",
+      glassmorphic: "bg-transparent",
+      brutalist: "bg-transparent",
+      "gradient-glow": "bg-transparent",
+      minimal: "bg-transparent",
     },
-    defaultVariants: {
-      variant: "classic",
+    size: {
+      sm: "py-6",
+      default: "py-12",
+      lg: "py-16",
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "classic",
+    size: "default",
+  },
+});
 
 const containerVariants = cva(
-  "container-custom flex flex-col items-center justify-center text-center",
-  {
-    variants: {
-      size: {
-        sm: "py-8 md:py-12 lg:py-16 3xl:py-20 5xl:py-24",
-        default: "py-12 md:py-16 lg:py-20 3xl:py-24 5xl:py-28",
-        lg: "py-16 md:py-24 lg:py-28 3xl:py-32 5xl:py-36",
-      },
-    },
-    defaultVariants: {
-      size: "default",
-    },
-  }
+  "container-custom mx-auto w-full flex flex-col items-center justify-center text-center"
 );
 
 interface TechnologyPreviewSectionProps
-  extends VariantProps<typeof sectionVariants>, VariantProps<typeof containerVariants> {
+  extends VariantProps<typeof sectionVariants> {
   limit?: number;
 
   // 🟢 ১. যেকোনো Details Page থেকে কাস্টম টেকনোলজি অ্যারে পাস করার প্রপ্স
@@ -99,8 +89,8 @@ export function TechnologyPreviewSection({
 
   if (isLoading) {
     return (
-      <section className={sectionVariants({ variant })}>
-        <div className={containerVariants({ size })}>
+      <section className={cn("bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6", sectionVariants({ variant, size }))}>
+        <div className={cn(containerVariants())}>
           {!hideHeader && (
             <div className="flex flex-col items-center justify-center space-y-3">
               <Skeleton className="h-5 w-28 self-center rounded" />
@@ -130,11 +120,11 @@ export function TechnologyPreviewSection({
   return (
     <section
       className={cn(
-        "relative isolate mx-auto w-full justify-center overflow-hidden",
-        sectionVariants({ variant })
+        "bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6",
+        sectionVariants({ variant, size })
       )}
     >
-      <div className={containerVariants({ size })}>
+      <div className={containerVariants()}>
         <div
           aria-hidden="true"
           className="bg-primary/5 pointer-events-none absolute top-12 -left-28 h-64 w-64 rounded-full blur-3xl"
@@ -147,7 +137,7 @@ export function TechnologyPreviewSection({
         {!hideHeader && (
           <div className="flex w-full flex-col items-center justify-center text-center">
             <PreviewSectionHeader
-              variant="center"
+              variant="split"
               eyebrow={eyebrow}
               title={title}
               description={description}
@@ -157,18 +147,17 @@ export function TechnologyPreviewSection({
           </div>
         )}
 
-        {/* 🔧 REUSABLE TECHNOLOGY CARD MATRIX */}
-        <div className="3xl:mt-20 5xl:mt-24 mx-auto mt-10 flex w-full flex-wrap items-stretch justify-center gap-3 md:mt-14 lg:mt-16">
+        {/* 🟢 FULL WIDTH GRID MATRIX */}
+        <div className="mx-auto mt-10 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 md:mt-14 md:grid-cols-4 lg:mt-16 lg:grid-cols-6">
           {technologies.map((technology, index) => (
-            <div
+            <TechnologyCard
               key={technology.id ? String(technology.id) : index}
-              className="flex w-[calc(50%-0.5rem)] max-w-[200px] shrink-0 flex-col sm:w-[calc(33.333%-0.85rem)] md:w-[calc(25%-0.95rem)] lg:w-[calc(20%-1rem)] xl:w-[calc(16.666%-1.05rem)]"
-            >
-              <TechnologyCard
-                technology={technology}
-                className="h-full w-full"
-              />
-            </div>
+              size="sm"
+              layout="horizontal"
+              alignment="center"
+              technology={technology}
+              className="h-16 w-full rounded-lg"
+            />
           ))}
         </div>
       </div>

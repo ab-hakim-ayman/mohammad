@@ -16,39 +16,23 @@ export function CaseStudySection() {
   }, [data]);
 
   const filters = useMemo(() => {
-    const clients = new Set<string>();
-    const techs = new Set<string>();
+    const categories = new Set<string>();
 
     caseStudies.forEach((item) => {
-      if (item.project?.client?.title) {
-        clients.add(item.project.client.title);
-      }
-      item.project?.technologies?.forEach((tech) => {
-        if (tech.title) {
-          techs.add(tech.title);
-        }
+      item.categories?.forEach((cat) => {
+        if (cat.title) categories.add(cat.title);
       });
     });
 
-    const configs = [];
+    if (categories.size === 0) return [];
 
-    if (clients.size > 0) {
-      configs.push({
-        key: "project.client.title",
-        placeholder: "Client",
-        options: Array.from(clients).map((c) => ({ label: c, value: c })),
-      });
-    }
-
-    if (techs.size > 0) {
-      configs.push({
-        key: "project.technologies",
-        placeholder: "Technology",
-        options: Array.from(techs).map((t) => ({ label: t, value: t })),
-      });
-    }
-
-    return configs;
+    return [
+      {
+        key: "categories",
+        placeholder: "Category",
+        options: Array.from(categories).map((c) => ({ label: c, value: c })),
+      },
+    ];
   }, [caseStudies]);
 
   return (

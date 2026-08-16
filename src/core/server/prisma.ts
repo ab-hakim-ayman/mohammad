@@ -3,10 +3,13 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-  pool: Pool | undefined;
+  prisma?: PrismaClient;
+  pool?: Pool;
+  adapter?: PrismaPg;
 };
+
 const isProduction = process.env.NODE_ENV === "production";
+
 const pool =
   globalForPrisma.pool ??
   new Pool({
@@ -16,35 +19,21 @@ const pool =
     connectionTimeoutMillis: 2000,
   });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.pool = pool;
-}
+const adapter = globalForPrisma.adapter ?? new PrismaPg(pool);
 
-const adapter = new PrismaPg(pool);
-
-function createPrismaClient() {
+function createPrismaClient(): PrismaClient {
   return new PrismaClient({
     adapter,
   });
 }
 
-function hasExpectedDelegates(client: PrismaClient) {
-  return "siteInfo" in client;
-}
-
-export const prisma = (() => {
-  const cached = globalForPrisma.prisma;
-
-  if (cached && hasExpectedDelegates(cached)) {
-    return cached;
-  }
-
-  const client = createPrismaClient();
-  return client;
-})();
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.pool = pool;
+  globalForPrisma.adapter = adapter;
   globalForPrisma.prisma = prisma;
 }
 
 export default prisma;
+

@@ -10,9 +10,9 @@ interface CaseStudyCardProps {
     shortDesc?: string | null;
     cardImage?: string | null;
     project?: {
-      client?: { title: string } | null;
-      industry?: { title: string } | null;
+      title?: string | null;
     } | null;
+    categories?: Array<{ title: string }> | null;
   };
   description?: string;
   detailHref?: string;
@@ -50,10 +50,10 @@ export function CaseStudyCard({
         actionLabel: actionLabel || "View details",
         getDescription: (item) => description || item.shortDesc || "",
         getBadges: (item) =>
-          item.project?.client?.title
-            ? [{ label: item.project.client.title }]
-            : item.project?.industry?.title
-              ? [{ label: item.project.industry.title }]
+          item.categories && item.categories.length > 0
+            ? [{ label: item.categories[0].title }]
+            : item.project?.title
+              ? [{ label: item.project.title }]
               : [],
       }}
     />

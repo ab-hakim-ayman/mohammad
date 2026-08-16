@@ -37,7 +37,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let projects: any[] = [];
   let categories: any[] = [];
   let tags: any[] = [];
-  let events: any[] = [];
   let galleries: any[] = [];
 
   try {
@@ -46,7 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       projectsData,
       categoriesData,
       tagsData,
-      eventsData,
       galleriesData,
     ] = await Promise.all([
       prisma.blog.findMany({
@@ -65,10 +63,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         where: { status: "PUBLISHED" },
         select: { slug: true, updatedAt: true },
       }),
-      prisma.event.findMany({
-        where: { status: "PUBLISHED" },
-        select: { slug: true, updatedAt: true },
-      }),
       prisma.gallery.findMany({
         where: { status: "PUBLISHED" },
         select: { slug: true, updatedAt: true },
@@ -79,7 +73,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     projects = projectsData;
     categories = categoriesData;
     tags = tagsData;
-    events = eventsData;
     galleries = galleriesData;
   } catch (error) {
     console.warn("Failed to fetch dynamic sitemap data during build, falling back to static routes only:", error);
@@ -93,15 +86,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizePath("/projects"),
     ...localizePath("/blogs"),
     ...localizePath("/contact"),
-    ...localizePath("/clients"),
     ...localizePath("/technologies"),
     ...localizePath("/skills"),
     ...localizePath("/specializations"),
     ...localizePath("/testimonials"),
-    ...localizePath("/partners"),
     ...localizePath("/achievements"),
     ...localizePath("/galleries"),
-    ...localizePath("/events"),
     ...localizePath("/faqs"),
     ...localizePath("/categories"),
     ...localizePath("/tags"),
@@ -143,9 +133,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       createEntries(baseUrl, localizePath(`/tags/${item.slug}`), "weekly", 0.58, item.updatedAt)
     ),
 
-    ...events.flatMap((item) =>
-      createEntries(baseUrl, localizePath(`/events/${item.slug}`), "weekly", 0.66, item.updatedAt)
-    ),
     ...galleries.flatMap((item) =>
       createEntries(
         baseUrl,

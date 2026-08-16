@@ -60,8 +60,8 @@ export function ServicePreviewSection({
 
   if (isLoading) {
     return (
-      <section className="bg-background relative isolate overflow-hidden py-14 sm:py-20 lg:py-24">
-        <div className="container-custom">
+      <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
+        <div className="container-custom mx-auto w-full">
           {!hideHeader && (
             <div className="bg-surface-elevated/50 mb-10 h-10 w-56 animate-pulse rounded-none sm:rounded-lg" />
           )}
@@ -83,8 +83,8 @@ export function ServicePreviewSection({
   if ((shouldFetch && error) || services.length === 0) return null;
 
   return (
-    <section className="bg-background relative isolate overflow-hidden py-14 sm:py-20 lg:py-24">
-      <div className="container-custom">
+    <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
+      <div className="container-custom mx-auto w-full">
         {!hideHeader && (
           <PreviewSectionHeader
             eyebrow={eyebrow}

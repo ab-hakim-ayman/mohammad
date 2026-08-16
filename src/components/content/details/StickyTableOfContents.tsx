@@ -2,21 +2,30 @@
 
 import { useEffect, useState } from "react";
 import I18n from "@/shared/components/I18n";
+import { cn } from "@/lib/utils";
 
-interface TocItem {
+export interface TocItem {
   id: string;
   text: string;
   level: number;
 }
 
-interface StickyTableOfContentsProps {
+export interface StickyTableOfContentsProps {
   items: TocItem[];
+  className?: string;
+  hideHeader?: boolean;
 }
 
-export function StickyTableOfContents({ items }: StickyTableOfContentsProps) {
+export function StickyTableOfContents({
+  items = [],
+  className,
+  hideHeader = false,
+}: StickyTableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
+    if (!items.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -39,31 +48,39 @@ export function StickyTableOfContents({ items }: StickyTableOfContentsProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <nav className="sticky top-24 hidden lg:block" aria-label="Table of Contents">
-      <h4 className="text-foreground text-sm font-semibold tracking-[0.2em] uppercase">
-        <I18n>On this page</I18n>
-      </h4>
-      <ul className="border-border mt-4 space-y-3 border-l">
-        {items.map((item) => (
-          <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 1}rem` }}>
-            <a
-              href={`#${item.id}`}
-              className={`-ml-px block border-l-2 py-1 pl-4 text-sm transition-colors ${
-                activeId === item.id
-                  ? "border-primary text-primary font-medium"
-                  : "text-muted-foreground hover:border-border hover:text-foreground border-transparent"
-              }`}
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" });
-                setActiveId(item.id);
-              }}
-              aria-current={activeId === item.id ? "location" : undefined}
-            >
-              {item.text}
-            </a>
-          </li>
-        ))}
+    <nav className={cn("relative w-full", className)} aria-label="Table of Contents">
+      {!hideHeader && (
+        <h4 className="text-muted-foreground mb-3 text-xs font-black tracking-widest uppercase select-none">
+          <I18n>On this page</I18n>
+        </h4>
+      )}
+      <ul className="border-border/60 flex flex-col space-y-1.5 border-l">
+        {items.map((item) => {
+          const isActive = activeId === item.id;
+          const indent = item.level > 2 ? `${(item.level - 2) * 0.75}rem` : "0rem";
+
+          return (
+            <li key={item.id} style={{ paddingLeft: indent }}>
+              <a
+                href={`#${item.id}`}
+                className={cn(
+                  "-ml-px block border-l-2 py-1 pl-3 text-xs leading-relaxed transition-all",
+                  isActive
+                    ? "border-primary text-primary font-bold"
+                    : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
+                )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" });
+                  setActiveId(item.id);
+                }}
+                aria-current={isActive ? "location" : undefined}
+              >
+                {item.text}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

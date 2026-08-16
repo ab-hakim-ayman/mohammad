@@ -11,20 +11,6 @@ export default async function seedEducations(
 
   const institutions = [
     { name: "Harvard University", url: "https://harvard.edu", degree: "Master of Science", field: "Computer Science" },
-    { name: "Stanford University", url: "https://stanford.edu", degree: "Bachelor of Science", field: "Computer Science" },
-    { name: "MIT", url: "https://mit.edu", degree: "PhD", field: "Artificial Intelligence" },
-    { name: "UC Berkeley", url: "https://berkeley.edu", degree: "Bachelor of Science", field: "Electrical Engineering" },
-    { name: "CMU", url: "https://cmu.edu", degree: "Master of Science", field: "Software Engineering" },
-    { name: "BUET", url: "https://buet.ac.bd", degree: "Bachelor of Science", field: "Computer Science & Engineering" },
-    { name: "Dhaka University", url: "https://du.ac.bd", degree: "Master of Science", field: "Information Technology" },
-    { name: "Caltech", url: "https://caltech.edu", degree: "PhD", field: "Physics" },
-    { name: "Oxford University", url: "https://ox.ac.uk", degree: "Master of Science", field: "Mathematical Finance" },
-    { name: "Cambridge University", url: "https://cam.ac.uk", degree: "Bachelor of Science", field: "Computer Science" },
-    { name: "University of Waterloo", url: "https://uwaterloo.ca", degree: "Bachelor of Applied Science", field: "Software Engineering" },
-    { name: "Georgia Tech", url: "https://gatech.edu", degree: "Master of Science", field: "Computer Science" },
-    { name: "UT Austin", url: "https://utexas.edu", degree: "Bachelor of Science", field: "Computer Science" },
-    { name: "Cornell University", url: "https://cornell.edu", degree: "Master of Science", field: "Information Science" },
-    { name: "Princeton University", url: "https://princeton.edu", degree: "Bachelor of Science", field: "Operations Research" },
   ];
 
   for (let index = 0; index < institutions.length; index++) {

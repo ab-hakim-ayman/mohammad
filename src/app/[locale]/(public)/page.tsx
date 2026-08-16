@@ -2,13 +2,10 @@ import { AboutPreviewSection } from "@/features/about/server";
 import { AchEduExeSection } from "@/features/achievement";
 import { BlogPreviewSection } from "@/features/blog";
 import { CaseStudyPreviewSection } from "@/features/case-study";
-import { ClientPreviewSection } from "@/features/client";
 import { ContactPreviewSection } from "@/features/contact";
-import { EventPreviewSection } from "@/features/event";
 import { FaqPreviewSection } from "@/features/faq";
 import { GalleryPreviewSection } from "@/features/gallery";
 import { HeroPreviewSection } from "@/features/hero";
-import { PartnerPreviewSection } from "@/features/partner";
 import { ProjectPreviewSection } from "@/features/project";
 import { ServicePreviewSection } from "@/features/service";
 import { SkillPreviewSection } from "@/features/skill";
@@ -27,15 +24,11 @@ export default async function HomePage() {
       <AchEduExeSection />
 
       <TestimonialPreviewSection />
-      <ClientPreviewSection />
-      <PartnerPreviewSection />
 
       <SpecializationPreviewSection />
       <TechnologyPreviewSection />
       <SkillPreviewSection />
       <BlogPreviewSection />
-      <EventPreviewSection />
-      <GalleryPreviewSection />
 
       <FaqPreviewSection />
       <ContactPreviewSection />

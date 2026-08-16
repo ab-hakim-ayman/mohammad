@@ -32,8 +32,6 @@ export const testimonialService = {
       authorName: data.authorName,
       authorPosition: data.authorPosition || null,
       authorImage: data.authorImage || null,
-      type: data.type || "CLIENT",
-      source: data.source || "ADMIN",
       email: data.email || null,
       status: data.status,
       isFeatured: data.isFeatured ?? false,
@@ -41,12 +39,6 @@ export const testimonialService = {
       publishedAt: data.status === "PUBLISHED" ? new Date() : null,
       archivedAt: data.status === "ARCHIVED" ? new Date() : null,
     };
-    if (data.clientId) {
-      createData.client = { connect: { id: data.clientId } };
-    }
-    if (data.employeeId) {
-      createData.employee = { connect: { id: data.employeeId } };
-    }
     if (actorId) {
       createData.createdBy = { connect: { id: actorId } };
       createData.updatedBy = { connect: { id: actorId } };
@@ -76,20 +68,10 @@ export const testimonialService = {
     if (data.authorName !== undefined) updateData.authorName = data.authorName;
     if (data.authorPosition !== undefined) updateData.authorPosition = data.authorPosition || null;
     if (data.authorImage !== undefined) updateData.authorImage = data.authorImage || null;
-    if (data.type !== undefined) updateData.type = data.type;
-    if (data.source !== undefined) updateData.source = data.source;
     if (data.email !== undefined) updateData.email = data.email || null;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
     if (data.order !== undefined) updateData.order = data.order;
-    if (data.clientId !== undefined) {
-      updateData.client = data.clientId ? { connect: { id: data.clientId } } : { disconnect: true };
-    }
-    if (data.employeeId !== undefined) {
-      updateData.employee = data.employeeId
-        ? { connect: { id: data.employeeId } }
-        : { disconnect: true };
-    }
 
     if (data.status === "PUBLISHED" && existing.status !== "PUBLISHED") {
       updateData.publishedAt = new Date();

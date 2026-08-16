@@ -8,19 +8,18 @@ import { cn } from "@/lib/utils";
 import I18n from "@/shared/components/I18n";
 import { usePublicSiteInfo } from "../hooks/useSiteInfo";
 
-const sectionVariants = cva("w-full transition-all duration-300 border overflow-hidden", {
+const sectionVariants = cva("relative w-full transition-all duration-500 overflow-hidden", {
   variants: {
     variant: {
-      classic: "bg-background border-border shadow-2xs",
-      glassmorphic: "bg-card/40 backdrop-blur-md border-border shadow-xs",
-      brutalist: "bg-background border-3 border-foreground shadow-brutal rounded-none",
-      "gradient-glow":
-        "bg-background border-border shadow-brand relative after:absolute after:bottom-0 after:left-1/4 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-primary/30 after:to-transparent",
-      minimal: "bg-transparent border-0 shadow-none p-0",
+      classic: "bg-transparent",
+      glassmorphic: "bg-transparent",
+      brutalist: "bg-transparent",
+      "gradient-glow": "bg-transparent",
+      minimal: "bg-transparent",
     },
     size: {
       sm: "py-6",
-      default: "py-10",
+      default: "py-12",
       lg: "py-16",
     },
   },
@@ -39,11 +38,11 @@ export function SiteInfoPreviewSection({ variant, size }: SiteInfoPreviewSection
     return (
       <section
         className={cn(
-          "relative isolate w-full overflow-hidden py-6 sm:py-8",
+          "bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6",
           sectionVariants({ variant, size })
         )}
       >
-        <div className="container-custom">
+        <div className="container-custom mx-auto w-full">
           <Skeleton className="mb-6 h-10 w-64 rounded" />
           <div className="3xl:grid-cols-4 5xl:grid-cols-8 grid gap-6 lg:grid-cols-2">
             <Skeleton className="border-border bg-surface-elevated/50 h-56 rounded-xl border" />
@@ -60,11 +59,11 @@ export function SiteInfoPreviewSection({ variant, size }: SiteInfoPreviewSection
   return (
     <section
       className={cn(
-        "relative isolate w-full overflow-hidden py-6 sm:py-8",
+        "bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6",
         sectionVariants({ variant, size })
       )}
     >
-      <div className="container-custom">
+      <div className="container-custom mx-auto w-full">
         <PreviewSectionHeader
           eyebrow="Site profile"
           title={siteInfo.fullName}

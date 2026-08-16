@@ -96,8 +96,11 @@ class ApiClient {
 
     try {
       const response = await fetch(url, {
+        cache: "no-store",
         ...options,
         headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
           ...this.defaultHeaders,
           ...options.headers,
         },

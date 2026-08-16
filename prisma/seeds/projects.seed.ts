@@ -3,12 +3,11 @@ import { TOPICS, buildDate, buildImage, cycle } from "./seed-data";
 
 export default async function seedProjects(
   prisma: PrismaClient,
-  users?: Array<{ id: string }>,
-  clientsDb?: Array<{ id: string }>
+  users?: Array<{ id: string }>
 ) {
   console.log("Seeding Projects...");
 
-  if (!users?.length || !clientsDb?.length) return;
+  if (!users?.length) return;
 
   await prisma.project.createMany({
     data: TOPICS.map((topic, index) => ({
@@ -40,7 +39,6 @@ export default async function seedProjects(
       publishedAt: index % 3 === 1 ? new Date(2024, index % 12, 1) : null,
       archivedAt: index % 3 === 2 ? new Date(2024, index % 12, 20) : null,
       order: index + 1,
-      clientId: cycle(clientsDb, index).id,
       createdById: users[index % users.length].id,
       updatedById: users[(index + 1) % users.length].id,
     })),

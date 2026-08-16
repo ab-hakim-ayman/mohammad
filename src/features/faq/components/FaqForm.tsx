@@ -6,7 +6,6 @@ import { FormEngineConfig } from "@/shared/components/forms/form-engine.types";
 import { CreateFaqSchema } from "../schemas/faq.schema";
 import { CreateFaqPayload, Faq } from "../types/faq.types";
 import { useCategories } from "@/features/category";
-import { useEvents } from "@/features/event";
 import { useServices } from "@/features/service";
 import { SelectOption } from "@/shared/components/Select";
 import { createSelectOptions } from "@/shared/utils";
@@ -17,7 +16,6 @@ interface FaqFormProps {
   onSubmit: (data: CreateFaqPayload) => Promise<void> | void;
   isSubmitting?: boolean;
   categoryOptions?: SelectOption[];
-  eventOptions?: SelectOption[];
   serviceOptions?: SelectOption[];
   [key: string]: any;
 }
@@ -27,13 +25,11 @@ export function FaqForm({
   onSubmit,
   isSubmitting = false,
   categoryOptions: externalCategoryOptions,
-  eventOptions: externalEventOptions,
   serviceOptions: externalServiceOptions,
 }: FaqFormProps) {
   const { data: categoriesData } = useCategories(
     externalCategoryOptions ? undefined : { scope: "FAQ", limit: 100 }
   );
-  const { data: eventsData } = useEvents(externalEventOptions ? undefined : { limit: 100 });
   const { data: servicesData } = useServices(externalServiceOptions ? undefined : { limit: 100 });
 
   const categoryOptions = useMemo(() => {
@@ -43,14 +39,6 @@ export function FaqForm({
       : (categoriesData as any)?.data?.data || (categoriesData as any)?.data || [];
     return Array.isArray(items) ? items.map((item: any) => ({ label: item.title, value: item.id })) : [];
   }, [externalCategoryOptions, categoriesData]);
-
-  const eventOptions = useMemo(() => {
-    if (externalEventOptions) return externalEventOptions;
-    const items = Array.isArray(eventsData)
-      ? eventsData
-      : (eventsData as any)?.data?.data || (eventsData as any)?.data || [];
-    return Array.isArray(items) ? items.map((item: any) => ({ label: item.title, value: item.id })) : [];
-  }, [externalEventOptions, eventsData]);
 
   const serviceOptions = useMemo(() => {
     if (externalServiceOptions) return externalServiceOptions;
@@ -76,8 +64,7 @@ export function FaqForm({
             options: createSelectOptions(Status)
           },
           { name: "order", label: "Order", type: "number", gridSpan: 6 },
-          { name: "categoryIds" as any, label: "Categories", type: "multiselect", options: categoryOptions, gridSpan: 12 },
-          { name: "eventIds" as any, label: "Events", type: "multiselect", options: eventOptions, gridSpan: 6 },
+          { name: "categoryIds" as any, label: "Categories", type: "multiselect", options: categoryOptions, gridSpan: 6 },
           { name: "serviceIds" as any, label: "Services", type: "multiselect", options: serviceOptions, gridSpan: 6 },
           { name: "isFeatured", label: "Is Featured", type: "switch", gridSpan: 12 },
         ],
@@ -90,7 +77,6 @@ export function FaqForm({
     return {
       ...initialData,
       categoryIds: initialData.categories?.map((c) => c.id) || [],
-      eventIds: initialData.events?.map((e) => e.id) || [],
       serviceIds: initialData.services?.map((s) => s.id) || [],
     };
   }, [initialData]);

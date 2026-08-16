@@ -74,8 +74,8 @@ export function TestimonialPreviewSection({
 
   if (isLoading) {
     return (
-      <section className="relative w-full bg-background/50 border-t border-border/40 py-16 lg:py-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto w-full px-6 lg:px-8">
+      <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
+        <div className="container-custom mx-auto w-full">
           <div className="relative w-full flex flex-col md:flex-row items-center gap-8 lg:gap-14 animate-pulse">
             {/* Left Image Skeleton */}
             <div className="relative aspect-square w-52 sm:w-60 lg:w-72 shrink-0 bg-muted/60 rounded-2xl border border-border/60" />
@@ -121,9 +121,9 @@ export function TestimonialPreviewSection({
   const authorMeta = currentTestimonial.authorPosition || "Client Partner";
 
   return (
-    <section className="relative w-full bg-background/30 dark:bg-background/10 border-t border-border/40 py-16 lg:py-20 overflow-hidden transition-colors duration-300">
-      {/* Standard Container matching other sections (max-w-7xl) */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+    <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
+      {/* Standard Container matching other sections */}
+      <div className="container-custom mx-auto w-full">
 
         {!hideHeader && (
           <div className="mb-12 text-center">

@@ -10,4 +10,5 @@ export { VideoEmbedRenderer } from "./VideoEmbedRenderer";
 export { CustomVideoRenderer } from "./CustomVideoRenderer";
 export { CustomAudioRenderer } from "./CustomAudioRenderer";
 export { CustomFileRenderer } from "./CustomFileRenderer";
+export { TakeawaysRenderer } from "./TakeawaysRenderer";
 export { InlineCtaRenderer } from "../ContentRenderer";

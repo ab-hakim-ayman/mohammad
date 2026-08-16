@@ -23,8 +23,6 @@ const auditUserSelect = {
 const projectInclude = {
   createdBy: { select: auditUserSelect },
   updatedBy: { select: auditUserSelect },
-  client: { select: { id: true, title: true } },
-  industry: { select: { id: true, title: true, slug: true } },
   technologies: { select: { id: true, title: true, logo: true } },
   services: { select: { id: true, title: true, slug: true } },
   categories: { select: { id: true, title: true, slug: true } },
@@ -33,12 +31,6 @@ const projectInclude = {
 } as const;
 
 const projectPublicInclude = {
-  client: {
-    select: { id: true, title: true, status: true },
-  },
-  industry: {
-    select: { id: true, title: true, slug: true, status: true },
-  },
   technologies: {
     where: { status: "PUBLISHED" as const },
     select: { id: true, title: true, logo: true },
@@ -63,8 +55,6 @@ export const projectRepository = {
       status,
       isFeatured,
       technology,
-      clientId,
-      industryId,
       serviceId,
     } = params;
 
@@ -77,8 +67,6 @@ export const projectRepository = {
       }),
       ...(status && { status }),
       ...(isFeatured !== undefined && { isFeatured }),
-      ...(clientId && { clientId }),
-      ...(industryId && { industryId }),
       ...(technology && { technologies: { some: { id: technology } } }),
       ...(serviceId && { services: { some: { id: serviceId } } }),
     };
@@ -132,8 +120,6 @@ export const projectRepository = {
     if (!project) return null;
     return {
       ...project,
-      client: project.client?.status === "PUBLISHED" ? project.client : null,
-      industry: project.industry?.status === "PUBLISHED" ? project.industry : null,
       caseStudy: project.caseStudy?.status === "PUBLISHED" ? project.caseStudy : null,
     };
   },
@@ -144,9 +130,8 @@ export const projectRepository = {
     search?: string;
     technology?: string;
     featured?: boolean;
-    industry?: string;
   }) {
-    const { page = 1, limit = 10, search, technology, featured, industry } = params;
+    const { page = 1, limit = 10, search, technology, featured } = params;
 
     const where: Prisma.ProjectWhereInput = {
       status: "PUBLISHED",
@@ -157,7 +142,6 @@ export const projectRepository = {
         ],
       }),
       ...(technology && { technologies: { some: { id: technology } } }),
-      ...(industry && { industry: { slug: industry } }),
       ...(featured !== undefined && { isFeatured: featured }),
     };
 
@@ -175,8 +159,6 @@ export const projectRepository = {
     return {
       data: data.map((project) => ({
         ...project,
-        client: project.client?.status === "PUBLISHED" ? project.client : null,
-        industry: project.industry?.status === "PUBLISHED" ? project.industry : null,
         caseStudy: project.caseStudy?.status === "PUBLISHED" ? project.caseStudy : null,
       })),
       total,

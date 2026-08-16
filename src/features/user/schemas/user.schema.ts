@@ -25,7 +25,7 @@ export const CreateUserSchema = z.object({
   name: z.string().trim().min(2).max(120).optional().nullable(),
   avatar: z.preprocess(emptyStringToNull, z.string().trim().optional().nullable()),
   phone: z.string().trim().min(3).max(30).optional().nullable(),
-  role: z.enum(USER_ROLES).default("EMPLOYEE"),
+  role: z.enum(USER_ROLES).default("MODERATOR"),
   status: z.enum(ACCOUNT_STATUSES).default("INVITED"),
   password: z.string().min(8, "Password must be at least 8 characters").optional().nullable(),
   profile: UserProfileSchema.optional(),

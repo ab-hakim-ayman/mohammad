@@ -51,8 +51,6 @@ export interface CaseStudy {
     id: string;
     title: string;
     slug: string;
-    client?: { id: string; title: string } | null;
-    industry?: { id: string; title: string } | null;
     technologies?: { id: string; title: string; logo: string | null }[];
   } | null;
 

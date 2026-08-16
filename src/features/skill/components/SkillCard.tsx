@@ -5,30 +5,37 @@ import { cn } from "@/lib/utils";
 interface SkillCardProps {
   skill: {
     id: string;
+    slug?: string | null;
     title: string;
     icon?: string | null;
   };
   className?: string;
   size?: "sm" | "md" | "lg";
   layout?: "horizontal" | "vertical";
+  alignment?: "start" | "center" | "right";
   variant?: any;
 }
 
-export function SkillCard({ skill, className, size = "md", layout }: SkillCardProps) {
+export function SkillCard({
+  skill,
+  className,
+  size = "md",
+  layout = "vertical",
+  alignment = "center",
+}: SkillCardProps) {
   return (
     <CardEngine
       data={skill}
       size={size}
       layout={layout}
-      mediaPosition="top"
+      alignment={alignment}
       imageBleed="edge-to-edge"
       shadow="md"
-      alignment="center"
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
         titleKey: "title",
         iconKey: "icon",
-        href: (item) => `/skills/${item.id}`,
+        href: (item: any) => `/skills/${item.slug || item.id}`,
       }}
     />
   );

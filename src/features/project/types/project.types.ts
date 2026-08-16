@@ -21,8 +21,6 @@ export interface ProjectApiQueryParams {
   status?: Status;
   isFeatured?: boolean;
   technology?: string;
-  clientId?: string;
-  industryId?: string;
   serviceId?: string;
 }
 
@@ -32,7 +30,6 @@ export interface PublicProjectQueryParams {
   search?: string;
   technology?: string;
   featured?: boolean;
-  industry?: string;
 }
 
 export interface Technology {
@@ -63,11 +60,6 @@ export interface Project {
   isFeatured: boolean;
   order: number;
 
-  clientId: string | null;
-  industryId: string | null;
-
-  client?: { id: string; title: string } | null;
-  industry?: { id: string; title: string; slug: string } | null;
   technologies?: Technology[];
   caseStudy?: { id: string; title: string; slug: string; status: string } | null;
   services?: { id: string; title: string; slug: string }[];

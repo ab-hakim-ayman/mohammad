@@ -8,17 +8,13 @@ const ENTITY_TYPE_MAP: Record<string, MediaEntityType> = {
   hero: "HERO",
   profile: "PROFILE",
   blog: "BLOG",
-  industry: "INDUSTRY",
   project: "PROJECT",
   "case-study": "CASE_STUDY",
   service: "SERVICE",
   specialization: "SPECIALIZATION",
-  event: "EVENT",
   achievement: "ACHIEVEMENT",
   gallery: "GALLERY",
   "gallery-item": "GALLERY_ITEM",
-  client: "CLIENT",
-  partner: "PARTNER",
   technology: "TECHNOLOGY",
   skill: "SKILL",
   category: "CATEGORY",
@@ -35,7 +31,7 @@ export async function cleanupMediaAttachmentsForEntity(
 ) {
   const normalizedEntityType = ENTITY_TYPE_MAP[entityType];
   if (!normalizedEntityType) {
-    throw new Error(`Unsupported media entity type: ${entityType}`);
+    return;
   }
 
   const deletedAttachments = await tx.mediaAttachment.deleteMany({

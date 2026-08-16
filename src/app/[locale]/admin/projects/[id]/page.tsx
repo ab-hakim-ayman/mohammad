@@ -99,18 +99,6 @@ export default function ViewProjectPage() {
     ],
     relatedSections: [
       {
-        title: "Client",
-        hrefPrefix: "clients",
-        variant: "list",
-        getRecords: (rec) => (rec.client ? [{ id: rec.client.id, title: rec.client.title }] : []),
-      },
-      {
-        title: "Industry",
-        hrefPrefix: "industries",
-        variant: "list",
-        getRecords: (rec) => (rec.industry ? [{ id: rec.industry.id, title: rec.industry.title }] : []),
-      },
-      {
         title: "Categories",
         hrefPrefix: "categories",
         variant: "badges",

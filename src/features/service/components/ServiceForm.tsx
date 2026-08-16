@@ -10,7 +10,6 @@ import { useTechnologies } from "@/features/technology";
 import { useServices } from "@/features/service";
 import { useFaqs } from "@/features/faq";
 import { useTestimonials } from "@/features/testimonial";
-import { useIndustries } from "@/features/industry";
 import { useSpecializations } from "@/features/specialization";
 import { useTags } from "@/features/tag";
 import { SelectOption } from "@/shared/components/Select";
@@ -21,7 +20,6 @@ interface ServiceFormProps {
   isSubmitting?: boolean;
   categoryOptions?: SelectOption[];
   tagOptions?: SelectOption[];
-  industryOptions?: SelectOption[];
   technologyOptions?: SelectOption[];
   projectOptions?: SelectOption[];
   faqOptions?: SelectOption[];
@@ -36,7 +34,6 @@ export function ServiceForm({
   isSubmitting = false,
   categoryOptions: externalCategoryOptions,
   tagOptions: externalTagOptions,
-  industryOptions: externalIndustryOptions,
   technologyOptions: externalTechnologyOptions,
   projectOptions: externalProjectOptions,
   faqOptions: externalFaqOptions,
@@ -47,9 +44,6 @@ export function ServiceForm({
     externalCategoryOptions ? undefined : { scope: "SERVICE", limit: 100 }
   );
   const { data: tagsData } = useTags(externalTagOptions ? undefined : { limit: 100 });
-  const { data: industriesData } = useIndustries(
-    externalIndustryOptions ? undefined : { limit: 100 }
-  );
   const { data: technologiesData } = useTechnologies(
     externalTechnologyOptions ? undefined : { limit: 100 }
   );
@@ -79,14 +73,6 @@ export function ServiceForm({
       : (tagsData as any)?.data?.data || (tagsData as any)?.data || [];
     return Array.isArray(items) ? items.map((item: any) => ({ label: item.title, value: item.id })) : [];
   }, [externalTagOptions, tagsData]);
-
-  const industryOptions = useMemo(() => {
-    if (externalIndustryOptions) return externalIndustryOptions;
-    const items = Array.isArray(industriesData)
-      ? industriesData
-      : (industriesData as any)?.data?.data || (industriesData as any)?.data || [];
-    return Array.isArray(items) ? items.map((item: any) => ({ label: item.title, value: item.id })) : [];
-  }, [externalIndustryOptions, industriesData]);
 
   const technologyOptions = useMemo(() => {
     if (externalTechnologyOptions) return externalTechnologyOptions;
@@ -148,7 +134,6 @@ export function ServiceForm({
             ],
           },
           { name: "order", label: "Order", type: "number", gridSpan: 6 },
-          { name: "industryIds" as any, label: "Related Industries", type: "multiselect", options: industryOptions, gridSpan: 6 },
           { name: "technologyIds" as any, label: "Related Technologies", type: "multiselect", options: technologyOptions, gridSpan: 6 },
           { name: "projectIds" as any, label: "Related Projects", type: "multiselect", options: projectOptions, gridSpan: 6 },
           { name: "faqIds" as any, label: "Related Faqs", type: "multiselect", options: faqOptions, gridSpan: 6 },
@@ -204,7 +189,6 @@ export function ServiceForm({
       ogImage: initialData.ogImage || null,
       seoTitle: initialData.seoTitle || "",
       seoDescription: initialData.seoDescription || "",
-      industryIds: initialData.industries?.map((i: any) => i.id) || [],
       technologyIds: initialData.technologies?.map((t: any) => t.id) || [],
       projectIds: initialData.projects?.map((p: any) => p.id) || [],
       faqIds: initialData.faqs?.map((f: any) => f.id) || [],

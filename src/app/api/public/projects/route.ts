@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.has("featured")
       ? searchParams.get("featured") === "true"
       : undefined;
-    const industry = searchParams.get("industry") || undefined;
 
     const result = await projectService.getPublished({
       page,
@@ -24,7 +23,6 @@ export async function GET(request: NextRequest) {
       search,
       technology,
       featured,
-      industry,
     });
 
     const enriched = await enrichEntitiesWithAltText("project", result.data as any[], {

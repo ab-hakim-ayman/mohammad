@@ -35,7 +35,6 @@ export const projectService = {
     search?: string;
     technology?: string;
     featured?: boolean;
-    industry?: string;
   }) {
     return projectRepository.findPublished(params);
   },
@@ -78,14 +77,6 @@ export const projectService = {
       categories: { connect: validated.categoryIds?.map((id) => ({ id })) || [] },
       tags: { connect: validated.tagIds?.map((id) => ({ id })) || [] },
     };
-
-    if (validated.clientId) {
-      createData.client = { connect: { id: validated.clientId } };
-    }
-
-    if (validated.industryId) {
-      createData.industry = { connect: { id: validated.industryId } };
-    }
 
     if (actorId) {
       createData.createdBy = { connect: { id: actorId } };
@@ -187,18 +178,6 @@ export const projectService = {
     }
     if (validated.status !== "ARCHIVED" && existing.status === "ARCHIVED") {
       updateData.archivedAt = null;
-    }
-
-    if (validated.clientId !== undefined) {
-      updateData.client = validated.clientId
-        ? { connect: { id: validated.clientId } }
-        : { disconnect: true };
-    }
-
-    if (validated.industryId !== undefined) {
-      updateData.industry = validated.industryId
-        ? { connect: { id: validated.industryId } }
-        : { disconnect: true };
     }
 
     if (validated.technologyIds) {

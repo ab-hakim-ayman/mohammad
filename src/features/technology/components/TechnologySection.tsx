@@ -17,20 +17,21 @@ export function TechnologySection() {
   }, [data]);
 
   const filters = useMemo(() => {
-    const list = new Set<string>();
+    const categories = new Set<string>();
     technologies.forEach((item) => {
-      item.categories?.forEach((cat) => {
-        if (cat.title) list.add(cat.title);
+      item.categories?.forEach((cat: any) => {
+        const title = cat.title || cat.name;
+        if (title) categories.add(title);
       });
     });
 
-    if (list.size === 0) return [];
+    if (categories.size === 0) return [];
 
     return [
       {
         key: "categories",
         placeholder: "Category",
-        options: Array.from(list).map((cat) => ({ label: cat, value: cat })),
+        options: Array.from(categories).map((c) => ({ label: c, value: c })),
       },
     ];
   }, [technologies]);
@@ -42,6 +43,7 @@ export function TechnologySection() {
       error={error}
       searchKey="title"
       searchPlaceholder="Filter technologies by keyword..."
+      categoryKey="categories"
       filters={filters}
       renderCard={(item) => (
         <TechnologyCard technology={item} variant="classic" size="md" className="h-full w-full" />

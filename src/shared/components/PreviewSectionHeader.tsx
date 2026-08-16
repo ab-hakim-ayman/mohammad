@@ -51,10 +51,14 @@ export function PreviewSectionHeader({
   return (
     <div className={cn(headerVariants({ variant, theme }), className)}>
       {/* 📝 Text Content Wrapper */}
+      {/* 📝 Text Content Wrapper */}
       <div
-        className={cn("flex w-full flex-col", isCentered ? "max-w-3xl items-center" : "max-w-2xl")}
+        className={cn(
+          "flex w-full flex-col",
+          isCentered ? "max-w-3xl items-center" : "flex-1"
+        )}
       >
-        {/* Eyebrow Pill Badge (Vercel/Stripe Style) */}
+        {/* Eyebrow Pill Badge */}
         {eyebrow && (
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-3 py-1 text-[10px] font-bold tracking-widest uppercase text-muted-foreground select-none backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
@@ -76,8 +80,8 @@ export function PreviewSectionHeader({
         {description && (
           <p
             className={cn(
-              "mt-3 text-xs sm:text-sm leading-relaxed font-medium text-muted-foreground/90",
-              isCentered ? "mx-auto max-w-xl" : "max-w-xl"
+              "mt-3 text-xs sm:text-sm leading-relaxed font-medium text-muted-foreground/90 w-full",
+              isCentered && "mx-auto text-center"
             )}
           >
             {description}

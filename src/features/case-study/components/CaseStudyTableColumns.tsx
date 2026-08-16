@@ -31,23 +31,7 @@ export const caseStudyTableColumns: ColumnConfig<CaseStudy>[] = [
       );
     },
   },
-  {
-    key: "client",
-    header: "Client",
-    render: (item) => {
-      const client = item.project?.client;
-      return client ? (
-        <Link
-          href={`/admin/clients/${client.id}`}
-          className="text-primary hover:text-primary/80 text-sm underline-offset-2 hover:underline"
-        >
-          {client.title}
-        </Link>
-      ) : (
-        <span className="text-muted-foreground text-sm">—</span>
-      );
-    },
-  },
+
   {
     key: "shortDesc",
     header: "Short Desc",

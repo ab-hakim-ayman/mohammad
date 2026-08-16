@@ -1,4 +1,3 @@
-import I18n from "@/shared/components/I18n";
 import { NextRequest } from "next/server";
 import { AppError } from "../http/errors";
 import { prisma } from "../prisma";
@@ -7,8 +6,8 @@ import { ACCOUNT_STATUSES, USER_ROLES, type AccountStatus, type UserRole } from 
 
 export { generateToken, verifyToken };
 
-export const STAFF_ROLES: UserRole[] = ["OWNER", "ADMIN", "MANAGER", "HR", "CONTENT_MANAGER"];
-export const MANAGEMENT_ROLES: UserRole[] = ["OWNER", "ADMIN"];
+export const STAFF_ROLES: UserRole[] = ["OWNER", "MODERATOR"];
+export const MANAGEMENT_ROLES: UserRole[] = ["OWNER"];
 
 export interface CurrentUserProfile {
   id: string;
@@ -135,9 +134,7 @@ export async function requireRole(
 
 export function canAssignRole(actorRole: UserRole, targetRole: UserRole): boolean {
   if (actorRole === "OWNER") return true;
-  if (actorRole === "ADMIN") {
-    return targetRole !== "OWNER" && targetRole !== "ADMIN";
-  }
+  if (actorRole === "MODERATOR") return targetRole !== "OWNER";
   return false;
 }
 
@@ -147,7 +144,7 @@ export function canManageUser(
 ): boolean {
   if (!isActiveStatus(actor.status)) return false;
   if (actor.role === "OWNER") return true;
-  if (actor.role === "ADMIN") return target.role !== "OWNER";
+  if (actor.role === "MODERATOR") return target.role !== "OWNER";
   return false;
 }
 

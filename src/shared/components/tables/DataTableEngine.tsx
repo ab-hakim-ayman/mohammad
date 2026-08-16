@@ -83,6 +83,16 @@ export function DataTableEngine<TData extends Record<string, any>>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState({});
 
+  React.useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      setRowSelection({});
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [data]);
+
   const hasActiveFilters = searchValue.trim() !== "" || Object.keys(filterValues).length > 0;
 
   const handleResetFilters = () => {
@@ -461,7 +471,10 @@ export function DataTableEngine<TData extends Record<string, any>>({
                   key={i}
                   size="sm"
                   variant={action.variant || "outline"}
-                  onClick={() => action.onClick(selectedRows)}
+                  onClick={async () => {
+                    await action.onClick(selectedRows);
+                    setRowSelection({});
+                  }}
                   className="h-9 rounded-xl px-3 text-xs font-bold shadow-2xs"
                 >
                   {action.icon && <span className="mr-1.5">{action.icon}</span>}

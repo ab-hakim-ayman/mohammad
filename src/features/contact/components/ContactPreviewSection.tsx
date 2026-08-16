@@ -36,7 +36,7 @@ export function ContactPreviewSection({
   return (
     <section
       className={cn(
-        "relative w-full bg-background py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 text-center font-sans overflow-hidden border-t border-border/40",
+        "bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16 text-center font-sans",
         className
       )}
     >

@@ -29,22 +29,18 @@ export default function TestimonialsPage() {
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
   const statusFilter = filterValues["status"] === "All" ? undefined : (filterValues["status"] as any);
-  const typeFilter = filterValues["type"] === "All" ? undefined : (filterValues["type"] as any);
   const rawFeatured = filterValues["isFeatured"];
   const featuredFilter =
     rawFeatured === "true" ? true :
       rawFeatured === "false" ? false :
         undefined;
-  const sourceFilter = filterValues["source"] === "All" ? undefined : (filterValues["source"] as any);
 
   const { data, isLoading, error } = useTestimonials({
     page,
     limit: 10,
     search: searchQuery.trim() !== "" ? searchQuery : undefined,
     status: statusFilter,
-    type: typeFilter,
     isFeatured: featuredFilter,
-    source: sourceFilter,
   });
 
   const deleteTestimonial = useDeleteTestimonial();
@@ -71,28 +67,11 @@ export default function TestimonialsPage() {
       ],
     },
     {
-      key: "type",
-      placeholder: "Type",
-      options: [
-        { label: "Client", value: "CLIENT" },
-        { label: "Employee", value: "EMPLOYEE" },
-      ],
-    },
-    {
       key: "isFeatured",
       placeholder: "Featured",
       options: [
         { label: "Featured", value: "true" },
         { label: "Not Featured", value: "false" },
-      ],
-    },
-    {
-      key: "source",
-      placeholder: "Source",
-      options: [
-        { label: "Admin", value: "ADMIN" },
-        { label: "Request Link", value: "REQUEST_LINK" },
-        { label: "Public Form", value: "PUBLIC_FORM" },
       ],
     },
   ];

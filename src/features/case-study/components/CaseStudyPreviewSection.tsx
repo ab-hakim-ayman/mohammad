@@ -8,38 +8,29 @@ import { usePublishedCaseStudies } from "../hooks/useCaseStudy";
 import { CaseStudy } from "../types/case-study.types";
 import { CaseStudyCard } from "./CaseStudyCard"; // 👈 আপনার তৈরি করা CaseStudyCard ইমপোর্ট করা হলো
 
-const sectionVariants = cva(
-  "relative w-full transition-all duration-300 border overflow-hidden flex justify-center items-center mx-auto",
-  {
-    variants: {
-      variant: {
-        classic: "bg-background text-foreground border-border shadow-2xs",
-        glassmorphic:
-          "bg-background/80 text-foreground backdrop-blur-md border-border shadow-xs",
-        minimal: "bg-transparent text-foreground border-0 shadow-none py-0",
-      },
-    },
-    defaultVariants: {
-      variant: "classic",
-    },
-  }
-);
-
-const containerVariants = cva("container-custom flex flex-col justify-center items-center", {
+const sectionVariants = cva("relative w-full transition-all duration-500 overflow-hidden", {
   variants: {
+    variant: {
+      classic: "bg-transparent",
+      glassmorphic: "bg-transparent",
+      minimal: "bg-transparent",
+    },
     size: {
-      sm: "py-8",
+      sm: "py-6",
       default: "py-12",
       lg: "py-16",
     },
   },
   defaultVariants: {
+    variant: "classic",
     size: "default",
   },
 });
 
+const containerVariants = cva("container-custom mx-auto w-full flex flex-col justify-center items-center");
+
 interface CaseStudyPreviewSectionProps
-  extends VariantProps<typeof sectionVariants>, VariantProps<typeof containerVariants> {
+  extends VariantProps<typeof sectionVariants> {
   limit?: number;
   items?: CaseStudy[];
   caseStudies?: CaseStudy[]; // Legacy prop alias
@@ -52,14 +43,14 @@ interface CaseStudyPreviewSectionProps
 }
 
 export function CaseStudyPreviewSection({
-  limit = 8,
+  limit = 4,
   items: externalItems,
   caseStudies: legacyCaseStudies,
   eyebrow = "Case Studies",
   title = "Success Stories",
   description = "Discover how we've helped businesses achieve their goals.",
   href = "/case-studies",
-  ctaLabel = "Check All Industries",
+  ctaLabel = "All Case Studies",
   hideHeader = false,
   variant,
   size,
@@ -88,8 +79,8 @@ export function CaseStudyPreviewSection({
 
   if (loading) {
     return (
-      <section className={cn("w-full overflow-x-hidden", sectionVariants({ variant }))}>
-        <div className={containerVariants({ size })}>
+      <section className={cn("bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6", sectionVariants({ variant, size }))}>
+        <div className={containerVariants()}>
           {!hideHeader && (
             <div className="bg-surface-elevated/50 mb-10 h-10 w-56 animate-pulse rounded-none sm:rounded-lg" />
           )}
@@ -110,11 +101,11 @@ export function CaseStudyPreviewSection({
   if ((shouldFetch && error) || caseStudies.length === 0) return null;
 
   return (
-    <section className={cn("w-full overflow-x-hidden", sectionVariants({ variant }))}>
-      <div className={containerVariants({ size })}>
+    <section className={cn("bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6", sectionVariants({ variant, size }))}>
+      <div className={containerVariants()}>
         {!hideHeader && (
           <PreviewSectionHeader
-            variant="center"
+            variant="split"
             eyebrow={eyebrow}
             title={title}
             description={description}

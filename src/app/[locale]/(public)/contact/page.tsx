@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { ContactSection } from "@/features/contact/server";
 import { FeatureBanner } from "@/shared/components";
-import { A2I_BANNER_MANIFEST } from "@/shared/utils/banner-menifest";
+import { A2I_BANNER_MANIFEST } from "@/shared/utils/banner-manifest";
 
 export async function generateMetadata() {
   return {

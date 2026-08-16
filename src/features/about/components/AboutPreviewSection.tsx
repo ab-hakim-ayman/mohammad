@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
-import { Award, BriefcaseBusiness, Building2, Compass, Handshake, UsersRound } from "lucide-react";
+import { Award, BriefcaseBusiness, Compass } from "lucide-react";
 
 import { Link } from "@/shared/i18n";
 import { PreviewSectionHeader } from "@/shared/components";
@@ -8,7 +8,6 @@ import { ScrollReveal } from "@/shared/components/ScrollReveal";
 import { aboutService } from "../services/about.service";
 import { prisma } from "@/core/server/prisma";
 
-import { eventService } from "@/features/event/server";
 import I18n from "@/shared/components/I18n";
 
 type ExploreItem = {
@@ -80,20 +79,13 @@ function getEventImage(event: EventItem) {
 export async function AboutPreviewSection() {
   const [
     about,
-    eventResponse,
     projectCount,
     achievementCount,
-    clientCount,
-    partnerCount,
   ] = await Promise.all([
     aboutService.getPublished().catch(() => null),
 
-    eventService.getPublished({}).catch(() => null),
-
     prisma.project.count({ where: { status: "PUBLISHED" } }).catch(() => 0),
     prisma.achievement.count({ where: { status: "PUBLISHED" } }).catch(() => 0),
-    prisma.client.count({ where: { status: "PUBLISHED" } }).catch(() => 0),
-    prisma.partner.count({ where: { status: "PUBLISHED" } }).catch(() => 0),
   ]);
 
   if (!about) return null;
@@ -107,7 +99,7 @@ export async function AboutPreviewSection() {
       title: "Projects",
       description: "Explore the digital products we have delivered.",
       icon: BriefcaseBusiness,
-      layout: "lg:col-span-3",
+      layout: "lg:col-span-6",
       count: `${projectCount}+`,
     },
     {
@@ -115,42 +107,10 @@ export async function AboutPreviewSection() {
       title: "Achievements",
       description: "Milestones that reflect our growth and impact.",
       icon: Award,
-      layout: "lg:col-span-3",
+      layout: "lg:col-span-6",
       count: `${achievementCount}+`,
     },
-    {
-      href: "/clients",
-      title: "Clients",
-      description: "Brands and organizations that trust our work.",
-      icon: Building2,
-      layout: "lg:col-span-3",
-      count: `${clientCount}+`,
-    },
-    {
-      href: "/partners",
-      title: "Partners",
-      description: "Stronger solutions through meaningful collaboration.",
-      icon: Handshake,
-      layout: "lg:col-span-3",
-      count: `${partnerCount}+`,
-    },
   ];
-
-  const events = getListFromResponse<EventItem>(eventResponse);
-
-  const eventImages: GalleryImage[] = events
-    .map((event) => {
-      const src = getEventImage(event);
-
-      if (!src) return null;
-
-      return {
-        src,
-        alt: event.title || "Company event",
-      };
-    })
-    .filter((item): item is GalleryImage => Boolean(item))
-    .slice(0, 3);
 
   const collageImages: GalleryImage[] = [
     ...(about.heroImage
@@ -161,7 +121,6 @@ export async function AboutPreviewSection() {
         },
       ]
       : []),
-    ...eventImages,
   ];
 
   const primaryImage = collageImages[0];
@@ -181,13 +140,13 @@ export async function AboutPreviewSection() {
 
   return (
     // 🎯 Section Padding Standardized to py-12 sm:py-16 lg:py-24
-    <section className="bg-background relative w-full overflow-hidden py-12 sm:py-16 lg:py-24">
+    <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="bg-primary/10 absolute top-20 -left-20 h-72 w-72 blur-3xl" />
         <div className="bg-primary/5 absolute right-0 bottom-0 h-80 w-80 blur-3xl" />
       </div>
 
-      <div className="container-custom">
+      <div className="container-custom mx-auto w-full">
         <PreviewSectionHeader
           eyebrow={"Who We Are"}
           title={about.title}

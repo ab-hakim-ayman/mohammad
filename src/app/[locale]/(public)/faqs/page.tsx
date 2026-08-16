@@ -1,7 +1,7 @@
 import { faqService } from "@/features/faq/server";
 import { FaqSection } from "@/features/faq";
 import { FeatureBanner } from "@/shared/components";
-import { A2I_BANNER_MANIFEST } from "@/shared/utils/banner-menifest";
+import { A2I_BANNER_MANIFEST } from "@/shared/utils/banner-manifest";
 import { AlertCircle } from "lucide-react";
 import I18n from "@/shared/components/I18n";
 
@@ -49,7 +49,7 @@ export default async function PublicFaqsPage({ params }: { params: Promise<{ loc
         }))}
         emptyLabel={"No Faqs"}
         title={"Title"}
-        
+
       />
     </>
   );

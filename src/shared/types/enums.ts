@@ -5,13 +5,11 @@ export const Status = {
 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
 
-export const EventFormat = {
-  ONLINE: "ONLINE",
-  OFFLINE: "OFFLINE",
-  HYBRID: "HYBRID",
+export const UserRole = {
+  OWNER: "OWNER",
+  MODERATOR: "MODERATOR",
 } as const;
-export type EventFormat = (typeof EventFormat)[keyof typeof EventFormat];
-
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 export const ContactStatus = {
   NEW: "NEW",
@@ -20,7 +18,6 @@ export const ContactStatus = {
   ARCHIVED: "ARCHIVED",
 } as const;
 export type ContactStatus = (typeof ContactStatus)[keyof typeof ContactStatus];
-
 
 export const GalleryType = {
   IMAGE: "IMAGE",
@@ -45,25 +42,6 @@ export const AchievementType = {
 } as const;
 export type AchievementType = (typeof AchievementType)[keyof typeof AchievementType];
 
-
-export const UserRole = {
-  OWNER: "OWNER",
-  ADMIN: "ADMIN",
-  MANAGER: "MANAGER",
-  HR: "HR",
-  EMPLOYEE: "EMPLOYEE",
-  CONTENT_MANAGER: "CONTENT_MANAGER",
-} as const;
-export type UserRole = (typeof UserRole)[keyof typeof UserRole];
-
-
-export const PartnerType = {
-  TECHNOLOGY: "TECHNOLOGY",
-  RESELLER: "RESELLER",
-  ALLIANCE: "ALLIANCE",
-  AFFILIATE: "AFFILIATE",
-} as const;
-export type PartnerType = (typeof PartnerType)[keyof typeof PartnerType];
 
 
 export const MediaProvider = {

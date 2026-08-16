@@ -37,8 +37,6 @@ export default function ViewTestimonialPage() {
         fields: [
           { label: "Author Position", key: "authorPosition", type: "text", gridSpan: 6 },
           { label: "Order", key: "order", type: "text", gridSpan: 6 },
-          { label: "Type", key: "type", type: "text", gridSpan: 6 },
-          { label: "Source", key: "source", type: "text", gridSpan: 6 },
           { label: "Email", key: "email", type: "text", gridSpan: 6 },
           {
             label: "Rating",
@@ -116,26 +114,6 @@ export default function ViewTestimonialPage() {
         hrefPrefix: "services",
         variant: "badges",
         getRecords: (rec) => rec.services?.map((s: any) => ({ id: s.id, title: s.title })) || [],
-      },
-      {
-        title: "Client",
-        hrefPrefix: "clients",
-        variant: "list",
-        getRecords: (rec) => (rec.client ? [{ id: rec.client.id, title: rec.client.title }] : []),
-      },
-      {
-        title: "Employee",
-        hrefPrefix: "team-members",
-        variant: "list",
-        getRecords: (rec) =>
-          rec.employee
-            ? [
-                {
-                  id: rec.employee.id,
-                  title: (rec.employee as any)?.profile?.fullName || rec.employee.name,
-                },
-              ]
-            : [],
       },
     ],
   };

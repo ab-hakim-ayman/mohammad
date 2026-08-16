@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 interface AchievementCardProps {
   achievement: {
     id: string;
+    slug?: string | null;
     title: string;
     issuer: string;
     achievedAt?: Date | string | null;
@@ -29,7 +30,7 @@ export function AchievementCard({ achievement, className, size = "md", layout }:
       shadow="md"
       className={cn("border border-border/80 hover:border-primary/50 transition-all", className)}
       config={{
-        href: (item) => `/achievements/${item.id}`,
+        href: (item: any) => `/achievements/${item.slug || item.id}`,
         titleKey: "title",
         descriptionKey: "shortDesc",
         iconKey: "icon",

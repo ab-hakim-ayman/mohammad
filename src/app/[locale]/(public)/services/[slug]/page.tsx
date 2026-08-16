@@ -2,24 +2,23 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { serviceService } from "@/features/service/server";
-import { StickyTableOfContents, FaqAccordion, BadgeList } from "@/components/content/details";
+import { StickyTableOfContents, FaqAccordion } from "@/components/content/details";
+import {
+  CategoryWidget,
+  TagWidget,
+  ShareWidget,
+} from "@/shared/components";
 import { ContentRenderer, extractToc } from "@/components/content";
 import { ScrollReveal } from "@/shared/components/ScrollReveal";
 import { Link } from "@/shared/i18n";
 import {
   ArrowUpRight,
   ArrowRight,
-  Code2,
   Briefcase,
-  FolderOpen,
   CheckCircle2,
-  Layers,
-  Sparkles,
-  Tag as TagIcon,
 } from "lucide-react";
 import { FeatureDetailsBanner } from "@/shared/components/FeatureDetailsBanner";
 import I18n from "@/shared/components/I18n";
-import { FaTwitter, FaLinkedin, FaFacebook } from "react-icons/fa";
 
 // 🎯 Universal Ecosystem Components Integration
 import { ProjectPreviewSection } from "@/features/project/components/ProjectPreviewSection";
@@ -86,10 +85,9 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
 
   // 🟢 1. Table of Contents Safe Initialization
   const rawTocItems = extractToc(json, "service") || [];
-  const tocItems = rawTocItems.length >= 2 ? rawTocItems : [];
+  const tocItems = rawTocItems.length >= 1 ? rawTocItems : [];
 
   const shareUrl = `https://a2icoders.com/services/${service.slug}`;
-  const shareTitle = encodeURIComponent(service.title);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -134,7 +132,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
 
       {/* 🟢 1. Hero Feature Banner */}
       <FeatureDetailsBanner
-        variant="gradient-glow"
+        variant="split"
         backHref="/services"
         backLabel="All Capabilities"
         eyebrow={service.isFeatured ? "Featured Capability" : "Core Offering"}
@@ -156,162 +154,63 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         imageSrc={service.heroImage || undefined}
         imageAlt={`${service.title} service banner`}
         imagePosition="center"
-      >
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Link
-            href={`/contact?service=${service.slug}`}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-xs font-bold tracking-wider uppercase shadow-md transition-all hover:-translate-y-0.5"
-          >
-            <I18n>Discuss Requirements</I18n>
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-          {service.projects && service.projects.length > 0 && (
-            <a
-              href="#deliveries"
-              className="bg-surface-elevated/80 border-border hover:bg-card text-foreground inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-xs font-bold tracking-wider uppercase transition-all"
-            >
-              <I18n>Explore Deliveries</I18n>
-              <ArrowRight className="text-primary h-3.5 w-3.5" />
-            </a>
-          )}
-        </div>
-      </FeatureDetailsBanner>
+      />
 
-      {/* 🟢 2. At-A-Glance Corporate Telemetry Strip */}
-      <section className="container-custom mx-auto mt-8 mb-16 px-4 sm:px-6">
-        <ScrollReveal delay={150}>
-          <div className="bg-card/60 border-border grid grid-cols-2 gap-4 rounded-xl border p-6 shadow-xs backdrop-blur-md sm:grid-cols-4 lg:grid-cols-5">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary rounded-lg p-2.5">
-                <Layers className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
-                  <I18n>Practice</I18n>
-                </p>
-                <p className="text-foreground truncate text-xs font-bold">{service.title}</p>
-              </div>
-            </div>
+      {/* 🟢 2. Unified Responsive Main Reading Layout */}
+      <section className="container-custom mt-12 mb-20 px-4 sm:px-6">
+        <div className="3xl:grid-cols-[260px_1fr] flex flex-col items-start gap-10 lg:grid lg:grid-cols-[240px_1fr] xl:gap-16">
 
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary rounded-lg p-2.5">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
-                  <I18n>Modules</I18n>
-                </p>
-                <p className="text-foreground truncate text-xs font-bold">
-                  {service.specializations?.length || 0} <I18n>Capabilities</I18n>
-                </p>
-              </div>
-            </div>
+          {/* 📊 Left Sticky Sidebar: TOC -> Categories -> Tags -> Share -> Action */}
+          <aside className="border-border/60 bg-card/40 lg:border-none lg:bg-transparent top-24 w-full rounded-2xl border p-4 backdrop-blur-md sm:p-6 lg:sticky lg:top-28 lg:w-[240px] xl:w-[260px] lg:self-start lg:shrink-0 lg:p-0 lg:backdrop-blur-none">
+            <div className="flex flex-col space-y-6">
 
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary rounded-lg p-2.5">
-                <Briefcase className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
-                  <I18n>Projects</I18n>
-                </p>
-                <p className="text-foreground truncate text-xs font-bold">
-                  {service._count?.projects || 0} <I18n>Delivered</I18n>
-                </p>
-              </div>
-            </div>
-
-            {service.technologies && service.technologies.length > 0 && (
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 text-primary rounded-lg p-2.5">
-                  <Code2 className="h-4 w-4" />
+              {/* 1. Table of Contents */}
+              {tocItems.length > 0 && (
+                <div className="relative">
+                  <StickyTableOfContents items={tocItems} />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
-                    <I18n>Tech Stack</I18n>
-                  </p>
-                  <p className="text-foreground truncate text-xs font-bold">
-                    {service.technologies
-                      .slice(0, 2)
-                      .map((t: any) => t.title)
-                      .join(", ")}
-                  </p>
+              )}
+
+              {/* 2. Categories Widget */}
+              {service.categories && service.categories.length > 0 && (
+                <div className="border-border/60 border-t pt-6">
+                  <CategoryWidget
+                    items={service.categories}
+                    label="Categories"
+                    itemPattern="listRow"
+                    hrefPrefix="/services?category="
+                    showCount={false}
+                  />
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="hidden items-center gap-3 lg:flex">
-              <div className="bg-success/10 text-success rounded-lg p-2.5">
-                <CheckCircle2 className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
-                  <I18n>SLA</I18n>
-                </p>
-                <p className="text-foreground text-xs font-bold">
-                  <I18n>Production Ready</I18n>
-                </p>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
-      </section>
+              {/* 3. Tags Widget */}
+              {service.tags && service.tags.length > 0 && (
+                <div className="border-border/60 border-t pt-6">
+                  <TagWidget
+                    items={service.tags}
+                    label="Tags"
+                    itemPattern="capsulePill"
+                    hrefPrefix="/services?tag="
+                  />
+                </div>
+              )}
 
-      {/* 🟢 3. Main Reading & Service Specification Area */}
-      <section className="container-custom mb-20 px-4 sm:px-6">
-        <div className="3xl:grid-cols-[260px_1fr] grid items-start gap-12 lg:grid-cols-[240px_1fr] xl:gap-16">
-          {/* Sticky Sidebar */}
-          <aside className="sticky top-28 hidden space-y-10 self-start lg:block">
-            {tocItems.length > 0 && (
-              <div className="border-border border-l-2 pl-4">
-                <p className="text-muted-foreground mb-4 text-xs font-black tracking-widest uppercase select-none">
-                  <I18n>On This Page</I18n>
-                </p>
-                <StickyTableOfContents items={tocItems} />
-              </div>
-            )}
-
-            <div className="border-border space-y-4 border-l-2 pl-4">
-              <p className="text-muted-foreground mb-3 text-xs font-black tracking-widest uppercase select-none">
-                <I18n>Share Capability</I18n>
-              </p>
-              <div className="flex flex-col gap-2.5">
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary flex items-center gap-3 text-xs font-semibold transition-colors"
-                >
-                  <div className="bg-surface-elevated border-border flex h-8 w-8 items-center justify-center rounded-full border">
-                    <FaTwitter className="h-3.5 w-3.5" />
-                  </div>
-                  Twitter
-                </a>
-                <a
-                  href={`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary flex items-center gap-3 text-xs font-semibold transition-colors"
-                >
-                  <div className="bg-surface-elevated border-border flex h-8 w-8 items-center justify-center rounded-full border">
-                    <FaLinkedin className="h-3.5 w-3.5" />
-                  </div>
-                  LinkedIn
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary flex items-center gap-3 text-xs font-semibold transition-colors"
-                >
-                  <div className="bg-surface-elevated border-border flex h-8 w-8 items-center justify-center rounded-full border">
-                    <FaFacebook className="h-3.5 w-3.5" />
-                  </div>
-                  Facebook
-                </a>
+              {/* 4. Share Widget */}
+              <div className="border-border/60 border-t pt-6">
+                <ShareWidget
+                  url={shareUrl}
+                  title={service.title}
+                  label="Share Capability"
+                  variant="classic"
+                  layout="vertical"
+                  showLabels={true}
+                  showCopy={true}
+                />
               </div>
 
-              <div className="border-border border-t pt-4">
+              {/* 5. Direct Action Link */}
+              <div className="border-border/60 border-t pt-6">
                 <Link
                   href={`/contact?service=${service.slug}`}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-bold tracking-wider uppercase shadow-xs transition-all"
@@ -320,20 +219,12 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
+
             </div>
           </aside>
 
-          {/* Reading Column */}
+          {/* 📖 Reading Column */}
           <div className="w-full min-w-0">
-            {tocItems.length > 0 && (
-              <div className="border-border mb-8 border-l-2 pl-4 lg:hidden">
-                <p className="text-muted-foreground mb-3 text-xs font-black tracking-widest uppercase select-none">
-                  <I18n>On This Page</I18n>
-                </p>
-                <StickyTableOfContents items={tocItems} />
-              </div>
-            )}
-
             {/* Core Rich Text Content */}
             <div className="prose prose-base sm:prose-lg dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:leading-relaxed prose-img:rounded-xl max-w-none font-medium">
               {json && Object.keys(json).length > 0 ? (
@@ -342,70 +233,11 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
                 <p className="text-muted-foreground leading-relaxed">{service.shortDesc}</p>
               )}
             </div>
-
-            {/* Categories & Tags Cloud */}
-            {((service.categories && service.categories.length > 0) ||
-              (service.tags && service.tags.length > 0)) && (
-              <div className="border-border mt-12 flex flex-col gap-4 border-t pt-8">
-                {service.categories && service.categories.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="text-muted-foreground mr-2 flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase select-none">
-                      <FolderOpen className="text-primary h-3.5 w-3.5" />
-                      <I18n>Categories:</I18n>
-                    </div>
-                    <BadgeList items={service.categories} hrefPrefix="/services?category=" />
-                  </div>
-                )}
-
-                {service.tags && service.tags.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="text-muted-foreground mr-2 flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase select-none">
-                      <TagIcon className="text-primary h-3.5 w-3.5" />
-                      <I18n>Tags:</I18n>
-                    </div>
-                    <BadgeList items={service.tags} hrefPrefix="/services?tag=" />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Mobile Share Bar */}
-            <div className="border-border mt-8 flex items-center justify-between border-t pt-8 lg:hidden">
-              <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase select-none">
-                <I18n>Share Capability:</I18n>
-              </span>
-              <div className="flex items-center gap-2.5">
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-surface-elevated border-border text-foreground hover:text-primary flex h-9 w-9 items-center justify-center rounded-full border transition-all"
-                >
-                  <FaTwitter className="h-3.5 w-3.5" />
-                </a>
-                <a
-                  href={`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-surface-elevated border-border text-foreground hover:text-primary flex h-9 w-9 items-center justify-center rounded-full border transition-all"
-                >
-                  <FaLinkedin className="h-3.5 w-3.5" />
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-surface-elevated border-border text-foreground hover:text-primary flex h-9 w-9 items-center justify-center rounded-full border transition-all"
-                >
-                  <FaFacebook className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* 🟢 4. Specializations & Core Capabilities (Prisma Relation) */}
+      {/* 🟢 3. Specializations & Core Capabilities (Prisma Relation) */}
       {service.specializations && service.specializations.length > 0 && (
         <section className="bg-card/40 border-border border-y py-16 sm:py-20">
           <div className="container-custom mx-auto px-4 sm:px-6">
@@ -457,7 +289,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* 🟢 5. Core Technologies Employed (Prisma `technologies` Relation) */}
+      {/* 🟢 4. Core Technologies Employed (Prisma `technologies` Relation) */}
       {service.technologies && service.technologies.length > 0 ? (
         <TechnologyPreviewSection
           items={service.technologies as any}
@@ -473,7 +305,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* 🟢 6. Delivered Systems & Work (Prisma `projects` Relation) */}
+      {/* 🟢 5. Delivered Systems & Work (Prisma `projects` Relation) */}
       <section id="deliveries">
         {service.projects && service.projects.length > 0 ? (
           <ProjectPreviewSection
@@ -491,8 +323,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         )}
       </section>
 
-
-      {/* 🟢 8. Client Testimonials & Social Proof (Prisma `testimonials` Relation) */}
+      {/* 🟢 6. Client Testimonials & Social Proof (Prisma `testimonials` Relation) */}
       {service.testimonials && service.testimonials.length > 0 ? (
         <TestimonialPreviewSection
           items={service.testimonials as any}
@@ -508,7 +339,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* 🟢 9. Relevant Industry Applications (Prisma `industries` Relation) */}
+      {/* 🟢 7. Relevant Industry Applications (Prisma `industries` Relation) */}
       {service.industries && service.industries.length > 0 && (
         <section className="bg-card/40 border-border border-t py-16 sm:py-20">
           <div className="container-custom mx-auto px-4 sm:px-6">
@@ -544,7 +375,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* 🟢 10. Frequently Asked Questions (Prisma `faqs` Relation) */}
+      {/* 🟢 8. Frequently Asked Questions (Prisma `faqs` Relation) */}
       {faqs.length > 0 && (
         <section className="border-border border-t py-20 sm:py-24">
           <div className="container-custom mx-auto max-w-4xl px-4 sm:px-6">
@@ -563,7 +394,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* 🟢 11. Thought Leadership Dispatches */}
+      {/* 🟢 9. Thought Leadership Dispatches */}
       <BlogPreviewSection
         limit={4}
         eyebrow="Architectural Dispatches"
@@ -573,7 +404,7 @@ export default async function PublicServiceDetailPage({ params }: PageProps) {
         ctaLabel="Explore all articles"
       />
 
-      {/* 🟢 12. Final High-Conversion Enterprise CTA */}
+      {/* 🟢 10. Final High-Conversion Enterprise CTA */}
       <section className="container-custom mt-16 px-4 text-center sm:px-6">
         <ScrollReveal>
           <div className="bg-card border-border relative overflow-hidden rounded-2xl border p-10 text-center shadow-xl sm:p-14">

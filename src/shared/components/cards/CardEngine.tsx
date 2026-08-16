@@ -13,6 +13,7 @@ export function CardEngine<T extends Record<string, any>>({
   data,
   config,
   size = "md",
+  layout = "vertical",
   mediaType = "image",
   shadow = "md",
   mediaPosition = "top",
@@ -37,11 +38,11 @@ export function CardEngine<T extends Record<string, any>>({
   const resolvedIcon = config.getIcon ? config.getIcon(data) : config.iconKey ? getNestedValue(data, config.iconKey as string) : undefined;
   const resolvedAvatar = config.getAvatar ? config.getAvatar(data) : config.avatarKey ? getNestedValue(data, config.avatarKey as string) : undefined;
 
-  // Priority Logic: Video thakle video, na thakle image/logo/avatar show korbe
   const activeMedia = resolvedVideo || resolvedImage || resolvedLogo || resolvedIcon || resolvedAvatar;
   const activeMediaType = resolvedVideo ? "video" : mediaType;
 
   const imageVariant = config.imageVariant || (resolvedLogo || resolvedIcon ? "logo" : resolvedAvatar ? "avatar" : "cover");
+  const isSmallMedia = imageVariant === "logo" || imageVariant === "icon" || imageVariant === "avatar";
 
   const resolvedHref = typeof config.href === "function" ? config.href(data) : config.href;
   const metaItems = config.getMetaItems ? config.getMetaItems(data) : [];
@@ -60,7 +61,7 @@ export function CardEngine<T extends Record<string, any>>({
   }[alignment];
 
   const sizeClasses = {
-    sm: "p-3 text-xs",
+    sm: "p-2.5 text-xs",
     md: "p-4 sm:p-5 text-sm",
     lg: "p-5 sm:p-6 text-base",
   }[size];
@@ -73,37 +74,55 @@ export function CardEngine<T extends Record<string, any>>({
     xl: "shadow-xl",
   }[shadow];
 
+  // Layout & Positioning Logic
+  const isRowLayout = isSmallMedia
+    ? layout === "horizontal"
+    : mediaPosition === "left" || mediaPosition === "right";
+
+  const isReverse = !isSmallMedia && (mediaPosition === "bottom" || mediaPosition === "right");
   const hasEdgeBleedCover = activeMedia && imageVariant === "cover" && imageBleed === "edge-to-edge";
 
-  // --- Media Container with Reserved Space & Edge-to-Edge Fix ---
+  // --- Render Media Container ---
   const renderMediaContainer = () => {
-    const isEdgeToEdge = imageBleed === "edge-to-edge";
-
-    // 1. Jodi kono media na thake, tobe layout shift/height mismatch prevent korar jonno exact space reserve korbe
+    // 1. Placeholder (No Media)
     if (!activeMedia) {
       if (imageVariant === "logo" || imageVariant === "icon") {
-        return <div aria-hidden="true" className="h-12 w-12 shrink-0 opacity-0 pointer-events-none" />;
+        return <div aria-hidden="true" className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 opacity-0 pointer-events-none" />;
       }
       if (imageVariant === "avatar") {
-        return <div aria-hidden="true" className="h-14 w-14 shrink-0 opacity-0 pointer-events-none" />;
+        return <div aria-hidden="true" className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 opacity-0 pointer-events-none" />;
       }
       return (
         <div
           aria-hidden="true"
           className={cn(
-            "relative aspect-[16/9] w-full shrink-0 bg-transparent opacity-0 pointer-events-none",
-            hasEdgeBleedCover && "mb-4"
+            "relative shrink-0 bg-transparent opacity-0 pointer-events-none",
+            isRowLayout ? "w-2/5 min-h-full" : "aspect-[16/9] w-full",
+            hasEdgeBleedCover && !isRowLayout && "mb-4"
           )}
         />
       );
     }
 
-    // 2. Logo / Icon Variant
+    // 2. Logo / Icon Variant (Vertically Centered Frame)
     if (imageVariant === "logo" || imageVariant === "icon") {
       return (
-        <div className={cn("flex w-full shrink-0", flexAlignment, isEdgeToEdge ? "mb-3" : "p-0")}>
-          <div className="relative h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-colors group-hover:border-primary/40">
-            <Image src={activeMedia} alt={title || "Icon"} fill unoptimized className="object-contain p-1 transition-transform duration-300 group-hover:scale-110" />
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-center",
+            layout === "horizontal"
+              ? "self-center"
+              : cn("w-full mb-2.5", flexAlignment)
+          )}
+        >
+          <div className="relative flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center">
+            <Image
+              src={activeMedia}
+              alt={title || "Icon"}
+              fill
+              unoptimized
+              className="object-contain transition-transform duration-300 group-hover:scale-110"
+            />
           </div>
         </div>
       );
@@ -112,20 +131,34 @@ export function CardEngine<T extends Record<string, any>>({
     // 3. Avatar Variant
     if (imageVariant === "avatar") {
       return (
-        <div className={cn("flex w-full shrink-0", flexAlignment, isEdgeToEdge ? "mb-3" : "p-0")}>
-          <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-primary/20 bg-muted">
-            <Image src={activeMedia} alt={title || "Avatar"} fill unoptimized className="object-cover" />
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-center",
+            layout === "horizontal"
+              ? "self-center"
+              : cn("w-full mb-2.5", flexAlignment)
+          )}
+        >
+          <div className="relative h-10 w-10 sm:h-12 sm:w-12 overflow-hidden rounded-full border-2 border-primary/20 bg-muted">
+            <Image
+              src={activeMedia}
+              alt={title || "Avatar"}
+              fill
+              unoptimized
+              className="object-cover"
+            />
           </div>
         </div>
       );
     }
 
-    // 4. Cover Image / Video Variant (Same 16:9 & Edge-to-Edge Approach)
+    // 4. Cover Image / Video Variant
     return (
       <div
         className={cn(
-          "relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted",
-          imageBleed === "padded" && "rounded-xl border border-border/40"
+          "relative shrink-0 overflow-hidden bg-muted",
+          isRowLayout ? "w-2/5 self-stretch min-h-[140px]" : "aspect-[16/9] w-full",
+          imageBleed === "padded" && "rounded-xl border border-border/40 m-3"
         )}
       >
         {activeMediaType === "video" ? (
@@ -150,34 +183,40 @@ export function CardEngine<T extends Record<string, any>>({
     );
   };
 
-  const isRowLayout = mediaPosition === "left" || mediaPosition === "right";
-  const isReverse = mediaPosition === "bottom" || mediaPosition === "right";
-
   return (
     <article
       className={cn(
-        "group relative flex h-full w-full overflow-hidden bg-card transition-all duration-300 rounded-2xl",
+        "group relative flex h-full w-full overflow-hidden bg-card transition-all duration-300 rounded-lg",
         hasEdgeBleedCover ? "p-0" : sizeClasses,
         shadowClasses,
-        isRowLayout ? "flex-row items-center" : "flex-col",
+        // 🟢 items-center এবং justify-center সুনিশ্চিত করা হলো
+        isRowLayout ? "flex-row items-center justify-center gap-2.5" : "flex-col",
         isReverse && (isRowLayout ? "flex-row-reverse" : "flex-col-reverse"),
         className
       )}
     >
-      {/* Media Div (Top / Left) */}
-      {mediaPosition !== "bottom" && mediaPosition !== "right" && renderMediaContainer()}
+      {/* Media Rendering */}
+      {(!isReverse || isSmallMedia) && renderMediaContainer()}
 
-      {/* Content Div */}
+      {/* Content Section */}
       <div
         className={cn(
-          "flex h-full min-w-0 flex-1 flex-col justify-between space-y-2.5",
-          alignmentClasses,
+          "flex min-w-0",
+          layout === "horizontal"
+            ? "w-auto flex-initial flex-col justify-center items-start self-center"
+            : "w-full flex-1 flex-col h-full justify-between space-y-2.5",
+          layout === "horizontal" ? "text-left" : alignmentClasses,
           hasEdgeBleedCover ? sizeClasses : "p-0"
         )}
       >
-        <div className="space-y-2 w-full">
+        <div
+          className={cn(
+            "flex flex-col w-full",
+            layout === "horizontal" ? "space-y-0.5 items-start text-left justify-center" : cn("space-y-1", alignmentClasses)
+          )}
+        >
           {metaItems.length > 0 && (
-            <div className={cn("text-muted-foreground flex flex-wrap items-center gap-2 text-xs select-none", flexAlignment)}>
+            <div className={cn("text-muted-foreground mb-1 flex flex-wrap items-center gap-2 text-xs select-none", flexAlignment)}>
               {metaItems.map((meta, i) => (
                 <span key={i} className="inline-flex items-center gap-1.5 rounded-md bg-muted/80 px-2 py-0.5 font-medium">
                   {meta.icon}
@@ -188,19 +227,34 @@ export function CardEngine<T extends Record<string, any>>({
           )}
 
           {title && (
-            <h3 className={cn("line-clamp-2 leading-snug font-bold tracking-tight text-foreground", size === "sm" ? "text-sm" : size === "lg" ? "text-xl" : "text-base")}>
+            <h3
+              className={cn(
+                "font-bold tracking-tight text-foreground flex items-center",
+                layout === "horizontal"
+                  ? "w-auto text-left leading-none m-0 p-0"
+                  : alignment === "center" ? "w-full text-center leading-snug" : alignment === "right" ? "w-full text-right leading-snug" : "w-full text-left leading-snug",
+                size === "sm" ? "text-sm" : size === "lg" ? "text-xl" : "text-base"
+              )}
+            >
               {resolvedHref ? (
-                <Link href={resolvedHref} className="hover:text-primary transition-colors">
+                <Link href={resolvedHref} className="hover:text-primary transition-colors inline-block truncate leading-none">
                   {title}
                 </Link>
               ) : (
-                title
+                <span className="truncate leading-none">{title}</span>
               )}
             </h3>
           )}
 
           {description && (
-            <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            <p
+              className={cn(
+                "line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm",
+                layout === "horizontal"
+                  ? "w-auto text-left mt-1"
+                  : alignment === "center" ? "w-full text-center" : alignment === "right" ? "w-full text-right" : "w-full text-left"
+              )}
+            >
               {description}
             </p>
           )}
@@ -211,7 +265,11 @@ export function CardEngine<T extends Record<string, any>>({
             <div className={cn("flex max-w-[70%] flex-wrap gap-1.5", flexAlignment)}>
               {badges.map((b, i) =>
                 b.href ? (
-                  <Link key={i} href={b.href} className="border-border bg-muted/60 text-muted-foreground hover:text-primary rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all">
+                  <Link
+                    key={i}
+                    href={b.href}
+                    className="border-border bg-muted/60 text-muted-foreground hover:text-primary rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all"
+                  >
                     #{b.label}
                   </Link>
                 ) : (
@@ -232,8 +290,8 @@ export function CardEngine<T extends Record<string, any>>({
         )}
       </div>
 
-      {/* Media Div (Bottom / Right) */}
-      {(mediaPosition === "bottom" || mediaPosition === "right") && renderMediaContainer()}
+      {/* Media Rendering: Bottom / Right */}
+      {!isSmallMedia && isReverse && renderMediaContainer()}
     </article>
   );
 }

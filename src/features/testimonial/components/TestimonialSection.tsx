@@ -17,23 +17,13 @@ export function TestimonialSection() {
   }, [data]);
 
   const filters = useMemo(() => {
-    const types = new Set<string>();
     const ratings = new Set<number>();
 
     testimonials.forEach((item) => {
-      if (item.type) types.add(item.type);
       if (item.rating !== undefined && item.rating !== null) ratings.add(item.rating);
     });
 
     const configs = [];
-
-    if (types.size > 0) {
-      configs.push({
-        key: "type",
-        placeholder: "Type",
-        options: Array.from(types).map((t) => ({ label: t, value: t })),
-      });
-    }
 
     if (ratings.size > 0) {
       configs.push({

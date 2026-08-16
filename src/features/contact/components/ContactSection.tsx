@@ -24,7 +24,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         classic: "text-muted-foreground bg-surface-elevated rounded-md",
-        glassmorphic: "text-muted-foreground bg-card/60 /40 border border-border /40 rounded-full",
+        glassmorphic: "text-muted-foreground bg-card/60 border border-border rounded-full",
         brutalist: "text-foreground bg-card border-2 border-border-strong rounded-none font-mono",
       },
     },
@@ -44,7 +44,7 @@ const cardVariants = cva("flex flex-col justify-between p-6 transition-all", {
   },
 });
 
-interface ContactSectionProps extends VariantProps<typeof sectionVariants> {}
+interface ContactSectionProps extends VariantProps<typeof sectionVariants> { }
 
 export async function ContactSection({ variant = "classic" }: ContactSectionProps) {
   const siteInfo = await getCachedCurrentSiteInfo();
@@ -101,14 +101,12 @@ export async function ContactSection({ variant = "classic" }: ContactSectionProp
   return (
     <section className={cn(sectionVariants({ variant }))}>
       <div className="container-custom px-4 sm:px-6">
-        {}
         <div
           className={cn(
             "grid items-start gap-12 pb-16 lg:grid-cols-[1.1fr_0.9fr]",
-            isBrutalist ? "border-border-strong border-b-2" : "border-border /60 border-b"
+            isBrutalist ? "border-border-strong border-b-2" : "border-border/60 border-b"
           )}
         >
-          {}
           <div className="space-y-10">
             <div className="space-y-4">
               <span className={badgeVariants({ variant })}>
@@ -130,7 +128,6 @@ export async function ContactSection({ variant = "classic" }: ContactSectionProp
               </p>
             </div>
 
-            {}
             <div className="flex flex-wrap items-center gap-3">
               <a
                 href="#contact-form"
@@ -162,7 +159,6 @@ export async function ContactSection({ variant = "classic" }: ContactSectionProp
               )}
             </div>
 
-            {}
             <div className="grid gap-4 sm:grid-cols-3">
               {contactCards.map((item) => {
                 const Icon = item.icon;
@@ -178,7 +174,7 @@ export async function ContactSection({ variant = "classic" }: ContactSectionProp
                         "bg-background flex h-8 w-8 items-center justify-center transition-colors",
                         isBrutalist
                           ? "text-foreground border-border-strong rounded-none border-2"
-                          : "border-border text-muted-foreground /60 rounded-lg border"
+                          : "border-border text-muted-foreground rounded-lg border"
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -197,24 +193,21 @@ export async function ContactSection({ variant = "classic" }: ContactSectionProp
             </div>
           </div>
 
-          {}
           <div
             id="contact-form"
             className={cn(
               "transition-all lg:sticky lg:top-28",
               variant === "classic" && "border-0 bg-transparent p-0 shadow-none",
               variant === "glassmorphic" &&
-                "border-border bg-card/40 /50 /10 rounded-xl border p-6 shadow-xl shadow-zinc-100/10 backdrop-blur-xl sm:p-8",
+              "border-border bg-card/40 rounded-xl border p-6 shadow-xl backdrop-blur-xl sm:p-8",
               variant === "brutalist" &&
-                "bg-card shadow-brand border-border-strong rounded-none border-2 p-6 sm:p-8"
+              "bg-card shadow-brand border-border-strong rounded-none border-2 p-6 sm:p-8"
             )}
           >
-            {}
             <ContactForm variant={variant || "classic"} showIntro={true} />
           </div>
         </div>
 
-        {}
         <div className="mt-16 space-y-6">
           <div className="space-y-1">
             <p className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
@@ -255,53 +248,6 @@ export async function ContactSection({ variant = "classic" }: ContactSectionProp
             ))}
           </div>
         </div>
-
-        {}
-        {siteInfo?.mapEmbedUrl && (
-          <div
-            id="map"
-            className={cn(
-              "mt-20 overflow-hidden transition-all",
-              isBrutalist
-                ? "border-border-strong rounded-none border-2"
-                : "bg-card border-border /60 rounded-xl border shadow-xs"
-            )}
-          >
-            <div
-              className={cn(
-                "flex flex-col gap-3 px-6 py-5 select-none sm:flex-row sm:items-center sm:justify-between",
-                isBrutalist
-                  ? "bg-surface-elevated border-border-strong border-b-2 font-mono"
-                  : "border-border /60 border-b"
-              )}
-            >
-              <div className="space-y-0.5">
-                <p className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
-                  <I18n>Operations Base</I18n>
-                </p>
-                <h3 className="text-foreground text-base font-semibold tracking-tight">
-                  <I18n>Find us on the map</I18n>
-                </h3>
-              </div>
-              {siteInfo?.address && (
-                <p className="text-muted-foreground max-w-md truncate text-left text-xs font-medium sm:text-right">
-                  {siteInfo.address}
-                </p>
-              )}
-            </div>
-
-            <iframe
-              title={"Google Map Navigation Embed"}
-              src={siteInfo.mapEmbedUrl}
-              className={cn(
-                "h-96 w-full border-0 grayscale dark:contrast-90 dark:invert",
-                variant === "glassmorphic" && "opacity-90 dark:opacity-80"
-              )}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-        )}
       </div>
     </section>
   );

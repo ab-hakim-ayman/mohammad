@@ -28,8 +28,6 @@ import {
   Cpu,
   Award,
   Trophy,
-  Factory,
-  Handshake,
   ShieldAlert,
   GraduationCap,
 } from "lucide-react";
@@ -83,10 +81,7 @@ const sidebarGroups: SidebarGroupType[] = [
       { name: "Educations", href: "/admin/educations", icon: GraduationCap },
       { name: "Services", href: "/admin/services", icon: Layers },
       { name: "Case Studies", href: "/admin/case-studies", icon: FileText },
-      { name: "Our Clients", href: "/admin/clients", icon: Users },
-      { name: "Partners", href: "/admin/partners", icon: Handshake },
       { name: "Achievements", href: "/admin/achievements", icon: Trophy },
-      { name: "Industries", href: "/admin/industries", icon: Factory },
     ],
   },
   {
@@ -96,7 +91,6 @@ const sidebarGroups: SidebarGroupType[] = [
       { name: "Categories", href: "/admin/categories", icon: FolderOpen },
       { name: "Media", href: "/admin/media", icon: ImageIcon },
       { name: "Galleries", href: "/admin/galleries", icon: ImageIcon },
-      { name: "Events", href: "/admin/events", icon: Calendar },
     ],
   },
   {

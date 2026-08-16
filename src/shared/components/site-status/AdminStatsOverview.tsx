@@ -65,7 +65,7 @@ export async function AdminStatsOverview({ locale, variant = "default" }: AdminS
       key: "business",
       label: "Business Records",
       value: stats.overview.activeBusinessRecords,
-      helper: "Clients & partners",
+      helper: "Active records",
       icon: BriefcaseBusiness,
     },
     {

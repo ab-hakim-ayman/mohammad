@@ -16,8 +16,6 @@ export interface TestimonialQueryParams {
   sort?: string;
   status?: Status;
   isFeatured?: boolean;
-  type?: "CLIENT" | "EMPLOYEE";
-  source?: "ADMIN" | "REQUEST_LINK" | "PUBLIC_FORM";
 }
 export type TestimonialQueryValidated = z.infer<typeof TestimonialQuerySchema>;
 export interface Testimonial {
@@ -29,10 +27,6 @@ export interface Testimonial {
   authorImage: string | null;
   authorImageAlt?: string | null;
   status: Status;
-  type: "CLIENT" | "EMPLOYEE";
-  clientId: string | null;
-  employeeId: string | null;
-  source: "ADMIN" | "REQUEST_LINK" | "PUBLIC_FORM";
   email: string | null;
   isFeatured: boolean;
   order: number;
@@ -46,8 +40,6 @@ export interface Testimonial {
   updatedById: string | null;
   createdBy?: AuditUserSummary | null;
   updatedBy?: AuditUserSummary | null;
-  client?: { id: string; title: string; logo: string | null } | null;
-  employee?: { id: string; name: string | null; avatar: string | null } | null;
   caseStudies?: Array<{ id: string; title: string; slug: string }>;
   services?: Array<{ id: string; title: string; slug: string }>;
 }

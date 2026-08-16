@@ -13,7 +13,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
       <Header variant="glassmorphic" />
 
-      <main className="w-full flex-1 pt-14">
+      <main className="w-full flex-1 pt-16">
         {children}
       </main>
 

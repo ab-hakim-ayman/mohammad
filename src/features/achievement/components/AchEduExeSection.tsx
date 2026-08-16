@@ -7,7 +7,7 @@ import I18n from "@/shared/components/I18n";
 
 export function AchEduExeSection() {
     return (
-        <section className="bg-background py-16 px-4 sm:px-6 lg:px-8 font-sans">
+        <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
             <div className="container-custom mx-auto w-full">
 
                 {/* Main Section Header */}

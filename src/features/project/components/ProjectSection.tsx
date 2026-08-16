@@ -16,39 +16,25 @@ export function ProjectSection() {
   }, [data]);
 
   const filters = useMemo(() => {
-    const clients = new Set<string>();
-    const techs = new Set<string>();
+    const categories = new Set<string>();
 
     projects.forEach((item) => {
-      if (item.client?.title) {
-        clients.add(item.client.title);
-      }
-      item.technologies?.forEach((tech) => {
-        if (tech.title) {
-          techs.add(tech.title);
+      item.categories?.forEach((cat) => {
+        if (cat.title) {
+          categories.add(cat.title);
         }
       });
     });
 
-    const configs = [];
+    if (categories.size === 0) return [];
 
-    if (clients.size > 0) {
-      configs.push({
-        key: "client.title",
-        placeholder: "Client",
-        options: Array.from(clients).map((c) => ({ label: c, value: c })),
-      });
-    }
-
-    if (techs.size > 0) {
-      configs.push({
-        key: "technologies",
-        placeholder: "Technology",
-        options: Array.from(techs).map((t) => ({ label: t, value: t })),
-      });
-    }
-
-    return configs;
+    return [
+      {
+        key: "categories",
+        placeholder: "Category",
+        options: Array.from(categories).map((c) => ({ label: c, value: c })),
+      },
+    ];
   }, [projects]);
 
   return (

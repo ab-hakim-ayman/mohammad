@@ -33,58 +33,7 @@ export const testimonialTableColumns: ColumnConfig<Testimonial>[] = [
       </span>
     ),
   },
-  {
-    key: "source",
-    header: "Source",
-    render: (item) => (
-      <span className="text-muted-foreground text-sm capitalize">
-        {item.source.split("_").join(" ").toLowerCase()}
-      </span>
-    ),
-  },
-  {
-    key: "type",
-    header: "Type",
-    render: (item) => (
-      <span className="text-muted-foreground text-sm capitalize">{item.type.toLowerCase()}</span>
-    ),
-  },
-  {
-    key: "email",
-    header: "Email",
-    type: "text",
-    sortable: true,
-  },
-  {
-    key: "client",
-    header: "Client",
-    render: (item) =>
-      item.clientId ? (
-        <Link
-          href={`/admin/clients/${item.clientId}`}
-          className="text-primary text-sm hover:underline"
-        >
-          {item.client?.title || item.clientId.slice(0, 8) + "..."}
-        </Link>
-      ) : (
-        <span className="text-muted-foreground/40 text-sm">—</span>
-      ),
-  },
-  {
-    key: "employee",
-    header: "Employee",
-    render: (item) =>
-      item.employeeId ? (
-        <Link
-          href={`/admin/users/${item.employeeId}`}
-          className="text-primary text-sm hover:underline"
-        >
-          {item.employee?.name || item.employeeId.slice(0, 8) + "..."}
-        </Link>
-      ) : (
-        <span className="text-muted-foreground/40 text-sm">—</span>
-      ),
-  },
+
   {
     key: "status",
     header: "Status",

@@ -7,6 +7,8 @@ import { Briefcase } from "lucide-react";
 import I18n from "@/shared/components/I18n";
 import { useLocale } from "next-intl";
 
+import { ContentRenderer } from "@/components/content/ContentRenderer";
+
 function formatDate(value: Date | string | null | undefined, locale: string) {
     if (!value) return null;
     const date = new Date(value);
@@ -63,7 +65,13 @@ export function ExperiencePreviewSection() {
                                     </p>
                                 )}
 
-                                {highlights.length > 0 && (
+                                {exp.contentJson && (
+                                    <div className="mt-3 text-sm text-muted-foreground">
+                                        <ContentRenderer content={exp.contentJson} variant="career" />
+                                    </div>
+                                )}
+
+                                {(!exp.contentJson || !(exp.contentJson as any)?.blocks) && highlights.length > 0 && (
                                     <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground mt-2">
                                         {highlights.map((item, idx) => (
                                             <li key={idx} className="leading-relaxed">{item}</li>

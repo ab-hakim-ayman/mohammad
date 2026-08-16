@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { NextIntlClientProvider, type AbstractIntlMessages } from "next-intl";
 
 export interface CustomIntlProviderProps {
@@ -51,13 +52,15 @@ export function CustomIntlProvider({
   timeZone = "Asia/Dhaka",
   children,
 }: CustomIntlProviderProps) {
+  const initialNow = useMemo(() => new Date(), []);
+
   return (
     <NextIntlClientProvider
       locale={locale}
       messages={messages}
       timeZone={timeZone}
       formats={defaultFormats}
-      now={new Date()}
+      now={initialNow}
       onError={(error) => {
         // Suppress missing translation warnings in production/dev console
         if (error.code === "MISSING_MESSAGE") {

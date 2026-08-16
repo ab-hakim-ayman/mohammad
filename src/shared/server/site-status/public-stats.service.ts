@@ -18,9 +18,6 @@ export type PublicStatsData = {
     skills: number;
     specializations: number;
     achievements: number;
-    clients: number;
-    partners: number;
-    events: number;
     faqs: number;
     categories: number;
     tags: number;
@@ -42,9 +39,6 @@ export async function getPublicStats(): Promise<PublicStatsData> {
     skills,
     specializations,
     achievements,
-    clients,
-    partners,
-    events,
     faqs,
     categories,
     tags,
@@ -59,7 +53,6 @@ export async function getPublicStats(): Promise<PublicStatsData> {
     latestTestimonial,
     latestTechnology,
     latestAchievement,
-    latestEvent,
     latestGallery,
     latestSiteInfo,
   ] = await Promise.all([
@@ -72,9 +65,6 @@ export async function getPublicStats(): Promise<PublicStatsData> {
     prisma.skill.count({ where: { status: "PUBLISHED" } }),
     prisma.specialization.count({ where: { status: "PUBLISHED" } }),
     prisma.achievement.count({ where: { status: "PUBLISHED" } }),
-    prisma.client.count({ where: { status: "PUBLISHED" } }),
-    prisma.partner.count({ where: { status: "PUBLISHED" } }),
-    prisma.event.count({ where: { status: "PUBLISHED" } }),
     prisma.faq.count({ where: { status: "PUBLISHED" } }),
     prisma.category.count({ where: { status: "PUBLISHED" } }),
     prisma.tag.count({ where: { status: "PUBLISHED" } }),
@@ -117,11 +107,6 @@ export async function getPublicStats(): Promise<PublicStatsData> {
       orderBy: { updatedAt: "desc" },
       select: { updatedAt: true },
     }),
-    prisma.event.findFirst({
-      where: { status: "PUBLISHED" },
-      orderBy: { updatedAt: "desc" },
-      select: { updatedAt: true },
-    }),
     prisma.gallery.findFirst({
       orderBy: { updatedAt: "desc" },
       select: { updatedAt: true },
@@ -141,7 +126,6 @@ export async function getPublicStats(): Promise<PublicStatsData> {
       latestTestimonial?.updatedAt,
       latestTechnology?.updatedAt,
       latestAchievement?.updatedAt,
-      latestEvent?.updatedAt,
       latestGallery?.updatedAt,
       latestSiteInfo?.updatedAt,
     ]
@@ -161,13 +145,12 @@ export async function getPublicStats(): Promise<PublicStatsData> {
         skills +
         specializations +
         achievements +
-        events +
         faqs +
         categories +
         tags +
         galleries +
         galleryItems,
-      activeBusinessRecords: clients + partners,
+      activeBusinessRecords: 0,
       activeShowcase: projects + caseStudies + testimonials + galleryItems,
       configuredBrandAssets: activeHero + siteInfos,
       lastUpdatedAt,
@@ -182,9 +165,6 @@ export async function getPublicStats(): Promise<PublicStatsData> {
       skills,
       specializations,
       achievements,
-      clients,
-      partners,
-      events,
       faqs,
       categories,
       tags,
