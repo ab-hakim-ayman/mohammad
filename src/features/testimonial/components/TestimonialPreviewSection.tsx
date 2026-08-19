@@ -44,11 +44,20 @@ export function TestimonialPreviewSection({
   const shouldFetch = !initialItems;
 
   const {
-    data,
-    isLoading: isApiLoading,
-    error,
+    data: featuredData,
+    isLoading: isFeaturedLoading,
+    error: featuredError,
   } = usePublishedTestimonials(
-    shouldFetch ? featured : undefined,
+    shouldFetch && featured ? true : undefined,
+    shouldFetch ? requestedLimit : undefined
+  );
+
+  const {
+    data: fallbackData,
+    isLoading: isFallbackLoading,
+    error: fallbackError,
+  } = usePublishedTestimonials(
+    undefined,
     shouldFetch ? requestedLimit : undefined
   );
 
@@ -56,9 +65,25 @@ export function TestimonialPreviewSection({
     if (initialItems) {
       return [...initialItems].slice(0, requestedLimit);
     }
-    const rawList = (data?.data || (Array.isArray(data) ? data : [])) as Testimonial[];
-    return [...rawList].slice(0, requestedLimit);
-  }, [initialItems, data, requestedLimit]);
+    const featuredList = (featuredData?.data || (Array.isArray(featuredData) ? featuredData : [])) as Testimonial[];
+    const fallbackList = (fallbackData?.data || (Array.isArray(fallbackData) ? fallbackData : [])) as Testimonial[];
+
+    if (featured && featuredList.length > 0) {
+      const seenIds = new Set<string>();
+      return [...featuredList, ...fallbackList]
+        .filter((item) => {
+          if (seenIds.has(item.id)) return false;
+          seenIds.add(item.id);
+          return true;
+        })
+        .slice(0, requestedLimit);
+    }
+
+    return [...fallbackList].slice(0, requestedLimit);
+  }, [initialItems, featuredData, fallbackData, featured, requestedLimit]);
+
+  const error = featuredError || fallbackError;
+  const isLoading = shouldFetch && (isFeaturedLoading || isFallbackLoading);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -69,8 +94,6 @@ export function TestimonialPreviewSection({
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
   };
-
-  const isLoading = shouldFetch && isApiLoading;
 
   if (isLoading) {
     return (
@@ -115,7 +138,10 @@ export function TestimonialPreviewSection({
 
   if ((shouldFetch && error) || testimonials.length === 0) return null;
 
-  const currentTestimonial = testimonials[currentIndex];
+  const safeIndex = currentIndex >= testimonials.length ? 0 : currentIndex;
+  const currentTestimonial = testimonials[safeIndex] || testimonials[0];
+  if (!currentTestimonial) return null;
+
   const meta = currentTestimonial as TestimonialMeta;
   const avatarSource = currentTestimonial.authorImage || meta.avatar || meta.profileImage;
   const authorMeta = currentTestimonial.authorPosition || "Client Partner";

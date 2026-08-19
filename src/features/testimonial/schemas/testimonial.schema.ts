@@ -3,37 +3,39 @@ import { Status } from "@/shared/types/enums";
 
 import { z } from "zod";
 import { emptyStringToNull } from "@/shared/utils/schema";
+const optionalDateSchema = z.preprocess(
+  (val) => {
+    if (val === "" || val === null || val === undefined) return null;
+    return val;
+  },
+  z
+    .union([
+      z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date format"),
+      z.date(),
+    ])
+    .optional()
+    .nullable()
+);
+
 export const CreateTestimonialSchema = z.object({
   authorName: z.string().min(2, "Name must be at least 2 characters").max(100),
   authorPosition: z.string().min(2, "Position is required").max(100),
   message: z.string().min(10, "Message must be at least 10 characters").max(1000),
   rating: z.number().int().min(1).max(5).default(5),
   authorImage: z.preprocess(emptyStringToNull, z.string().optional().nullable()),
-  email: z.string().email().optional().nullable(),
+  email: z.preprocess(emptyStringToNull, z.string().email("Invalid email address").optional().nullable()),
   status: z.nativeEnum(Status).default(Status.DRAFT),
 
   isFeatured: z.boolean().default(false),
   order: z.coerce.number().int().min(0).default(0),
 
-  submittedAt: z.string().datetime().optional().nullable(),
-  consentAt: z.string().datetime().optional().nullable(),
+  submittedAt: optionalDateSchema,
+  consentAt: optionalDateSchema,
 
-  authorImageAlt: z.string().max(500).optional().nullable(),
+  authorImageAlt: z.preprocess(emptyStringToNull, z.string().max(500).optional().nullable()),
 });
 
-export const UpdateTestimonialSchema = z.object({
-  authorName: z.string().min(2).max(100).optional(),
-  authorPosition: z.string().min(2).max(100).optional(),
-  message: z.string().min(10).max(1000).optional(),
-  rating: z.number().int().min(1).max(5).optional(),
-  authorImage: z.preprocess(emptyStringToNull, z.string().optional().nullable()).optional(),
-  email: z.string().email().optional().nullable(),
-  status: z.nativeEnum(Status).optional(),
-  isFeatured: z.boolean().optional(),
-  order: z.coerce.number().int().min(0).optional(),
-  submittedAt: z.string().datetime().optional().nullable(),
-  consentAt: z.string().datetime().optional().nullable(),
-});
+export const UpdateTestimonialSchema = CreateTestimonialSchema.partial();
 
 export const TestimonialQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),

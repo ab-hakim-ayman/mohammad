@@ -6,6 +6,15 @@ import { useDebounce } from "@/shared/hooks/useDebounce";
 import { Pagination } from "@/shared/components";
 import { ScrollReveal } from "@/shared/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
+import { Accordion } from "@/components/ui/accordion";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import I18n from "@/shared/components/I18n";
 import type {
@@ -44,8 +53,11 @@ export function SectionEngine<T extends Record<string, any>>({
     isLoading,
     error,
     pageSize = 20,
+    layout = "grid",
+    accordionType = "single",
     columns = 3,
     gap = "default",
+    tableColumns = [],
     searchKey,
     searchPlaceholder = "Search...",
     searchVariant = "capsule",
@@ -55,13 +67,17 @@ export function SectionEngine<T extends Record<string, any>>({
     filters,
     dateKey = "publishedAt",
     showSortToggle = true,
-    showToolbar = true,           // 👈 প্রিভিউ সেকশনের জন্য false করা যাবে
-    showPagination = true,        // 👈 প্রিভিউ সেকশনের জন্য false করা যাবে
-    hideEmptyState = false,       // 👈 ডেটা না থাকলে নাল রিটার্ন করতে
-    header,                       // 👈 কাস্টম সেকশন হেডার
+    showToolbar = true,
+    showPagination = true,
+    hideEmptyState = false,
+    header,
     itemCountLabel = "items",
     renderCard,
-    skeletonHeightClassName = "h-[104px]",
+    renderAccordionItem,
+    renderListItem,
+    renderChart,
+    renderItem,
+    skeletonHeightClassName,
     className,
 }: SectionEngineProps<T>) {
     const [searchInput, setSearchInput] = useState("");
@@ -69,6 +85,16 @@ export function SectionEngine<T extends Record<string, any>>({
     const [filterValues, setFilterValues] = useState<Record<string, string | string[] | null | undefined>>({});
     const [sortOrder, setSortOrder] = useState<SortOrder>("latest");
     const [page, setPage] = useState(1);
+
+    const defaultSkeletonHeight =
+        layout === "accordion"
+            ? "h-16"
+            : layout === "table"
+                ? "h-12"
+                : layout === "chart"
+                    ? "h-96"
+                    : "h-[104px]";
+    const resolvedSkeletonHeight = skeletonHeightClassName || defaultSkeletonHeight;
 
     const getNestedValue = (obj: any, path: string) => {
         if (!path) return undefined;
@@ -167,8 +193,9 @@ export function SectionEngine<T extends Record<string, any>>({
                     if (filterVal.length === 0) return true;
                     if (Array.isArray(val)) {
                         return filterVal.some((target) =>
-                            val.some((sub) =>
-                                String(sub.title || sub.name || sub.value || sub).toLowerCase() === target.toLowerCase()
+                            val.some(
+                                (sub) =>
+                                    String(sub.title || sub.name || sub.value || sub).toLowerCase() === target.toLowerCase()
                             )
                         );
                     }
@@ -206,22 +233,66 @@ export function SectionEngine<T extends Record<string, any>>({
         return processedItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
     }, [processedItems, currentPage, pageSize, showPagination]);
 
+    // 🟢 লেআউট অনুযায়ী আইটেম রেন্ডারার রেজোলিউশন
+    const renderItemContent = (item: T, index: number) => {
+        if (layout === "accordion" && renderAccordionItem) return renderAccordionItem(item, index);
+        if (layout === "list" && renderListItem) return renderListItem(item, index);
+        if (layout === "grid" && renderCard) return renderCard(item, index);
+        return renderItem ? renderItem(item, index) : renderCard?.(item, index);
+    };
+
     if (isLoading) {
         return (
             <section className={cn("w-full py-10", className)}>
                 <div className="container-custom px-4 sm:px-6">
                     {header && <div className="mb-8 w-full">{header}</div>}
-                    <div className={cn("grid w-full", columnGridVariants[columns], gapVariants[gap])}>
-                        {Array.from({ length: Math.min(pageSize, columns * 2) }).map((_, idx) => (
-                            <div
-                                key={idx}
-                                className={cn(
-                                    "border-border bg-card w-full animate-pulse rounded-xl border p-4 shadow-xs",
-                                    skeletonHeightClassName
-                                )}
-                            />
-                        ))}
-                    </div>
+
+                    {layout === "chart" ? (
+                        <div
+                            className={cn(
+                                "border-border bg-card mx-auto flex w-full max-w-4xl animate-pulse items-center justify-center rounded-2xl border p-6 shadow-xs",
+                                resolvedSkeletonHeight
+                            )}
+                        />
+                    ) : layout === "accordion" || layout === "list" ? (
+                        <div className="mx-auto w-full max-w-4xl space-y-3">
+                            {Array.from({ length: Math.min(pageSize, 6) }).map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={cn(
+                                        "border-border bg-card w-full animate-pulse rounded-2xl border p-4 shadow-xs",
+                                        resolvedSkeletonHeight
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    ) : layout === "table" ? (
+                        <div className="border-border bg-card mx-auto w-full overflow-hidden rounded-2xl border p-4 shadow-xs">
+                            <div className="space-y-3">
+                                {Array.from({ length: Math.min(pageSize, 6) }).map((_, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={cn(
+                                            "bg-muted/50 w-full animate-pulse rounded-lg",
+                                            resolvedSkeletonHeight
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={cn("grid w-full", columnGridVariants[columns], gapVariants[gap])}>
+                            {Array.from({ length: Math.min(pageSize, columns * 2) }).map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={cn(
+                                        "border-border bg-card w-full animate-pulse rounded-xl border p-4 shadow-xs",
+                                        resolvedSkeletonHeight
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
         );
@@ -234,10 +305,8 @@ export function SectionEngine<T extends Record<string, any>>({
     return (
         <section className={cn("w-full py-10", className)}>
             <div className="container-custom px-4 sm:px-6">
-                {/* কাস্টম হেডার (যদি প্রিভিউ সেকশন হয়) */}
                 {header && <div className="mb-8 w-full">{header}</div>}
 
-                {/* টুলবার (সার্চ + ফিল্টার + সর্ট) */}
                 {showToolbar && (resolvedFilters.length > 0 || searchKey || searchFields) && (
                     <ScrollReveal className="mb-8 flex flex-col space-y-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -300,20 +369,108 @@ export function SectionEngine<T extends Record<string, any>>({
                     </ScrollReveal>
                 )}
 
-                {/* গ্রিড ম্যাট্রিক্স */}
                 {processedItems.length > 0 ? (
                     <>
-                        <div className={cn("grid w-full items-stretch", columnGridVariants[columns], gapVariants[gap])}>
-                            {visibleItems.map((item: T, index: number) => (
-                                <ScrollReveal
-                                    key={item.id || index}
-                                    delay={(index % columns) * 40}
-                                    className="flex h-full w-full flex-col"
-                                >
-                                    {renderCard(item)}
-                                </ScrollReveal>
-                            ))}
-                        </div>
+                        {/* 🟢 1. Table Layout */}
+                        {layout === "table" && (
+                            <div className="border-border/80 bg-card/60 w-full overflow-x-auto rounded-2xl border shadow-xs backdrop-blur-md">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="border-border/80 hover:bg-transparent">
+                                            {tableColumns.map((col, idx) => (
+                                                <TableHead
+                                                    key={idx}
+                                                    className={cn(
+                                                        "text-foreground/80 h-12 text-xs font-bold whitespace-nowrap",
+                                                        col.headerClassName
+                                                    )}
+                                                >
+                                                    {col.header}
+                                                </TableHead>
+                                            ))}
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {visibleItems.map((item: T, rowIndex: number) => (
+                                            <TableRow
+                                                key={item.id || rowIndex}
+                                                className="border-border/60 hover:bg-muted/40 transition-colors"
+                                            >
+                                                {tableColumns.map((col, colIndex) => {
+                                                    const cellContent = col.cell
+                                                        ? col.cell(item, rowIndex)
+                                                        : col.accessorKey
+                                                            ? String(getNestedValue(item, col.accessorKey as string) ?? "-")
+                                                            : null;
+
+                                                    return (
+                                                        <TableCell
+                                                            key={colIndex}
+                                                            className={cn(
+                                                                "py-4 text-xs font-medium text-muted-foreground",
+                                                                col.className
+                                                            )}
+                                                        >
+                                                            {cellContent}
+                                                        </TableCell>
+                                                    );
+                                                })}
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+
+                        {/* 🟢 2. Chart Layout (Full Data Array) */}
+                        {layout === "chart" && (
+                            <div className="relative mx-auto flex min-h-[380px] w-full max-w-4xl items-center justify-center sm:min-h-[460px]">
+                                {renderChart ? renderChart(visibleItems) : renderItem?.(visibleItems as any, 0)}
+                            </div>
+                        )}
+
+                        {/* 🟢 3. Accordion Layout */}
+                        {layout === "accordion" && (
+                            <Accordion
+                                {...({
+                                    ...(accordionType === "multiple" ? { multiple: true } : { multiple: false }),
+                                    collapsible: true,
+                                    className: "mx-auto w-full max-w-4xl",
+                                } as any)}
+                            >
+                                {visibleItems.map((item: T, index: number) => (
+                                    <ScrollReveal key={item.id || index} delay={(index % 5) * 30}>
+                                        {renderItemContent(item, index)}
+                                    </ScrollReveal>
+                                ))}
+                            </Accordion>
+                        )}
+
+                        {/* 🟢 4. Vertical List Layout */}
+                        {layout === "list" && (
+                            <div className="mx-auto flex w-full max-w-4xl flex-col space-y-3">
+                                {visibleItems.map((item: T, index: number) => (
+                                    <ScrollReveal key={item.id || index} delay={(index % 5) * 30}>
+                                        {renderItemContent(item, index)}
+                                    </ScrollReveal>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 🟢 5. Dynamic Grid Layout */}
+                        {layout === "grid" && (
+                            <div className={cn("grid w-full items-stretch", columnGridVariants[columns], gapVariants[gap])}>
+                                {visibleItems.map((item: T, index: number) => (
+                                    <ScrollReveal
+                                        key={item.id || index}
+                                        delay={(index % columns) * 40}
+                                        className="flex h-full w-full flex-col"
+                                    >
+                                        {renderItemContent(item, index)}
+                                    </ScrollReveal>
+                                ))}
+                            </div>
+                        )}
 
                         {showPagination && totalPages > 1 && (
                             <div className="mt-14 flex justify-center">

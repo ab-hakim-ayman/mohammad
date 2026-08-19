@@ -3,89 +3,78 @@
 import { useMemo } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
 import { SectionEngine } from "@/shared/components/sections/SectionEngine";
+import { SkillRadarChart } from "./SkillRadarChart";
 import { usePublishedSkills } from "../hooks/useSkill";
 import type { Skill } from "../types/skill.types";
-import { SkillCard } from "./SkillCard";
 
-interface SkillPreviewSectionProps {
-  limit?: number;
+export interface SkillPreviewSectionProps {
   items?: Skill[];
-  skills?: Skill[]; // Legacy alias
+  skills?: Skill[];
+  limit?: number;
   eyebrow?: string;
   title?: string;
   description?: string;
   href?: string;
   ctaLabel?: string;
   hideHeader?: boolean;
+  headerVariant?: "split" | "center" | "stacked" | "minimal";
   className?: string;
 }
 
 export function SkillPreviewSection({
-  limit = 16,
   items: externalItems,
   skills: legacySkills,
-  eyebrow = "Skills",
-  title = "Capabilities across the current delivery stack",
-  description = "A curated selection of practical skills shaping our product, engineering, design, and delivery work.",
+  limit = 10,
+  eyebrow = "Skills Overview",
+  title = "At a glance",
+  description = "A bird's-eye view of technical capabilities, system engineering stack, and architectural depth.",
   href = "/skills",
-  ctaLabel = "All skills",
+  ctaLabel = "Explore All Skills",
   hideHeader = false,
+  headerVariant = "split",
   className,
 }: SkillPreviewSectionProps) {
-  const requestedLimit = Math.max(limit, 1);
-  const initialItems = externalItems || legacySkills;
-  const shouldFetch = !initialItems;
+  const initialData = externalItems || legacySkills;
+  const shouldFetch = !initialData;
 
-  const {
-    data,
-    isLoading: isApiLoading,
-    error,
-  } = usePublishedSkills(undefined, shouldFetch ? requestedLimit : undefined);
+  const { data: apiData, isLoading: isApiLoading, error } = usePublishedSkills();
 
-  // কাস্টম সর্টিং (order অনুযায়ী, তারপর টাইটেল)
-  const processedData = useMemo(() => {
-    const rawList = initialItems || (data?.data || (Array.isArray(data) ? data : []));
-    if (!Array.isArray(rawList)) return [];
+  const rawData: Skill[] = useMemo(() => {
+    if (initialData) return initialData;
+    if (Array.isArray(apiData)) return apiData;
+    return apiData?.data || [];
+  }, [initialData, apiData]);
 
-    return [...rawList]
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.title.localeCompare(b.title))
-      .slice(0, requestedLimit);
-  }, [initialItems, data, requestedLimit]);
+  const visibleData = useMemo(() => {
+    return rawData.slice(0, limit);
+  }, [rawData, limit]);
+
+  const isLoading = shouldFetch && isApiLoading;
 
   return (
     <SectionEngine<Skill>
-      data={processedData}
-      isLoading={shouldFetch && isApiLoading}
+      data={visibleData}
+      isLoading={isLoading}
       error={error}
-      pageSize={requestedLimit}
-      columns={6} // 👈 প্রিভিউ গ্রিডে ৬ কলাম
-      gap="sm"
-      showToolbar={false}    // 👈 প্রিভিউতে সার্চ/ফিল্টার টুলবার অফ
-      showPagination={false} // 👈 প্রিভিউতে পেজিনেশন অফ
-      hideEmptyState={true}  // 👈 ডেটা না থাকলে অটো হাইড
-      skeletonHeightClassName="h-16"
+      layout="chart"
+      pageSize={limit}
+      showToolbar={false}
+      showPagination={false}
+      hideEmptyState={true}
       className={className}
       header={
         !hideHeader ? (
           <PreviewSectionHeader
-            variant="split"
             eyebrow={eyebrow}
             title={title}
             description={description}
             href={href}
             ctaLabel={ctaLabel}
+            variant={headerVariant}
           />
         ) : undefined
       }
-      renderCard={(skill) => (
-        <SkillCard
-          skill={skill}
-          size="sm"
-          layout="horizontal"
-          alignment="center"
-          className="h-16 w-full rounded-lg"
-        />
-      )}
+      renderChart={(chartItems) => <SkillRadarChart skills={chartItems} />}
     />
   );
 }

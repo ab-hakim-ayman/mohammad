@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+export type SectionLayout = "grid" | "accordion" | "list" | "table" | "chart";
 export type SearchVariant = "default" | "capsule" | "glass" | "solid" | "underline";
 export type SortToggleVariant = "default" | "capsule" | "glass" | "solid" | "underline";
 export type FilterDisplayType = "select" | "single-pill" | "multi-pill";
@@ -19,13 +20,24 @@ export interface SectionFilterConfig {
     type?: FilterDisplayType;
 }
 
+export interface SectionTableColumn<T = any> {
+    header: ReactNode;
+    accessorKey?: keyof T | string;
+    cell?: (item: T, index: number) => ReactNode;
+    className?: string;
+    headerClassName?: string;
+}
+
 export interface SectionEngineProps<T = any> {
     data: any;
     isLoading?: boolean;
     error?: any;
     pageSize?: number;
+    layout?: SectionLayout;
+    accordionType?: "single" | "multiple";
     columns?: GridColumns;
     gap?: GridGap;
+    tableColumns?: SectionTableColumn<T>[];
     searchKey?: string;
     searchPlaceholder?: string;
     searchVariant?: SearchVariant;
@@ -36,7 +48,14 @@ export interface SectionEngineProps<T = any> {
     dateKey?: string;
     showSortToggle?: boolean;
     itemCountLabel?: string;
-    renderCard: (item: T) => ReactNode;
+
+    // 🟢 লেআউট-ভিত্তিক রেন্ডারার ফাংশন
+    renderCard?: (item: T, index: number) => ReactNode;
+    renderAccordionItem?: (item: T, index: number) => ReactNode;
+    renderListItem?: (item: T, index: number) => ReactNode;
+    renderChart?: (items: T[]) => ReactNode;
+    renderItem?: (item: T, index: number) => ReactNode;
+
     skeletonHeightClassName?: string;
     className?: string;
     header?: ReactNode;

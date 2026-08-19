@@ -4,22 +4,20 @@ import { useMemo } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
 import { usePublishedServices } from "../hooks/useService";
 import type { Service } from "../types/service.types";
-import { ServiceCard } from "./ServiceCard"; // 👈 আপনার তৈরি করা ServiceCard ইমপোর্ট করা হলো
+import { ServiceCard } from "./ServiceCard";
+import { SectionEngine } from "@/shared/components/sections/SectionEngine";
 
 interface ServicePreviewSectionProps {
   limit?: number;
-
-  // 🟢 ১. যেকোনো Details Page থেকে কাস্টম সার্ভিস অ্যারে পাস করার প্রপ্স
   items?: Service[];
-  services?: Service[]; // Legacy prop alias
-
-  // 🟢 ২. কাস্টম হেডার কনফিগারেশন প্রপ্স
+  services?: Service[];
   eyebrow?: string;
   title?: string;
   description?: string;
   href?: string;
   ctaLabel?: string;
   hideHeader?: boolean;
+  className?: string;
 }
 
 export function ServicePreviewSection({
@@ -32,60 +30,39 @@ export function ServicePreviewSection({
   href = "/services",
   ctaLabel = "All services",
   hideHeader = false,
+  className,
 }: ServicePreviewSectionProps) {
   const requestedLimit = Math.max(limit, 1);
   const initialItems = externalItems || legacyServices;
-
-  // 🎯 যদি বাইর থেকে items/services না আসে, কেবল তখনই API ফেচ হবে
   const shouldFetch = !initialItems;
 
-  const { data, isLoading: isApiLoading, error } = usePublishedServices(
+  const { data, isLoading, error } = usePublishedServices(
     shouldFetch ? { page: 1, limit: requestedLimit } : undefined
   );
 
-  const services = useMemo<Service[]>(() => {
+  const finalData = useMemo(() => {
     if (initialItems) {
-      return [...initialItems]
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .slice(0, requestedLimit);
+      return [...initialItems].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
-
     const rawList = (data?.data?.data || (Array.isArray(data) ? data : [])) as Service[];
-    return [...rawList]
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .slice(0, requestedLimit);
-  }, [initialItems, data, requestedLimit]);
-
-  const isLoading = shouldFetch && isApiLoading;
-
-  if (isLoading) {
-    return (
-      <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
-        <div className="container-custom mx-auto w-full">
-          {!hideHeader && (
-            <div className="bg-surface-elevated/50 mb-10 h-10 w-56 animate-pulse rounded-none sm:rounded-lg" />
-          )}
-
-          <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
-            {Array.from({ length: Math.min(requestedLimit, 4) }).map((_, index) => (
-              <div
-                key={index}
-                className="border-border bg-surface-elevated/50 h-[430px] w-full shrink-0 animate-pulse rounded-none border sm:w-[calc(50%-12px)] sm:rounded-xl lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)]"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // 🎯 এরর থাকলে বা কোনো সার্ভিস ডাটা না থাকলে পুরো সেকশনটি অটোমেটিক হাইড থাকবে
-  if ((shouldFetch && error) || services.length === 0) return null;
+    return [...rawList].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [initialItems, data]);
 
   return (
-    <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
-      <div className="container-custom mx-auto w-full">
-        {!hideHeader && (
+    <SectionEngine<Service>
+      data={finalData}
+      isLoading={shouldFetch && isLoading}
+      error={error}
+      pageSize={requestedLimit}
+      columns={4}
+      gap="default"
+      showToolbar={false}
+      showPagination={false}
+      hideEmptyState={true}
+      skeletonHeightClassName="h-[430px]"
+      className={className}
+      header={
+        !hideHeader ? (
           <PreviewSectionHeader
             eyebrow={eyebrow}
             title={title}
@@ -93,23 +70,14 @@ export function ServicePreviewSection({
             href={href}
             ctaLabel={ctaLabel}
           />
-        )}
-
-        {/* 🔧 REUSABLE SERVICE CARD MATRIX */}
-        <div className="mt-10 flex w-full flex-wrap items-stretch justify-center gap-4">
-          {services.map((service, index) => (
-            <div
-              key={service.id ? String(service.id) : index}
-              className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] flex"
-            >
-              <ServiceCard
-                service={service}
-                className="h-full w-full"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+        ) : undefined
+      }
+      renderCard={(service) => (
+        <ServiceCard
+          service={service}
+          className="h-full w-full"
+        />
+      )}
+    />
   );
 }

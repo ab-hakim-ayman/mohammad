@@ -25,6 +25,13 @@ const toDateTimeLocal = (date?: string | Date | null) => {
   return `${YYYY}-${MM}-${DD}T${HH}:${mm}`;
 };
 
+const toIsoStringOrNull = (date?: string | Date | null) => {
+  if (!date) return null;
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
+};
+
 export function TestimonialForm({
   initialData,
   onSubmit,
@@ -82,8 +89,8 @@ export function TestimonialForm({
   const onFormSubmit = async (data: CreateTestimonialPayload) => {
     const payload = {
       ...data,
-      submittedAt: data.submittedAt ? new Date(data.submittedAt).toISOString() : null,
-      consentAt: data.consentAt ? new Date(data.consentAt).toISOString() : null,
+      submittedAt: toIsoStringOrNull(data.submittedAt),
+      consentAt: toIsoStringOrNull(data.consentAt),
     };
     await onSubmit(payload as any);
   };
