@@ -14,5 +14,7 @@ export * from "./FormattedDate";
 export { CategoryWidget } from "./CategoryWidget";
 export { TagWidget } from "./TagWidget";
 export { ShareWidget } from "./ShareWidget";
+export { CopyButton } from "./CopyButton";
 
 export * from "./CustomIntlProvider";
+

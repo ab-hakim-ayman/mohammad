@@ -58,6 +58,7 @@ export interface DetailEngineConfig<T = any> {
         backHref?: string;
         onDelete?: () => void;
         isDeleting?: boolean;
+        customActions?: React.ReactNode;
     };
     mainSections: DetailSectionConfig<T>[];
     sidebarSections: DetailSectionConfig<T>[];

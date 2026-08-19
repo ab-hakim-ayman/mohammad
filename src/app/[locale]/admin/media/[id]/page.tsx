@@ -4,8 +4,10 @@ import { useParams } from "next/navigation";
 import { ImageIcon, FileVideo, FileAudio, File } from "lucide-react";
 import { useDeleteMedia, useMediaItem } from "@/features/media";
 import { StateScreen } from "@/shared/components";
+import { CopyButton } from "@/shared/components/CopyButton";
 import { DetailEngine } from "@/shared/components/details/DetailEngine";
 import { DetailEngineConfig } from "@/shared/components/details/detail-engine.types";
+import I18n from "@/shared/components/I18n";
 
 function formatFileSize(bytes: number | null | undefined) {
   if (bytes == null) return "\u2014";
@@ -54,6 +56,15 @@ export default function ViewMediaPage() {
     headerIcon: getHeaderIcon(media.resourceType),
     eyebrow: "Media Details",
     actions: {
+      customActions: (
+        <CopyButton
+          text={media.url}
+          label="Copy Media URL"
+          copiedLabel="URL Copied!"
+          size="sm"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 h-9 cursor-pointer rounded-xl px-4 text-xs font-bold shadow-2xs"
+        />
+      ),
       editHref: `/admin/media/${media.id}/edit`,
       backHref: "/admin/media",
       onDelete: async () => {

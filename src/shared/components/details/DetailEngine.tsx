@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import I18n from "@/shared/components/I18n";
+import { CopyButton } from "@/shared/components/CopyButton";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,15 +103,25 @@ export function DetailEngine<T extends Record<string, any>>({
 
       case "link":
         return val ? (
-          <a
-            href={String(val)}
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary inline-flex max-w-full items-center gap-1 truncate font-mono text-xs hover:underline"
-          >
-            {String(val)}
-            <ExternalLink className="h-3 w-3 shrink-0" />
-          </a>
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={String(val)}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary inline-flex max-w-full items-center gap-1 truncate font-mono text-xs hover:underline"
+            >
+              {String(val)}
+              <ExternalLink className="h-3 w-3 shrink-0" />
+            </a>
+            <CopyButton
+              text={String(val)}
+              label="Copy"
+              copiedLabel="Copied!"
+              size="sm"
+              variant="outline"
+              className="h-7 text-[11px] px-2.5 rounded-lg border-border/80"
+            />
+          </div>
         ) : (
           <span className="text-muted-foreground/40">N/A</span>
         );

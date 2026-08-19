@@ -1,47 +1,80 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Inbox, RotateCcw } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { Pagination } from "@/shared/components";
 import { ScrollReveal } from "@/shared/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import I18n from "@/shared/components/I18n";
-import { SectionEngineProps } from "./section-engine.types";
+import type {
+    SectionEngineProps,
+    SectionFilterOption,
+    SortOrder,
+    GridColumns,
+    GridGap,
+} from "./section-engine.types";
+import { SectionSearchInput } from "./SectionSearchInput";
+import { SectionFilterGroup } from "./SectionFilterGroup";
+import { SectionSortToggle } from "./SectionSortToggle";
+
+const columnGridVariants: Record<GridColumns, string> = {
+    1: "grid-cols-1",
+    2: "grid-cols-1 md:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+    5: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+    6: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+    7: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7",
+    8: "grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8",
+};
+
+const gapVariants: Record<GridGap, string> = {
+    none: "gap-0",
+    xs: "gap-2",
+    sm: "gap-3",
+    default: "gap-6",
+    lg: "gap-8",
+    xl: "gap-10",
+};
 
 export function SectionEngine<T extends Record<string, any>>({
     data,
     isLoading,
     error,
     pageSize = 20,
+    columns = 3,
+    gap = "default",
     searchKey,
-    searchPlaceholder = "Filter by keyword...",
-    categoryKey = "categories",
+    searchPlaceholder = "Search...",
+    searchVariant = "capsule",
+    sortVariant = "capsule",
+    sortSize = "default",
     searchFields,
     filters,
+    dateKey = "publishedAt",
+    showSortToggle = true,
+    showToolbar = true,           // 👈 প্রিভিউ সেকশনের জন্য false করা যাবে
+    showPagination = true,        // 👈 প্রিভিউ সেকশনের জন্য false করা যাবে
+    hideEmptyState = false,       // 👈 ডেটা না থাকলে নাল রিটার্ন করতে
+    header,                       // 👈 কাস্টম সেকশন হেডার
+    itemCountLabel = "items",
     renderCard,
-    skeletonHeightClassName = "h-[380px]",
+    skeletonHeightClassName = "h-[104px]",
     className,
 }: SectionEngineProps<T>) {
     const [searchInput, setSearchInput] = useState("");
     const debouncedSearch = useDebounce(searchInput, 300);
-    const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+    const [filterValues, setFilterValues] = useState<Record<string, string | string[] | null | undefined>>({});
+    const [sortOrder, setSortOrder] = useState<SortOrder>("latest");
     const [page, setPage] = useState(1);
 
-    // Helper to get nested properties
     const getNestedValue = (obj: any, path: string) => {
         if (!path) return undefined;
         return path.split(".").reduce((acc, part) => acc && acc[part], obj);
     };
 
-    // Unwrap response payload safely
     const items = useMemo<T[]>(() => {
         if (!data) return [];
         if (Array.isArray(data)) return data;
@@ -49,38 +82,48 @@ export function SectionEngine<T extends Record<string, any>>({
         return Array.isArray(unwrapped) ? unwrapped : unwrapped?.data || [];
     }, [data]);
 
-    // Resolve filter configuration (support dynamic props and legacy categoryKey fallback)
     const resolvedFilters = useMemo(() => {
-        if (filters) return filters;
+        if (filters && filters.length > 0) {
+            return filters.map((f) => {
+                if (f.options && f.options.length > 0) return f;
 
-        // Legacy category fallback
-        if (categoryKey && items.length > 0) {
-            const list = new Set<string>();
-            items.forEach((item) => {
-                const categories = item[categoryKey];
-                if (Array.isArray(categories)) {
-                    categories.forEach((cat) => {
-                        if (cat.title || cat.name) list.add(cat.title || cat.name);
-                    });
-                }
+                const list = new Set<string>();
+                items.forEach((item) => {
+                    const val = getNestedValue(item, f.key);
+                    if (Array.isArray(val)) {
+                        val.forEach((sub) => {
+                            const str = sub?.title || sub?.name || sub?.value || sub;
+                            if (str && typeof str === "string") list.add(str);
+                        });
+                    } else if (val) {
+                        const str = val?.title || val?.name || val?.value || val;
+                        if (str && typeof str === "string") list.add(str);
+                    }
+                });
+
+                const generatedOptions: SectionFilterOption[] = Array.from(list).map((v) => ({
+                    label: v,
+                    value: v,
+                }));
+
+                return { ...f, options: generatedOptions };
             });
-            if (list.size > 0) {
-                return [
-                    {
-                        key: categoryKey,
-                        placeholder: "Category",
-                        options: Array.from(list).map((cat) => ({ label: cat, value: cat })),
-                    },
-                ];
-            }
         }
         return [];
-    }, [filters, categoryKey, items]);
+    }, [filters, items]);
 
-    // Check if search or any filters are active
-    const hasActiveFilters =
-        searchInput.trim() !== "" ||
-        Object.values(filterValues).some((val) => val && val !== "All");
+    const handleFilterChange = (key: string, val: string | string[] | null | undefined) => {
+        setFilterValues((prev) => {
+            const next = { ...prev };
+            if (!val || val === "All" || (Array.isArray(val) && val.length === 0)) {
+                delete next[key];
+            } else {
+                next[key] = val;
+            }
+            return next;
+        });
+        setPage(1);
+    };
 
     const handleResetFilters = () => {
         setSearchInput("");
@@ -88,12 +131,18 @@ export function SectionEngine<T extends Record<string, any>>({
         setPage(1);
     };
 
-    // Client-side filtering & query matching
-    const filteredItems = useMemo(() => {
+    const hasActiveFilters =
+        searchInput.trim() !== "" ||
+        Object.values(filterValues).some((val) => {
+            if (!val) return false;
+            if (Array.isArray(val)) return val.length > 0;
+            return val !== "All";
+        });
+
+    const processedItems = useMemo(() => {
         const query = debouncedSearch.trim().toLowerCase();
 
-        return items.filter((item) => {
-            // 1. Search Query Match
+        const filtered = items.filter((item) => {
             let matchesSearch = true;
             if (query) {
                 if (searchKey) {
@@ -103,65 +152,73 @@ export function SectionEngine<T extends Record<string, any>>({
                     const searchStr = searchFields(item).join(" ").toLowerCase();
                     matchesSearch = searchStr.includes(query);
                 } else {
-                    // Default fallback search
-                    const searchStr = `${item.title || ""} ${item.slug || ""} ${item.excerpt || item.description || item.shortDesc || ""}`.toLowerCase();
+                    const searchStr = `${item.title || ""} ${item.slug || ""} ${item.excerpt || item.description || item.shortDesc || ""
+                        }`.toLowerCase();
                     matchesSearch = searchStr.includes(query);
                 }
             }
 
-            // 2. Custom/Dynamic Filters Match
             const matchesFilters = Object.entries(filterValues).every(([key, filterVal]) => {
                 if (!filterVal || filterVal === "All") return true;
-
                 const val = getNestedValue(item, key);
                 if (val === undefined || val === null) return false;
 
-                // Handle Array values (e.g. categories, tags)
+                if (Array.isArray(filterVal)) {
+                    if (filterVal.length === 0) return true;
+                    if (Array.isArray(val)) {
+                        return filterVal.some((target) =>
+                            val.some((sub) =>
+                                String(sub.title || sub.name || sub.value || sub).toLowerCase() === target.toLowerCase()
+                            )
+                        );
+                    }
+                    return filterVal.some(
+                        (target) => String(val.title || val.name || val).toLowerCase() === target.toLowerCase()
+                    );
+                }
+
                 if (Array.isArray(val)) {
                     return val.some((subVal) => {
-                        if (typeof subVal === "object" && subVal !== null) {
-                            const matchStr = String(subVal.title || subVal.name || subVal.value || "");
-                            return matchStr.toLowerCase() === filterVal.toLowerCase();
-                        }
-                        return String(subVal).toLowerCase() === filterVal.toLowerCase();
+                        const matchStr = String(subVal.title || subVal.name || subVal.value || subVal);
+                        return matchStr.toLowerCase() === (filterVal as string).toLowerCase();
                     });
                 }
 
-                // Handle nested object
-                if (typeof val === "object" && val !== null) {
-                    const matchStr = String(val.title || val.name || val.value || "");
-                    return matchStr.toLowerCase() === filterVal.toLowerCase();
-                }
-
-                // Handle plain values
-                return String(val).toLowerCase() === filterVal.toLowerCase();
+                const matchStr = String(val.title || val.name || val.value || val);
+                return matchStr.toLowerCase() === (filterVal as string).toLowerCase();
             });
 
             return matchesSearch && matchesFilters;
         });
-    }, [items, debouncedSearch, filterValues, searchKey, searchFields]);
 
-    // Client-side Pagination logic
-    const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+        return filtered.sort((a, b) => {
+            const dateA = new Date(a[dateKey] || a.createdAt || 0).getTime();
+            const dateB = new Date(b[dateKey] || b.createdAt || 0).getTime();
+            return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
+        });
+    }, [items, debouncedSearch, filterValues, searchKey, searchFields, dateKey, sortOrder]);
+
+    const totalPages = Math.max(1, Math.ceil(processedItems.length / pageSize));
     const currentPage = page > totalPages ? 1 : page;
 
     const visibleItems = useMemo(() => {
-        return filteredItems.slice(
-            (currentPage - 1) * pageSize,
-            currentPage * pageSize
-        );
-    }, [filteredItems, currentPage, pageSize]);
+        if (!showPagination) return processedItems.slice(0, pageSize);
+        return processedItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    }, [processedItems, currentPage, pageSize, showPagination]);
 
-    // Skeleton Loading State
     if (isLoading) {
         return (
-            <section className="bg-surface-elevated/50 w-full py-16">
+            <section className={cn("w-full py-10", className)}>
                 <div className="container-custom px-4 sm:px-6">
-                    <div className="flex w-full flex-wrap items-stretch justify-center gap-6">
-                        {Array.from({ length: 8 }).map((_, idx) => (
+                    {header && <div className="mb-8 w-full">{header}</div>}
+                    <div className={cn("grid w-full", columnGridVariants[columns], gapVariants[gap])}>
+                        {Array.from({ length: Math.min(pageSize, columns * 2) }).map((_, idx) => (
                             <div
                                 key={idx}
-                                className={`border-border bg-card w-full shrink-0 animate-pulse rounded-xl border p-6 shadow-xs sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] ${skeletonHeightClassName}`}
+                                className={cn(
+                                    "border-border bg-card w-full animate-pulse rounded-xl border p-4 shadow-xs",
+                                    skeletonHeightClassName
+                                )}
                             />
                         ))}
                     </div>
@@ -170,120 +227,96 @@ export function SectionEngine<T extends Record<string, any>>({
         );
     }
 
-    // Error State
-    if (error) {
-        return (
-            <section className="bg-surface-elevated/50 w-full py-16">
-                <div className="container-custom px-4 sm:px-6">
-                    <div className="border-destructive/40 bg-destructive/5 text-destructive rounded-xl border p-6 text-center text-sm font-medium">
-                        <I18n>Error loading items</I18n>
-                    </div>
-                </div>
-            </section>
-        );
+    if (error || (hideEmptyState && items.length === 0)) {
+        return null;
     }
 
     return (
-        <section className={`bg-surface-elevated/50 w-full py-16 ${className || ""}`}>
+        <section className={cn("w-full py-10", className)}>
             <div className="container-custom px-4 sm:px-6">
-                {/* Top Control Toolbar */}
-                {(resolvedFilters.length > 0 || searchKey || searchFields || searchPlaceholder) && (
-                    <ScrollReveal className="mb-6 flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        {/* Left Column: Filters & Reset Button */}
-                        <div className="flex flex-1 flex-wrap items-center gap-2">
-                            {resolvedFilters.map((filter) => {
-                                const selectedOpt = filter.options.find((opt) => opt.value === filterValues[filter.key]);
+                {/* কাস্টম হেডার (যদি প্রিভিউ সেকশন হয়) */}
+                {header && <div className="mb-8 w-full">{header}</div>}
 
-                                return (
-                                    <div key={filter.key} className="w-full sm:max-w-[200px]">
-                                        <Select
-                                            value={filterValues[filter.key] || "All"}
-                                            onValueChange={(val) => {
-                                                setFilterValues((prev) => {
-                                                    const next = { ...prev };
-                                                    if (val === "All" || !val) {
-                                                        delete next[filter.key];
-                                                    } else {
-                                                        next[filter.key] = val;
-                                                    }
-                                                    return next;
-                                                });
-                                                setPage(1);
-                                            }}
-                                        >
-                                            <SelectTrigger className="bg-background/60 border-border/80 h-10 rounded-full text-xs backdrop-blur-md px-4">
-                                                <SelectValue>
-                                                    {selectedOpt ? selectedOpt.label : filter.placeholder}
-                                                </SelectValue>
-                                            </SelectTrigger>
-                                            <SelectContent className="border-border/80 bg-popover/95 rounded-2xl p-1 shadow-xl backdrop-blur-xl">
-                                                <SelectItem value="All" className="rounded-xl text-xs font-semibold">
-                                                    All {filter.placeholder}s
-                                                </SelectItem>
-                                                {filter.options.map((opt) => (
-                                                    <SelectItem
-                                                        key={opt.value}
-                                                        value={opt.value}
-                                                        className="rounded-xl text-xs font-semibold"
-                                                    >
-                                                        {opt.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                );
-                            })}
-
-                            {/* Reset Filters Button */}
-                            {hasActiveFilters && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleResetFilters}
-                                    className="text-muted-foreground hover:text-foreground h-10 gap-1.5 rounded-full px-4 text-xs font-bold transition-all hover:bg-surface-elevated/40"
-                                >
-                                    <RotateCcw className="h-3.5 w-3.5" />
-                                    <I18n>Reset Filters</I18n>
-                                </Button>
-                            )}
-                        </div>
-
-                        {/* Right Column: Search Input */}
-                        {(searchKey || searchFields || searchPlaceholder) && (
-                            <div className="relative w-full shrink-0 sm:max-w-[260px]">
-                                <Search className="text-muted-foreground/70 pointer-events-none absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2" />
-                                <input
+                {/* টুলবার (সার্চ + ফিল্টার + সর্ট) */}
+                {showToolbar && (resolvedFilters.length > 0 || searchKey || searchFields) && (
+                    <ScrollReveal className="mb-8 flex flex-col space-y-6">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="w-full flex-1 sm:max-w-md">
+                                <SectionSearchInput
                                     value={searchInput}
-                                    onChange={(e) => {
-                                        setSearchInput(e.target.value);
+                                    onChange={(val) => {
+                                        setSearchInput(val);
                                         setPage(1);
                                     }}
                                     placeholder={searchPlaceholder}
-                                    className="border-border bg-surface-elevated/40 text-foreground shadow-3xs placeholder:text-muted-foreground/60 hover:border-border-strong focus:border-primary focus:bg-background focus:ring-primary/10 w-full rounded-full border h-10 pr-4 pl-10 text-xs font-medium transition-all focus:ring-4 focus:outline-hidden flex items-center"
+                                    variant={searchVariant}
                                 />
                             </div>
+
+                            {showSortToggle && (
+                                <SectionSortToggle
+                                    value={sortOrder}
+                                    onChange={(val) => {
+                                        setSortOrder(val);
+                                        setPage(1);
+                                    }}
+                                    variant={sortVariant}
+                                    size={sortSize}
+                                />
+                            )}
+                        </div>
+
+                        {resolvedFilters.length > 0 && (
+                            <SectionFilterGroup
+                                filters={resolvedFilters}
+                                filterValues={filterValues}
+                                onFilterChange={handleFilterChange}
+                            />
                         )}
+
+                        <div className="text-muted-foreground/80 flex items-center justify-between text-xs font-semibold tracking-wide">
+                            <span>
+                                {hasActiveFilters ? (
+                                    <>
+                                        {processedItems.length} of {items.length} {itemCountLabel}
+                                    </>
+                                ) : (
+                                    <>
+                                        {items.length} {itemCountLabel}
+                                    </>
+                                )}
+                            </span>
+
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={handleResetFilters}
+                                    className="text-primary hover:underline cursor-pointer font-bold"
+                                >
+                                    <I18n>Clear all</I18n>
+                                </button>
+                            )}
+                        </div>
                     </ScrollReveal>
                 )}
 
-                {/* Content Item Grid */}
-                {filteredItems.length > 0 ? (
+                {/* গ্রিড ম্যাট্রিক্স */}
+                {processedItems.length > 0 ? (
                     <>
-                        <div className="flex w-full flex-wrap items-stretch justify-center gap-6">
+                        <div className={cn("grid w-full items-stretch", columnGridVariants[columns], gapVariants[gap])}>
                             {visibleItems.map((item: T, index: number) => (
                                 <ScrollReveal
                                     key={item.id || index}
-                                    delay={(index % 4) * 60}
-                                    className="flex w-full shrink-0 flex-col sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)]"
+                                    delay={(index % columns) * 40}
+                                    className="flex h-full w-full flex-col"
                                 >
                                     {renderCard(item)}
                                 </ScrollReveal>
                             ))}
                         </div>
 
-                        {totalPages > 1 && (
-                            <div className="mt-12 flex justify-center">
+                        {showPagination && totalPages > 1 && (
+                            <div className="mt-14 flex justify-center">
                                 <Pagination
                                     currentPage={currentPage}
                                     totalPages={totalPages}
@@ -294,25 +327,26 @@ export function SectionEngine<T extends Record<string, any>>({
                         )}
                     </>
                 ) : (
-                    /* Empty State */
-                    <ScrollReveal className="border-border bg-card mx-auto flex max-w-sm flex-col items-center justify-center rounded-xl border border-dashed px-6 py-16 text-center shadow-sm">
-                        <span className="text-muted-foreground mb-4 flex h-10 w-10 items-center justify-center">
-                            <Inbox className="h-6 w-6" />
-                        </span>
-                        <h3 className="text-foreground text-sm font-bold">
-                            <I18n>No items found</I18n>
-                        </h3>
-                        <p className="text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed">
-                            <I18n>Try adjusting your search or filter options.</I18n>
-                        </p>
-                        <Button
-                            onClick={handleResetFilters}
-                            variant="outline"
-                            className="mt-5 h-8 cursor-pointer rounded-lg px-4 text-xs font-bold"
-                        >
-                            <I18n>Clear filters</I18n>
-                        </Button>
-                    </ScrollReveal>
+                    !hideEmptyState && (
+                        <ScrollReveal className="border-border bg-card mx-auto flex max-w-sm flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-16 text-center shadow-xs">
+                            <span className="text-muted-foreground mb-4 flex h-10 w-10 items-center justify-center">
+                                <Inbox className="h-6 w-6" />
+                            </span>
+                            <h3 className="text-foreground text-sm font-bold">
+                                No {itemCountLabel} found
+                            </h3>
+                            <p className="text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed">
+                                <I18n>Try adjusting your search or category filters.</I18n>
+                            </p>
+                            <Button
+                                onClick={handleResetFilters}
+                                variant="outline"
+                                className="mt-5 h-8 rounded-full px-4 text-xs font-bold"
+                            >
+                                <I18n>Reset filters</I18n>
+                            </Button>
+                        </ScrollReveal>
+                    )
                 )}
             </div>
         </section>

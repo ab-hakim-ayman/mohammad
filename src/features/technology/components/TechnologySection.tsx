@@ -43,7 +43,6 @@ export function TechnologySection() {
       error={error}
       searchKey="title"
       searchPlaceholder="Filter technologies by keyword..."
-      categoryKey="categories"
       filters={filters}
       renderCard={(item) => (
         <TechnologyCard technology={item} variant="classic" size="md" className="h-full w-full" />
