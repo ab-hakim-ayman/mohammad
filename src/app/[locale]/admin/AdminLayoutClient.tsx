@@ -5,8 +5,8 @@ import { useCurrentUser } from "@/features/auth";
 import { usePathname, useRouter } from "next/navigation";
 import { StateScreen } from "@/shared/components";
 import { useEffect } from "react";
-import { AdminSidebar } from "@/shared/components";
-import { AdminHeader } from "@/shared/components";
+import { AdminSidebar } from "@/shared/components/AdminSidebar";
+import { AdminHeader } from "@/shared/components/AdminHeader";
 import { useLocale } from "next-intl";
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {

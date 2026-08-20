@@ -107,11 +107,11 @@ export const categoryRepository = {
     const category = await prisma.category.findFirst({ where: { title }, include: auditSelect });
     return category;
   },
-  async findPublished(limit?: number) {
+  async findPublished(limit = 100) {
     const categories = await prisma.category.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { order: "asc" },
-      take: limit,
+      take: Math.min(limit, 100),
       include: auditSelect,
     });
     return categories;

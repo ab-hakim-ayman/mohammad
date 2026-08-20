@@ -46,7 +46,8 @@ export function ToolCard({
         iconKey: isImageLike(tool.icon) ? "icon" : undefined,
         actionLabel: "Run Tool",
         getBadges: (item) => {
-          const badges = [{ label: item.category }];
+          const catTitles = item.categories?.map((c) => c.title) || [];
+          const badges = catTitles.map((label) => ({ label }));
           if (item.engineType === "CUSTOM") {
             badges.push({ label: "Interactive" });
           }

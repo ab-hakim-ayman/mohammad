@@ -22,6 +22,9 @@ const ENTITY_TYPE_MAP: Record<string, MediaEntityType> = {
   testimonial: "TESTIMONIAL",
   experience: "EXPERIENCE",
   education: "EDUCATION",
+  tool: "TOOL",
+  tools: "TOOL",
+  TOOL: "TOOL",
 };
 
 export async function cleanupMediaAttachmentsForEntity(
@@ -29,7 +32,7 @@ export async function cleanupMediaAttachmentsForEntity(
   entityType: string,
   entityId: string
 ) {
-  const normalizedEntityType = ENTITY_TYPE_MAP[entityType];
+  const normalizedEntityType = ENTITY_TYPE_MAP[entityType.trim().toLowerCase()] || ENTITY_TYPE_MAP[entityType];
   if (!normalizedEntityType) {
     return;
   }
@@ -46,6 +49,7 @@ export async function cleanupMediaAttachmentsForEntity(
       where: {
         attachments: { none: {} },
       },
+      take: 50,
     });
 
     for (const media of orphanedMedia) {

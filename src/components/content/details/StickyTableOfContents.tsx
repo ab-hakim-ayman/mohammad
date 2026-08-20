@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import I18n from "@/shared/components/I18n";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,7 @@ export function StickyTableOfContents({
   hideHeader = false,
 }: StickyTableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>("");
+  const itemIds = useMemo(() => items.map((i) => i.id).join(","), [items]);
 
   useEffect(() => {
     if (!items.length) return;
@@ -43,7 +44,7 @@ export function StickyTableOfContents({
     });
 
     return () => observer.disconnect();
-  }, [items]);
+  }, [itemIds]);
 
   if (!items || items.length === 0) return null;
 

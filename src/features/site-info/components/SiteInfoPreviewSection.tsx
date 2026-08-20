@@ -14,7 +14,7 @@ const sectionVariants = cva("relative w-full transition-all duration-500 overflo
       classic: "bg-transparent",
       glassmorphic: "bg-transparent",
       brutalist: "bg-transparent",
-      "gradient-glow": "bg-transparent",
+      gradientGlow: "bg-transparent",
       minimal: "bg-transparent",
     },
     size: {

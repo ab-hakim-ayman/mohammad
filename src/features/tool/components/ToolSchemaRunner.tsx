@@ -308,7 +308,11 @@ export function ToolSchemaRunner({ tool }: ToolSchemaRunnerProps) {
     <ToolLayout
       title={tool.title}
       description={tool.shortDesc || ""}
-      category={tool.category}
+      category={
+        tool.categories?.length
+          ? tool.categories.map((c) => c.title).join(", ")
+          : "DEVELOPER"
+      }
       inputValue={input}
       outputValue={output}
       isError={isError}

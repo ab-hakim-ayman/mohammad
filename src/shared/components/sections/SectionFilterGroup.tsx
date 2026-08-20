@@ -1,13 +1,7 @@
 "use client";
 
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Select } from "@/shared/components/Select";
 import { cn } from "@/lib/utils";
 import type { SectionFilterConfig } from "./section-engine.types";
 
@@ -96,32 +90,25 @@ export function SectionFilterGroup({
                     );
                 }
 
-                // 🟢 3. Dropdown Select
-                const selectedOpt = options.find((opt) => opt.value === currentVal);
+                // 🟢 3. Custom Dropdown Select Integration
+                const allOption = {
+                    label: `All ${filter.placeholder || "Items"}`,
+                    value: "All",
+                };
+                const mergedOptions = [allOption, ...options];
+                const selectedValue = typeof currentVal === "string" && currentVal ? currentVal : "All";
+
                 return (
-                    <div key={filter.key} className="w-full sm:max-w-[200px]">
+                    <div key={filter.key} className="w-full sm:w-44">
                         <Select
-                            value={typeof currentVal === "string" ? currentVal : "All"}
-                            onValueChange={(val: string | null) =>
-                                onFilterChange(filter.key, val === "All" ? null : val)
-                            }
-                        >
-                            <SelectTrigger className="bg-background/60 border-border/80 h-10 rounded-full text-xs px-4 backdrop-blur-md">
-                                <SelectValue>
-                                    {selectedOpt ? selectedOpt.label : `All ${filter.placeholder || "Items"}`}
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent className="border-border/80 bg-popover/95 rounded-2xl p-1 shadow-xl backdrop-blur-xl">
-                                <SelectItem value="All" className="text-xs font-semibold">
-                                    All {filter.placeholder ? `${filter.placeholder}s` : "Items"}
-                                </SelectItem>
-                                {options.map((opt) => (
-                                    <SelectItem key={opt.value} value={opt.value} className="text-xs font-semibold">
-                                        {opt.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            options={mergedOptions}
+                            value={selectedValue}
+                            onValueChange={(val) => {
+                                onFilterChange(filter.key, val === "All" || !val ? null : val);
+                            }}
+                            placeholder={`All ${filter.placeholder || "Items"}`}
+                            className="bg-background/60 border-border/80 h-10 rounded-full text-xs backdrop-blur-md"
+                        />
                     </div>
                 );
             })}

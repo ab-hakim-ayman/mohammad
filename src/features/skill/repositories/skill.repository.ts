@@ -46,7 +46,7 @@ export const skillRepository = {
     const skill = await prisma.skill.findUnique({ where: { id }, include: skillInclude });
     return skill;
   },
-  async findPublished(category?: string, limit?: number) {
+  async findPublished(category?: string, limit = 100) {
     const where: Prisma.SkillWhereInput = {
       status: "PUBLISHED",
       ...(category && { categories: { some: { title: category } } }),
@@ -54,7 +54,7 @@ export const skillRepository = {
     const skills = await prisma.skill.findMany({
       where,
       orderBy: { order: "asc" },
-      take: limit,
+      take: Math.min(limit, 100),
       include: skillInclude,
     });
     return skills;

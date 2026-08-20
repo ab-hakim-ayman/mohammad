@@ -15,7 +15,7 @@ export async function batchResolveMediaAltText(
   entityType: string,
   entities: EntityMediaFields[]
 ): Promise<Map<string, ResolvedAltText>> {
-  const normalizedEntityType = ENTITY_TYPE_MAP[entityType];
+  const normalizedEntityType = ENTITY_TYPE_MAP[entityType.trim().toLowerCase()] || ENTITY_TYPE_MAP[entityType];
   if (!normalizedEntityType) {
     throw new Error(`Unsupported media entity type: ${entityType}`);
   }

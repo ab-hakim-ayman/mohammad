@@ -9,14 +9,15 @@ export const config = {
   matcher: ["/", "/(bn|en)/:path*", "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
 
+const LOCALE_PATTERN = new RegExp(`^/(${routing.locales.join("|")})(?=/|$)`);
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const localePattern = new RegExp(`^/(${routing.locales.join("|")})(?=/|$)`);
-  const [, extractedLocale] = pathname.match(localePattern) ?? [];
+  const [, extractedLocale] = pathname.match(LOCALE_PATTERN) ?? [];
   const currentLocale = extractedLocale || routing.defaultLocale;
 
-  const normalizedPathname = pathname.replace(localePattern, "") || "/";
+  const normalizedPathname = pathname.replace(LOCALE_PATTERN, "") || "/";
 
   if (normalizedPathname.startsWith("/admin")) {
     const token = request.cookies.get("auth_token")?.value;

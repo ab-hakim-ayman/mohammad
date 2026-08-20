@@ -79,13 +79,25 @@ class DistributedRateLimiter {
 
 export { DistributedRateLimiter };
 
+const limiterCache = new Map<string, DistributedRateLimiter>();
+
+function getLimiter(windowMs: number, maxRequests: number): DistributedRateLimiter {
+  const cacheKey = `${windowMs}:${maxRequests}`;
+  let limiter = limiterCache.get(cacheKey);
+  if (!limiter) {
+    limiter = new DistributedRateLimiter(windowMs, maxRequests);
+    limiterCache.set(cacheKey, limiter);
+  }
+  return limiter;
+}
+
 export async function enforceRateLimit(
   key: string,
   windowMs: number,
   maxRequests: number,
   message = "Too many requests."
 ): Promise<void> {
-  const limiter = new DistributedRateLimiter(windowMs, maxRequests);
+  const limiter = getLimiter(windowMs, maxRequests);
   const limited = await limiter.isRateLimited(key);
   if (limited) {
     throw AppError.tooManyRequests(message);

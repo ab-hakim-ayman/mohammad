@@ -62,19 +62,23 @@ export function ScrollReveal({
 }: ScrollRevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
-    if (once && isVisible) return;
+    if (!node || (once && isVisibleRef.current)) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          isVisibleRef.current = true;
           setIsVisible(true);
           if (once) observer.disconnect();
         } else {
-          if (!once) setIsVisible(false);
+          if (!once) {
+            isVisibleRef.current = false;
+            setIsVisible(false);
+          }
         }
       },
       {
@@ -85,7 +89,7 @@ export function ScrollReveal({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [isVisible, once, threshold]);
+  }, [once, threshold]);
 
   return (
     <Tag

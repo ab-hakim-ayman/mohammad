@@ -220,9 +220,17 @@ export function SectionEngine<T extends Record<string, any>>({
         });
 
         return filtered.sort((a, b) => {
-            const dateA = new Date(a[dateKey] || a.createdAt || 0).getTime();
-            const dateB = new Date(b[dateKey] || b.createdAt || 0).getTime();
-            return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
+            const getTime = (item: any) => {
+                const raw = item[dateKey] ?? item.createdAt ?? item.updatedAt;
+                if (!raw) return 0;
+                const parsed = new Date(raw).getTime();
+                return isNaN(parsed) ? 0 : parsed;
+            };
+
+            const timeA = getTime(a);
+            const timeB = getTime(b);
+
+            return sortOrder === "latest" ? timeB - timeA : timeA - timeB;
         });
     }, [items, debouncedSearch, filterValues, searchKey, searchFields, dateKey, sortOrder]);
 
@@ -359,13 +367,15 @@ export function SectionEngine<T extends Record<string, any>>({
                             </span>
 
                             {hasActiveFilters && (
-                                <button
+                                <Button
+                                    size="sm"
+                                    variant="outline"
                                     type="button"
+                                    className="rounded-full"
                                     onClick={handleResetFilters}
-                                    className="text-primary hover:underline cursor-pointer font-bold"
                                 >
                                     <I18n>Clear all</I18n>
-                                </button>
+                                </Button>
                             )}
                         </div>
                     </ScrollReveal>

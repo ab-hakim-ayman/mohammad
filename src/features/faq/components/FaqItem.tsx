@@ -20,7 +20,7 @@ const faqItemVariants = cva(
         glassmorphic: "border-b border-border bg-card/10 backdrop-blur-xs hover:bg-card/20",
         brutalist:
           "border-2 border-border-strong bg-card p-4 my-3 shadow-xs hover:translate-x-1 hover:-translate-y-1 hover:shadow-sm font-mono uppercase transition-all duration-200",
-        "gradient-glow": "border-b border-border hover:border-primary/50 relative overflow-hidden bg-transparent",
+        gradientGlow: "border-b border-border hover:border-primary/50 relative overflow-hidden bg-transparent",
         minimal: "border-b border-border/40 hover:border-foreground/20 bg-transparent",
       },
     },
@@ -38,7 +38,7 @@ const faqTriggerVariants = cva(
         classic: "font-sans duration-300",
         glassmorphic: "font-sans duration-500 ease-out",
         brutalist: "font-mono uppercase duration-100 ease-in-out",
-        "gradient-glow": "font-sans duration-500 cubic-bezier(0.16, 1, 0.3, 1)",
+        gradientGlow: "font-sans duration-500 cubic-bezier(0.16, 1, 0.3, 1)",
         minimal: "font-sans duration-200 hover:translate-x-0.5",
       },
     },
@@ -56,7 +56,7 @@ const faqContentVariants = cva(
         classic: "pl-12 transition-all duration-300 font-sans",
         glassmorphic: "pl-12 transition-all duration-500 ease-out font-sans",
         brutalist: "pl-0 transition-all duration-100 font-mono text-foreground/90",
-        "gradient-glow": "pl-12 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) font-sans",
+        gradientGlow: "pl-12 transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) font-sans",
         minimal: "pl-0 pt-1 pb-3 transition-all duration-200 font-sans",
       },
     },
@@ -77,7 +77,7 @@ const faqIconVariants = cva(
           "rounded-full bg-info/10 border border-info/20 text-info group-hover/faq:scale-105",
         brutalist:
           "rounded-none border-2 border-border-strong bg-warning text-foreground",
-        "gradient-glow":
+        gradientGlow:
           "rounded-xl bg-primary/10 border border-primary/20 shadow-glow text-primary group-hover/faq:scale-105",
         minimal: "bg-transparent p-0 border-0 text-muted-foreground group-hover/faq:text-primary",
       },
@@ -98,7 +98,7 @@ export function FaqItem({ faq, variant = "classic", className }: FaqItemProps) {
 
   const renderIcon = () => {
     switch (variant) {
-      case "gradient-glow":
+      case "gradientGlow":
         return <Sparkles className="h-4 w-4" />;
       case "glassmorphic":
         return <Compass className="h-4 w-4" />;
@@ -141,7 +141,7 @@ export function FaqItem({ faq, variant = "classic", className }: FaqItemProps) {
           className={cn(
             "text-muted-foreground/60 group-hover/faq:text-foreground shrink-0 pt-2 transition-all duration-300 group-data-[state=open]/faq:rotate-180",
             isBrutalist && "hidden",
-            variant === "gradient-glow" &&
+            variant === "gradientGlow" &&
             "group-data-[state=open]/faq:cubic-bezier(0.16, 1, 0.3, 1) group-data-[state=open]/faq:duration-500"
           )}
         >

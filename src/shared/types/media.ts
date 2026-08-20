@@ -38,7 +38,8 @@ export type MediaEntityType =
   | "TAG"
   | "TESTIMONIAL"
   | "EXPERIENCE"
-  | "EDUCATION";
+  | "EDUCATION"
+  | "TOOL";
 
 export interface MediaUsageSummary {
   id: string;

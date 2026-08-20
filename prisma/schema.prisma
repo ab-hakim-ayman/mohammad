@@ -543,6 +543,7 @@ model Category {
   technologies Technology[] @relation("TechnologyCategories")
   skills       Skill[]      @relation("SkillCategories")
   faqs         Faq[]        @relation("FaqCategories")
+  tools        Tool[]       @relation("ToolCategories")
 
   @@unique([scope, title])
   @@unique([scope, slug])
@@ -1099,7 +1100,6 @@ model Tool {
   title        String
   slug         String         @unique
   shortDesc    String?        @map("short_desc")
-  category     String         @default("DEVELOPER")
   icon         String?
   engineType   ToolEngineType @default(SCHEMA) @map("engine_type")
   actionKey    String?        @map("action_key")
@@ -1126,11 +1126,11 @@ model Tool {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  createdBy User? @relation("ToolCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  updatedBy User? @relation("ToolUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdBy  User?      @relation("ToolCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy  User?      @relation("ToolUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  categories Category[] @relation("ToolCategories")
 
   @@index([status, order])
-  @@index([category, status])
   @@index([isFeatured])
   @@index([createdById])
   @@index([updatedById])

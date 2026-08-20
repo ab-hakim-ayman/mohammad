@@ -17,7 +17,7 @@ interface GalleryPreviewSectionProps {
   href?: string;
   ctaLabel?: string;
   hideHeader?: boolean;
-  cardVariant?: "classic" | "glassmorphic" | "brutalist" | "gradient-glow" | "banner";
+  cardVariant?: "classic" | "glassmorphic" | "brutalist" | "gradientGlow" | "banner";
   className?: string;
 }
 

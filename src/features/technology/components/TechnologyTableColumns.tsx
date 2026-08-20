@@ -37,6 +37,12 @@ export const technologyTableColumns: ColumnConfig<Technology>[] = [
     type: "text",
   },
   {
+    key: "categories",
+    header: "Categories",
+    type: "relation",
+    hrefPrefix: "categories",
+  },
+  {
     key: "status",
     header: "Status",
     type: "status",

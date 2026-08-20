@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
 
   serverExternalPackages: ["@blocknote/server-util", "@blocknote/react", "yjs"],
   transpilePackages: ["@blocknote/core", "@blocknote/shadcn"],
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "react-icons",
+      "@radix-ui/react-icons",
+      "@tanstack/react-table",
+      "recharts",
+    ],
+  },
 
   images: {
     remotePatterns: [

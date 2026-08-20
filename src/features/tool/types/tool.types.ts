@@ -9,15 +9,6 @@ import type {
 
 export type ToolEngineType = "SCHEMA" | "CUSTOM";
 
-export type ToolCategory =
-  | "DEVELOPER"
-  | "ENCODING"
-  | "SECURITY"
-  | "CONVERTER"
-  | "UTILITY"
-  | "FORMATTER"
-  | "GENERATOR";
-
 export type CreateToolPayload = z.infer<typeof createToolSchema>;
 export type UpdateToolPayload = z.infer<typeof updateToolSchema>;
 export type ToolQueryValidated = z.infer<typeof toolQuerySchema>;
@@ -26,11 +17,17 @@ export interface ToolQueryParams {
   page?: number;
   limit?: number;
   search?: string;
-  category?: string;
+  categories?: string;
   sort?: string;
   status?: Status;
   isFeatured?: boolean;
   engineType?: ToolEngineType;
+}
+
+export interface CategorySummary {
+  id: string;
+  title: string;
+  slug: string;
 }
 
 export interface Tool {
@@ -38,7 +35,7 @@ export interface Tool {
   title: string;
   slug: string;
   shortDesc: string | null;
-  category: string;
+  categories?: CategorySummary[];
   icon: string | null;
   engineType: ToolEngineType;
   actionKey: string | null;

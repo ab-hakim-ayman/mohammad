@@ -20,7 +20,7 @@ const navigation = [
   { key: "contact", label: "Contact", href: "/contact" },
 ] as const;
 
-export type HeaderVariant = "classic" | "glassmorphic" | "brutalist" | "gradient-glow" | "minimal";
+export type HeaderVariant = "classic" | "glassmorphic" | "brutalist" | "gradientGlow" | "minimal";
 
 interface HeaderProps {
   siteInfo?: SiteInfoRecord | null;
@@ -35,8 +35,19 @@ export function Header({ variant = "classic" }: HeaderProps) {
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 10);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -54,7 +65,7 @@ export function Header({ variant = "classic" }: HeaderProps) {
       : "bg-transparent border-b border-transparent",
     glassmorphic: "bg-background/60 backdrop-blur-xl border-b border-border/50 shadow-2xs",
     brutalist: "bg-card border-b-4 border-border-strong shadow-md font-mono",
-    "gradient-glow":
+    gradientGlow:
       "bg-background/80 backdrop-blur-md border-b border-border/60 relative after:absolute after:bottom-0 after:left-1/4 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-primary/50 after:to-transparent",
     minimal: "bg-background border-b border-border/50",
   };
@@ -68,9 +79,14 @@ export function Header({ variant = "classic" }: HeaderProps) {
     >
       <nav className="container-custom mx-auto flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Brand Name / Mohammad.dev */}
-        <Link href="/" className="group inline-flex min-w-0 shrink-0 items-center gap-2">
-          <span className="text-foreground text-base sm:text-lg font-bold tracking-tight font-mono hover:text-primary transition-colors">
-            Mohammad.dev
+        <Link
+          href="/"
+          className="group inline-flex min-w-0 shrink-0 items-center transition-all duration-200"
+        >
+          <span
+            className="text-[#151312] dark:text-foreground text-[14px] leading-[20px] font-bold tracking-[-0.35px] transition-colors"
+          >
+            mohammad.dev
           </span>
         </Link>
 

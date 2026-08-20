@@ -7,7 +7,7 @@ import type { PublicFaqItem } from "../types/faq.types";
 
 export interface FaqSectionProps {
   pageSize?: number;
-  variant?: "classic" | "glassmorphic" | "brutalist" | "gradient-glow" | "minimal";
+  variant?: "classic" | "glassmorphic" | "brutalist" | "gradientGlow" | "minimal";
   className?: string;
 }
 

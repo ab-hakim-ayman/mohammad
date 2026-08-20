@@ -17,7 +17,7 @@ const scrollButtonVariants = cva(
           "bg-background/60 border border-border/50 text-foreground backdrop-blur-xl hover:bg-background/80 shadow-lg rounded-full",
         brutalist:
           "bg-card border-2 border-border-strong text-foreground rounded-none shadow-brutal-sm hover:bg-muted",
-        "gradient-glow":
+        gradientGlow:
           "bg-foreground border border-border/60 text-background shadow-md hover:opacity-90 rounded-full",
         minimal:
           "bg-muted/40 border border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-xl shadow-2xs",
@@ -81,7 +81,7 @@ export function FloatingScrollButton({
 
   const isMinimal = variant === "minimal";
   const isBrutalist = variant === "brutalist";
-  const isGlow = variant === "gradient-glow";
+  const isGlow = variant === "gradientGlow";
 
   const radius = 18;
   const circumference = 2 * Math.PI * radius;

@@ -15,7 +15,7 @@ const shareWidgetVariants = cva("relative transition-all duration-300", {
                 "rounded-2xl border border-white/10 bg-card/40 p-4 shadow-sm backdrop-blur-xl dark:border-white/5",
             brutalist:
                 "border-2 border-border-strong bg-card p-4 shadow-[4px_4px_0px_0px_currentColor]",
-            "gradient-glow":
+            gradientGlow:
                 "relative rounded-2xl border border-border/60 bg-gradient-to-b from-card/80 via-card/50 to-card/20 p-4 shadow-lg backdrop-blur-md",
             minimal: "p-0",
         },
@@ -35,7 +35,7 @@ const itemVariants = cva(
                     "rounded-xl border border-border/50 bg-background/50 px-3 py-2 text-muted-foreground hover:border-primary/40 hover:bg-background/80 hover:text-foreground shadow-2xs backdrop-blur-md",
                 brutalist:
                     "rounded-none border-2 border-border-strong bg-background px-3 py-1.5 text-foreground hover:bg-foreground hover:text-background font-mono shadow-[2px_2px_0px_0px_currentColor] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none",
-                "gradient-glow":
+                gradientGlow:
                     "rounded-xl border border-border/40 bg-card/60 px-3 py-2 text-muted-foreground hover:border-primary/50 hover:bg-primary/10 hover:text-primary hover:shadow-xs",
                 minimal: "rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground",
             },

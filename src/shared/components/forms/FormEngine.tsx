@@ -10,6 +10,7 @@ import {
   DefaultValues,
   UseFormSetValue,
   Path,
+  Control,
 } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,6 +35,48 @@ import { MediaUploader } from "@/components/media/MediaUploader";
 import { ContentEditorDynamic as ContentEditor } from "@/components/content/ContentEditorDynamic";
 import { FieldSchemaConfig, FormEngineProps, SlugAutoInputProps } from "./form-engine.types";
 import { cn } from "@/lib/utils";
+
+function FormEngineFieldItem<TFieldValues extends FieldValues>({
+  field,
+  sectionTitle,
+  control,
+  renderField,
+}: {
+  field: FieldSchemaConfig<TFieldValues>;
+  sectionTitle?: string;
+  control: Control<TFieldValues>;
+  renderField: (field: FieldSchemaConfig<TFieldValues>, sectionTitle?: string) => React.ReactNode;
+}) {
+  if (field.condition) {
+    return (
+      <ConditionalFieldItem
+        field={field}
+        sectionTitle={sectionTitle}
+        control={control}
+        renderField={renderField}
+      />
+    );
+  }
+  return <>{renderField(field, sectionTitle)}</>;
+}
+
+function ConditionalFieldItem<TFieldValues extends FieldValues>({
+  field,
+  sectionTitle,
+  control,
+  renderField,
+}: {
+  field: FieldSchemaConfig<TFieldValues>;
+  sectionTitle?: string;
+  control: Control<TFieldValues>;
+  renderField: (field: FieldSchemaConfig<TFieldValues>, sectionTitle?: string) => React.ReactNode;
+}) {
+  const formValues = useWatch({ control });
+  if (field.condition && !field.condition(formValues as TFieldValues)) {
+    return null;
+  }
+  return <>{renderField(field, sectionTitle)}</>;
+}
 
 export function FormEngine<TFieldValues extends FieldValues>({
   schema,
@@ -61,8 +104,6 @@ export function FormEngine<TFieldValues extends FieldValues>({
     reset,
     formState: { errors, isDirty },
   } = methods;
-
-  const formValues = useWatch({ control });
 
   useEffect(() => {
     if (defaultValues && Object.keys(defaultValues).length > 0) {
@@ -334,9 +375,15 @@ export function FormEngine<TFieldValues extends FieldValues>({
               </div>
             )}
             <div className="grid grid-cols-12 gap-4">
-              {section.fields
-                .filter((field) => !field.condition || field.condition(formValues))
-                .map((field) => renderField(field, section.title))}
+              {section.fields.map((field) => (
+                <FormEngineFieldItem
+                  key={field.name as string}
+                  field={field}
+                  sectionTitle={section.title}
+                  control={control}
+                  renderField={renderField}
+                />
+              ))}
             </div>
           </div>
         ))}
@@ -358,21 +405,27 @@ export function FormEngine<TFieldValues extends FieldValues>({
 
             <div className="bg-muted/30 border-border/60 max-h-32 overflow-y-auto rounded-xl border p-3 text-xs">
               <span className="font-semibold text-foreground">
-                <I18n>Failed Fields:</I18n>
-              </span>{" "}
-              <span className="text-destructive font-mono">
-                {Object.keys(errors).join(", ")}
+                <I18n>The following fields require attention:</I18n>
               </span>
+              <ul className="text-muted-foreground mt-1.5 list-inside list-disc space-y-0.5">
+                {Object.entries(errors).map(([fieldName, error]) => (
+                  <li key={fieldName}>
+                    <span className="font-mono text-foreground font-medium">{fieldName}:</span>{" "}
+                    {(error as { message?: string })?.message || "Invalid value"}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <DialogFooter className="pt-2">
               <Button
                 type="button"
-                variant="default"
+                variant="outline"
+                size="sm"
                 onClick={() => setShowErrorModal(false)}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 rounded-xl px-4 text-xs font-bold shadow-2xs"
+                className="w-full sm:w-auto"
               >
-                <I18n>Got it</I18n>
+                <I18n>Got it, I'll fix them</I18n>
               </Button>
             </DialogFooter>
           </DialogContent>

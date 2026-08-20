@@ -4,24 +4,35 @@ import { cleanupMediaAttachmentsForEntity } from "@/shared/utils/media-cleanup";
 import type { ToolQueryValidated } from "../types/tool.types";
 
 const toolInclude = {
+  categories: { select: { id: true, title: true, slug: true } },
   createdBy: { select: { id: true, name: true, email: true } },
   updatedBy: { select: { id: true, name: true, email: true } },
 } as const;
 
 export const toolRepository = {
   async findAll(params: ToolQueryValidated) {
-    const { page = 1, limit = 10, search, category, sort, status, isFeatured, engineType } = params;
+    const { page = 1, limit = 10, search, categories, sort, status, isFeatured, engineType } = params;
     const where: Prisma.ToolWhereInput = {
       ...(search && {
         OR: [
           { title: { contains: search, mode: "insensitive" } },
           { shortDesc: { contains: search, mode: "insensitive" } },
-          { category: { contains: search, mode: "insensitive" } },
+          { categories: { some: { title: { contains: search, mode: "insensitive" } } } },
           { actionKey: { contains: search, mode: "insensitive" } },
           { componentKey: { contains: search, mode: "insensitive" } },
         ],
       }),
-      ...(category && { category: { equals: category, mode: "insensitive" } }),
+      ...(categories && {
+        categories: {
+          some: {
+            OR: [
+              { id: categories },
+              { slug: categories },
+              { title: { equals: categories, mode: "insensitive" } },
+            ],
+          },
+        },
+      }),
       ...(status !== undefined && { status }),
       ...(isFeatured !== undefined && { isFeatured }),
       ...(engineType !== undefined && { engineType }),
@@ -64,16 +75,26 @@ export const toolRepository = {
     });
   },
 
-  async findPublished(params?: { category?: string; featured?: boolean; limit?: number; search?: string }) {
+  async findPublished(params?: { categories?: string; featured?: boolean; limit?: number; search?: string }) {
     const where: Prisma.ToolWhereInput = {
       status: "PUBLISHED",
-      ...(params?.category && { category: { equals: params.category, mode: "insensitive" } }),
+      ...(params?.categories && {
+        categories: {
+          some: {
+            OR: [
+              { id: params.categories },
+              { slug: params.categories },
+              { title: { equals: params.categories, mode: "insensitive" } },
+            ],
+          },
+        },
+      }),
       ...(params?.featured !== undefined && { isFeatured: params.featured }),
       ...(params?.search && {
         OR: [
           { title: { contains: params.search, mode: "insensitive" } },
           { shortDesc: { contains: params.search, mode: "insensitive" } },
-          { category: { contains: params.search, mode: "insensitive" } },
+          { categories: { some: { title: { contains: params.search, mode: "insensitive" } } } },
         ],
       }),
     };

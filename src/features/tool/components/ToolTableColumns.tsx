@@ -27,41 +27,58 @@ export const toolTableColumns: ColumnConfig<Tool>[] = [
     ),
   },
   {
-    key: "category",
-    header: "Category",
-    sortable: true,
-    render: (item) => (
-      <Badge variant="outline" className="rounded-md font-mono text-[10px] uppercase font-bold tracking-wider">
-        {item.category}
-      </Badge>
-    ),
+    key: "categories",
+    header: "Categories",
+    type: "relation",
+    hrefPrefix: "categories",
   },
   {
     key: "engineType",
     header: "Engine Mode",
     sortable: true,
-    render: (item) => (
-      <div className="flex items-center gap-1.5">
-        <Badge
-          className={`rounded-md text-[10px] font-bold ${
-            item.engineType === "CUSTOM"
-              ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-none"
-              : "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-none"
-          }`}
-        >
-          {item.engineType}
-        </Badge>
-        <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[120px]">
-          {item.engineType === "CUSTOM" ? item.componentKey : item.actionKey}
-        </span>
-      </div>
-    ),
+    render: (item) => {
+      const label = item.engineType === "CUSTOM" ? "Custom" : "Schema";
+      return (
+        <div className="flex items-center gap-1.5">
+          <Badge
+            className={`rounded-md text-[10px] font-semibold ${
+              item.engineType === "CUSTOM"
+                ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-none"
+                : "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-none"
+            }`}
+          >
+            {label}
+          </Badge>
+          <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[120px]">
+            {item.engineType === "CUSTOM" ? item.componentKey : item.actionKey}
+          </span>
+        </div>
+      );
+    },
   },
   {
     key: "status",
     header: "Status",
-    type: "status",
     sortable: true,
+    render: (item) => {
+      const statusLabel =
+        item.status === "PUBLISHED"
+          ? "Published"
+          : item.status === "DRAFT"
+          ? "Draft"
+          : "Archived";
+      const variantClass =
+        item.status === "PUBLISHED"
+          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-none"
+          : item.status === "DRAFT"
+          ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-none"
+          : "bg-slate-500/15 text-slate-600 dark:text-slate-400 border-none";
+      return (
+        <Badge className={`rounded-md text-[10px] font-semibold ${variantClass}`}>
+          {statusLabel}
+        </Badge>
+      );
+    },
   },
   {
     key: "isFeatured",

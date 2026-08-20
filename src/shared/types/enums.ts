@@ -58,6 +58,7 @@ export const CategoryScope = {
   TECHNOLOGY: "TECHNOLOGY",
   SKILL: "SKILL",
   FAQ: "FAQ",
+  TOOL: "TOOL",
 } as const;
 export type CategoryScope = (typeof CategoryScope)[keyof typeof CategoryScope];
 

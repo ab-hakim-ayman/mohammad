@@ -21,7 +21,7 @@ export type PaginationVariant =
   | "classic"
   | "glassmorphic"
   | "brutalist"
-  | "gradient-glow"
+  | "gradientGlow"
   | "minimal";
 export type PaginationSize = "sm" | "md" | "lg";
 
@@ -103,7 +103,7 @@ export function Pagination({
   const isMinimal = variant === "minimal";
   const isBrutalist = variant === "brutalist";
   const isGlass = variant === "glassmorphic";
-  const isGlow = variant === "gradient-glow";
+  const isGlow = variant === "gradientGlow";
 
   const getDynamicStyles = (isActive: boolean) => {
     if (isActive) {

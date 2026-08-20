@@ -20,10 +20,11 @@ export function CookieConsent() {
   useEffect(() => {
     // ১. চেক করি ইউজার আগে কোনো ডিসিশন নিয়েছে কি না
     const consent = Cookies.get(COOKIE_CONSENT_KEY);
+    let timer: NodeJS.Timeout | null = null;
+
     if (!consent) {
       // কিছুটা ডিলে দিয়ে ব্যানার দেখাবো যেন UX স্মুথ মনে হয়
-      const timer = setTimeout(() => setShowBanner(true), 800);
-      return () => clearTimeout(timer);
+      timer = setTimeout(() => setShowBanner(true), 800);
     } else {
       try {
         const parsed = JSON.parse(consent);
@@ -41,7 +42,10 @@ export function CookieConsent() {
     };
 
     window.addEventListener("open-cookie-settings", handleReopen);
-    return () => window.removeEventListener("open-cookie-settings", handleReopen);
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("open-cookie-settings", handleReopen);
+    };
   }, []);
 
   const saveConsent = (

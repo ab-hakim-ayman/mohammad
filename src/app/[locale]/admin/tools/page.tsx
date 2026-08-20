@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import I18n from "@/shared/components/I18n";
 import { AdminPageBanner } from "@/shared/components/admin/AdminPageBanner";
 
+import { useCategories } from "@/features/category";
+
 export default function AdminToolsPage() {
   const router = useRouter();
   const locale = useLocale();
@@ -28,8 +30,21 @@ export default function AdminToolsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
+  const { data: categoryData } = useCategories({ scope: "TOOL", limit: 100 });
+  const categoryList = Array.isArray((categoryData as any)?.data?.data)
+    ? (categoryData as any).data.data
+    : Array.isArray((categoryData as any)?.data)
+      ? (categoryData as any).data
+      : Array.isArray(categoryData)
+        ? categoryData
+        : [];
+  const categoryOptions = categoryList.map((cat: any) => ({
+    label: cat.title,
+    value: cat.id,
+  }));
+
   const statusFilter = filterValues["status"] === "All" ? undefined : (filterValues["status"] as any);
-  const categoryFilter = filterValues["category"] === "All" ? undefined : filterValues["category"];
+  const categoriesFilter = filterValues["categories"] === "All" ? undefined : filterValues["categories"];
   const engineTypeFilter = filterValues["engineType"] === "All" ? undefined : (filterValues["engineType"] as any);
 
   const { data, isLoading, error } = useTools({
@@ -37,7 +52,7 @@ export default function AdminToolsPage() {
     limit: 10,
     search: searchQuery.trim() !== "" ? searchQuery : undefined,
     status: statusFilter,
-    category: categoryFilter,
+    categories: categoriesFilter,
     engineType: engineTypeFilter,
   });
 
@@ -70,22 +85,14 @@ export default function AdminToolsPage() {
       key: "engineType",
       placeholder: "Engine Mode",
       options: [
-        { label: "SCHEMA", value: "SCHEMA" },
-        { label: "CUSTOM", value: "CUSTOM" },
+        { label: "Schema", value: "SCHEMA" },
+        { label: "Custom", value: "CUSTOM" },
       ],
     },
     {
-      key: "category",
+      key: "categories",
       placeholder: "Category",
-      options: [
-        { label: "Developer", value: "DEVELOPER" },
-        { label: "Encoding", value: "ENCODING" },
-        { label: "Security", value: "SECURITY" },
-        { label: "Formatters", value: "FORMATTER" },
-        { label: "Generators", value: "GENERATOR" },
-        { label: "Converters", value: "CONVERTER" },
-        { label: "Utilities", value: "UTILITY" },
-      ],
+      options: categoryOptions,
     },
   ];
 

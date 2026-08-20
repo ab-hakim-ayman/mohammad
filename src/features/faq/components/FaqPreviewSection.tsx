@@ -18,7 +18,7 @@ interface FaqPreviewSectionProps {
   ctaLabel?: string;
   hideHeader?: boolean;
   headerVariant?: "split" | "center" | "stacked" | "minimal";
-  variant?: "classic" | "glassmorphic" | "brutalist" | "gradient-glow" | "minimal";
+  variant?: "classic" | "glassmorphic" | "brutalist" | "gradientGlow" | "minimal";
   className?: string;
 }
 

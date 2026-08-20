@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
 import { cn } from "@/lib/utils";
 import { usePublishedTestimonials } from "../hooks/useTestimonial";
@@ -29,35 +29,22 @@ type TestimonialMeta = Testimonial & {
 
 export function TestimonialPreviewSection({
   limit = 8,
-  featured = true,
+  featured = false,
   items: externalItems,
   testimonials: legacyTestimonials,
-  eyebrow = "Testimonial",
-  title = "This is title",
-  description = "This is description",
-  href = "",
-  ctaLabel = "",
-  hideHeader = true,
+  eyebrow = "Testimonials",
+  title = "What clients say",
+  description = "Feedback from engineering teams and founders I've collaborated with.",
+  href = "/testimonials",
+  ctaLabel = "All reviews",
+  hideHeader = false,
 }: TestimonialPreviewSectionProps) {
   const requestedLimit = Math.max(limit, 1);
   const initialItems = externalItems || legacyTestimonials;
   const shouldFetch = !initialItems;
 
-  const {
-    data: featuredData,
-    isLoading: isFeaturedLoading,
-    error: featuredError,
-  } = usePublishedTestimonials(
+  const { data, isLoading, error } = usePublishedTestimonials(
     shouldFetch && featured ? true : undefined,
-    shouldFetch ? requestedLimit : undefined
-  );
-
-  const {
-    data: fallbackData,
-    isLoading: isFallbackLoading,
-    error: fallbackError,
-  } = usePublishedTestimonials(
-    undefined,
     shouldFetch ? requestedLimit : undefined
   );
 
@@ -65,60 +52,48 @@ export function TestimonialPreviewSection({
     if (initialItems) {
       return [...initialItems].slice(0, requestedLimit);
     }
-    const featuredList = (featuredData?.data || (Array.isArray(featuredData) ? featuredData : [])) as Testimonial[];
-    const fallbackList = (fallbackData?.data || (Array.isArray(fallbackData) ? fallbackData : [])) as Testimonial[];
-
-    if (featured && featuredList.length > 0) {
-      const seenIds = new Set<string>();
-      return [...featuredList, ...fallbackList]
-        .filter((item) => {
-          if (seenIds.has(item.id)) return false;
-          seenIds.add(item.id);
-          return true;
-        })
-        .slice(0, requestedLimit);
-    }
-
-    return [...fallbackList].slice(0, requestedLimit);
-  }, [initialItems, featuredData, fallbackData, featured, requestedLimit]);
-
-  const error = featuredError || fallbackError;
-  const isLoading = shouldFetch && (isFeaturedLoading || isFallbackLoading);
+    const list = (data?.data || (Array.isArray(data) ? data : [])) as Testimonial[];
+    return list.slice(0, requestedLimit);
+  }, [initialItems, data, requestedLimit]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // আইটেম লেন্থ কমে গেলে স্টেট রিসেট
+  useEffect(() => {
+    if (currentIndex >= testimonials.length && testimonials.length > 0) {
+      setCurrentIndex(0);
+    }
+  }, [testimonials.length, currentIndex]);
+
   const handlePrev = () => {
+    if (testimonials.length <= 1) return;
     setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
+    if (testimonials.length <= 1) return;
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
   };
 
-  if (isLoading) {
+  if (shouldFetch && isLoading) {
     return (
       <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
         <div className="container-custom mx-auto w-full">
           <div className="relative w-full flex flex-col md:flex-row items-center gap-8 lg:gap-14 animate-pulse">
-            {/* Left Image Skeleton */}
             <div className="relative aspect-square w-52 sm:w-60 lg:w-72 shrink-0 bg-muted/60 rounded-2xl border border-border/60" />
-            {/* Right Text Skeleton */}
             <div className="flex flex-col justify-between flex-1 space-y-6 w-full text-left">
               <div className="space-y-4">
-                {/* Rating stars skeleton */}
                 <div className="flex gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div key={i} className="h-4 w-4 bg-muted/70 rounded-full" />
                   ))}
                 </div>
-                {/* Message line skeleton */}
                 <div className="space-y-2.5">
                   <div className="h-6 bg-muted/70 rounded-md w-full" />
                   <div className="h-6 bg-muted/70 rounded-md w-5/6" />
                   <div className="h-6 bg-muted/70 rounded-md w-2/3" />
                 </div>
               </div>
-              {/* Bottom Row skeleton */}
               <div className="flex items-end justify-between w-full pt-2">
                 <div className="space-y-2">
                   <div className="h-5 bg-muted/70 rounded-md w-36" />
@@ -138,8 +113,7 @@ export function TestimonialPreviewSection({
 
   if ((shouldFetch && error) || testimonials.length === 0) return null;
 
-  const safeIndex = currentIndex >= testimonials.length ? 0 : currentIndex;
-  const currentTestimonial = testimonials[safeIndex] || testimonials[0];
+  const currentTestimonial = testimonials[currentIndex] || testimonials[0];
   if (!currentTestimonial) return null;
 
   const meta = currentTestimonial as TestimonialMeta;
@@ -148,26 +122,22 @@ export function TestimonialPreviewSection({
 
   return (
     <section className="bg-background text-foreground relative w-full overflow-hidden px-4 transition-all duration-300 sm:px-6 py-12 sm:py-16">
-      {/* Standard Container matching other sections */}
       <div className="container-custom mx-auto w-full">
-
         {!hideHeader && (
           <div className="mb-12 text-center">
             <PreviewSectionHeader
               variant="center"
-              eyebrow={eyebrow || undefined}
+              eyebrow={eyebrow}
               title={title}
-              description={description || undefined}
-              href={href || undefined}
-              ctaLabel={ctaLabel || undefined}
+              description={description}
+              href={href}
+              ctaLabel={ctaLabel}
             />
           </div>
         )}
 
-        {/* Testimonial Content Wrapper */}
         <div className="relative w-full flex flex-col md:flex-row items-center gap-8 lg:gap-14">
-
-          {/* Left Side: Client Image */}
+          {/* Avatar / Profile */}
           <div className="relative aspect-square w-52 sm:w-60 lg:w-72 shrink-0 overflow-hidden rounded-2xl bg-muted/50 border border-border/80 shadow-xs">
             {avatarSource ? (
               <Image
@@ -175,7 +145,6 @@ export function TestimonialPreviewSection({
                 alt={currentTestimonial.authorName}
                 fill
                 sizes="(max-width: 768px) 240px, 280px"
-                unoptimized
                 className="object-cover"
               />
             ) : (
@@ -185,9 +154,8 @@ export function TestimonialPreviewSection({
             )}
           </div>
 
-          {/* Right Side: Stars, Message, Author Name & Aligned Buttons */}
+          {/* Testimonial Details */}
           <div className="flex flex-col justify-between flex-1 space-y-6 w-full text-left">
-
             <div className="space-y-4">
               {/* Rating Stars */}
               <div className="flex items-center gap-0.5 text-amber-500">
@@ -207,13 +175,13 @@ export function TestimonialPreviewSection({
                 })}
               </div>
 
-              {/* Message */}
+              {/* Quote Message */}
               <p className="text-foreground text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed tracking-tight">
                 &ldquo;{currentTestimonial.message?.trim()}&rdquo;
               </p>
             </div>
 
-            {/* Bottom Row: Author Details + Nav Buttons Aligned */}
+            {/* Bottom Row */}
             <div className="flex items-end justify-between w-full pt-2">
               <div>
                 <h4 className="text-foreground font-semibold text-base sm:text-lg">
@@ -224,31 +192,30 @@ export function TestimonialPreviewSection({
                 </p>
               </div>
 
-              {/* Navigation Buttons (Slightly rounded, positioned alongside author info) */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  aria-label="Previous testimonial"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-card/65 text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border-strong transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  aria-label="Next testimonial"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-card/65 text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border-strong transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
+              {/* Navigation Controls */}
+              {testimonials.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    aria-label="Previous testimonial"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-card/65 text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border-strong transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    aria-label="Next testimonial"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-card/65 text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border-strong transition-all duration-200 active:scale-95 cursor-pointer shadow-2xs"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
-
           </div>
-
         </div>
-
       </div>
     </section>
   );

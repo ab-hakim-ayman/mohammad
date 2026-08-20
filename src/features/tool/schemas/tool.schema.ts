@@ -6,7 +6,7 @@ export const createToolSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters").max(100),
   slug: z.string().max(100).optional().nullable(),
   shortDesc: z.string().max(500).optional().nullable(),
-  category: z.string().min(1, "Category is required").default("DEVELOPER"),
+  categoryIds: z.array(z.string()).default([]),
   icon: z.preprocess(emptyStringToNull, z.string().optional().nullable()),
   engineType: z.enum(["SCHEMA", "CUSTOM"]).default("SCHEMA"),
   actionKey: z.preprocess(emptyStringToNull, z.string().optional().nullable()),
@@ -33,7 +33,7 @@ export const toolQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
   search: z.string().optional(),
-  category: z.string().optional(),
+  categories: z.string().optional(),
   sort: z.enum(["title_asc", "title_desc", "order_asc", "createdAt_desc"]).default("order_asc"),
   status: z.nativeEnum(Status).optional(),
   isFeatured: z.preprocess(

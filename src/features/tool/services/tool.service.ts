@@ -35,7 +35,7 @@ export const toolService = {
     return tool;
   },
 
-  async getPublished(params?: { category?: string; featured?: boolean; limit?: number; search?: string }) {
+  async getPublished(params?: { categories?: string; featured?: boolean; limit?: number; search?: string }) {
     return toolRepository.findPublished(params);
   },
 
@@ -52,7 +52,9 @@ export const toolService = {
       title: data.title,
       slug: finalSlug,
       shortDesc: data.shortDesc || null,
-      category: data.category || "DEVELOPER",
+      categories: data.categoryIds?.length
+        ? { connect: data.categoryIds.map((id) => ({ id })) }
+        : undefined,
       icon: data.icon || null,
       engineType: data.engineType || "SCHEMA",
       actionKey: data.actionKey || null,
@@ -102,7 +104,9 @@ export const toolService = {
 
     if (data.title !== undefined) updateData.title = data.title;
     if (data.shortDesc !== undefined) updateData.shortDesc = data.shortDesc || null;
-    if (data.category !== undefined) updateData.category = data.category || "DEVELOPER";
+    if (data.categoryIds !== undefined) {
+      updateData.categories = { set: data.categoryIds.map((catId) => ({ id: catId })) };
+    }
     if (data.icon !== undefined) updateData.icon = data.icon || null;
     if (data.engineType !== undefined) updateData.engineType = data.engineType;
     if (data.actionKey !== undefined) updateData.actionKey = data.actionKey || null;

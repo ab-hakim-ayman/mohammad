@@ -64,7 +64,9 @@ export function Select({
           className
         )}
       >
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder}>
+          {selectedOpt ? selectedOpt.label : placeholder}
+        </SelectValue>
       </SelectTrigger>
 
       {/* 🟢 Select Content List */}

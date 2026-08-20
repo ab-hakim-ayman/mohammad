@@ -39,6 +39,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let tags: any[] = [];
   let galleries: any[] = [];
 
+  const MAX_SITEMAP_LIMIT = 1000;
+
   try {
     const [
       blogsData,
@@ -49,22 +51,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ] = await Promise.all([
       prisma.blog.findMany({
         where: { status: "PUBLISHED" },
+        take: MAX_SITEMAP_LIMIT,
         select: { slug: true, updatedAt: true, publishedAt: true },
       }),
       prisma.project.findMany({
         where: { status: "PUBLISHED" },
+        take: MAX_SITEMAP_LIMIT,
         select: { slug: true, updatedAt: true, publishedAt: true },
       }),
       prisma.category.findMany({
         where: { status: "PUBLISHED" },
+        take: MAX_SITEMAP_LIMIT,
         select: { slug: true, updatedAt: true },
       }),
       prisma.tag.findMany({
         where: { status: "PUBLISHED" },
+        take: MAX_SITEMAP_LIMIT,
         select: { slug: true, updatedAt: true },
       }),
       prisma.gallery.findMany({
         where: { status: "PUBLISHED" },
+        take: MAX_SITEMAP_LIMIT,
         select: { slug: true, updatedAt: true },
       }),
     ]);

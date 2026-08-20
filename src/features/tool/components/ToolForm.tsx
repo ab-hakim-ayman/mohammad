@@ -5,18 +5,34 @@ import { FormEngine } from "@/shared/components/forms/FormEngine";
 import type { FormEngineConfig } from "@/shared/components/forms/form-engine.types";
 import { createToolSchema } from "../schemas/tool.schema";
 import type { Tool, CreateToolPayload } from "../types/tool.types";
+import { useCategories } from "@/features/category";
+import type { SelectOption } from "@/shared/components/Select";
 
 interface ToolFormProps {
   initialData?: Tool;
   onSubmit: (data: CreateToolPayload) => Promise<void> | void;
   isSubmitting?: boolean;
+  categoryOptions?: SelectOption[];
 }
 
 export function ToolForm({
   initialData,
   onSubmit,
   isSubmitting = false,
+  categoryOptions: externalCategoryOptions,
 }: ToolFormProps) {
+  const { data: categoriesData } = useCategories(
+    externalCategoryOptions ? undefined : { scope: "TOOL", limit: 100 }
+  );
+
+  const categoryOptions = useMemo(() => {
+    if (externalCategoryOptions) return externalCategoryOptions;
+    const items = Array.isArray(categoriesData)
+      ? categoriesData
+      : (categoriesData as any)?.data?.data || (categoriesData as any)?.data || [];
+    return Array.isArray(items) ? items.map((item: any) => ({ label: item.title, value: item.id })) : [];
+  }, [externalCategoryOptions, categoriesData]);
+
   const config: FormEngineConfig<CreateToolPayload> = {
     sections: [
       {
@@ -26,22 +42,13 @@ export function ToolForm({
           { name: "title", label: "Tool Title", type: "text", required: true, gridSpan: 6 },
           { name: "slug", label: "Custom Slug (Optional)", type: "text", gridSpan: 6 },
           {
-            name: "category",
-            label: "Category",
-            type: "select",
-            required: true,
+            name: "categoryIds" as any,
+            label: "Categories",
+            type: "multiselect",
+            options: categoryOptions,
             gridSpan: 6,
-            options: [
-              { label: "Developer", value: "DEVELOPER" },
-              { label: "Encoding & Decoding", value: "ENCODING" },
-              { label: "Security & Crypto", value: "SECURITY" },
-              { label: "Formatters & Validators", value: "FORMATTER" },
-              { label: "Generators", value: "GENERATOR" },
-              { label: "Converters", value: "CONVERTER" },
-              { label: "General Utility", value: "UTILITY" },
-            ],
           },
-          { name: "icon", label: "Icon / Emoji (e.g. 🔑, ⚡, 🛠️)", type: "text", gridSpan: 6 },
+          { name: "icon", label: "ICON", type: "media", mediaFolder: "tools", altTextField: "iconAlt" as any, gridSpan: 6 },
           { name: "shortDesc", label: "Short Description", type: "textarea", gridSpan: 12 },
         ],
       },
@@ -56,8 +63,8 @@ export function ToolForm({
             required: true,
             gridSpan: 4,
             options: [
-              { label: "SCHEMA (Standard Transformation)", value: "SCHEMA" },
-              { label: "CUSTOM (Interactive React Component)", value: "CUSTOM" },
+              { label: "Schema", value: "SCHEMA" },
+              { label: "Custom", value: "CUSTOM" },
             ],
           },
           {
@@ -85,15 +92,15 @@ export function ToolForm({
             label: "Status",
             type: "select",
             required: true,
-            gridSpan: 4,
+            gridSpan: 6,
             options: [
               { label: "Draft", value: "DRAFT" },
               { label: "Published", value: "PUBLISHED" },
               { label: "Archived", value: "ARCHIVED" },
             ],
           },
-          { name: "isFeatured", label: "Feature on Homepage", type: "switch", gridSpan: 4 },
-          { name: "order", label: "Display Order", type: "number", gridSpan: 4 },
+          { name: "order", label: "Display Order", type: "number", gridSpan: 6 },
+          { name: "isFeatured", label: "Feature on Homepage", type: "switch", gridSpan: 6 },
         ],
       },
       {
@@ -116,6 +123,7 @@ export function ToolForm({
       slug: initialData.slug || "",
       shortDesc: initialData.shortDesc || "",
       icon: initialData.icon || "",
+      categoryIds: initialData.categories?.map((c: any) => c.id) || [],
       actionKey: initialData.actionKey || "",
       componentKey: initialData.componentKey || "",
       cardImage: initialData.cardImage || null,

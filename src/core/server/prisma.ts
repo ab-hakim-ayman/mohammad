@@ -13,10 +13,11 @@ const isProduction = process.env.NODE_ENV === "production";
 const pool =
   globalForPrisma.pool ??
   new Pool({
-    connectionString: process.env.DATABASE_URL!,
-    max: isProduction ? 5 : 20,
-    idleTimeoutMillis: 30000,
+    connectionString: (process.env.DIRECT_URL || process.env.DATABASE_URL)!,
+    max: isProduction ? 10 : 3,
+    idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 2000,
+    allowExitOnIdle: true,
   });
 
 const adapter = globalForPrisma.adapter ?? new PrismaPg(pool);

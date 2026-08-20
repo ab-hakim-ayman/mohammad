@@ -31,10 +31,14 @@ export const ENTITY_TYPE_MAP: Record<string, MediaEntityType> = {
   testimonial: "TESTIMONIAL",
   experience: "EXPERIENCE",
   education: "EDUCATION",
+  tool: "TOOL",
+  tools: "TOOL",
+  TOOL: "TOOL",
 };
 
 function normalizeEntityType(entityType: string): MediaEntityType {
-  const normalized = ENTITY_TYPE_MAP[entityType];
+  const key = entityType.trim().toLowerCase();
+  const normalized = ENTITY_TYPE_MAP[key] || ENTITY_TYPE_MAP[entityType];
   if (!normalized) {
     throw new Error(`Unsupported media entity type: ${entityType}`);
   }

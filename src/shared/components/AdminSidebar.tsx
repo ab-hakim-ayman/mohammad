@@ -30,6 +30,7 @@ import {
   Trophy,
   ShieldAlert,
   GraduationCap,
+  Wrench,
 } from "lucide-react";
 
 import {
@@ -107,6 +108,7 @@ const sidebarGroups: SidebarGroupType[] = [
       { name: "Skills", href: "/admin/skills", icon: Award },
       { name: "Specializations", href: "/admin/specializations", icon: Award },
       { name: "Technologies", href: "/admin/technologies", icon: Cpu },
+      { name: "Developer Tools", href: "/admin/tools", icon: Wrench },
     ],
   },
   {

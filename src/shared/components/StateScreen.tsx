@@ -9,7 +9,7 @@ export type StateScreenVariant =
   | "classic"
   | "glassmorphic"
   | "brutalist"
-  | "gradient-glow"
+  | "gradientGlow"
   | "minimal";
 
 interface StateScreenProps {
@@ -84,7 +84,7 @@ export function StateScreen({
           )}
         >
           {/* Vercel Glow Radial Gradient */}
-          {variant === "gradient-glow" && (
+          {variant === "gradientGlow" && (
             <div
               className="bg-primary/10 pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-72 -translate-x-1/2 rounded-full blur-3xl"
               aria-hidden="true"

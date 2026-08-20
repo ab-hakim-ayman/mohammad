@@ -55,7 +55,11 @@ export function JwtDecoderTool({ tool }: JwtDecoderToolProps) {
     <ToolLayout
       title={tool?.title || "JWT Token Inspector & Decoder"}
       description={tool?.shortDesc || "Decode JSON Web Tokens (JWT) in real-time and inspect header claims and expiration status."}
-      category={tool?.category || "SECURITY"}
+      category={
+        tool?.categories?.length
+          ? tool.categories.map((c) => c.title).join(", ")
+          : "SECURITY"
+      }
       inputValue={token}
       outputValue=""
       onInputChange={setToken}

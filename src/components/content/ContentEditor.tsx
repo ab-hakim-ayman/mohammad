@@ -87,28 +87,50 @@ const EDITOR_META: Record<
   },
 };
 
+let globalTheme: EditorTheme = "light";
+const themeListeners = new Set<(theme: EditorTheme) => void>();
+let globalObserver: MutationObserver | null = null;
+
+function initGlobalThemeObserver() {
+  if (typeof window === "undefined" || globalObserver) return;
+
+  const root = document.documentElement;
+  const syncTheme = () => {
+    const isDark = root.classList.contains("dark") || root.dataset.theme === "dark";
+    const newTheme: EditorTheme = isDark ? "dark" : "light";
+    if (globalTheme !== newTheme) {
+      globalTheme = newTheme;
+      themeListeners.forEach((listener) => listener(newTheme));
+    }
+  };
+
+  syncTheme();
+  globalObserver = new MutationObserver(syncTheme);
+  globalObserver.observe(root, {
+    attributes: true,
+    attributeFilter: ["class", "data-theme"],
+  });
+}
+
 function useBlockNoteTheme(): EditorTheme {
-  const [theme, setTheme] = useState<EditorTheme>("light");
+  const [theme, setTheme] = useState<EditorTheme>(globalTheme);
 
   useEffect(() => {
-    const root = document.documentElement;
+    initGlobalThemeObserver();
+    setTheme(globalTheme);
 
-    const syncTheme = () => {
-      const isDark = root.classList.contains("dark") || root.dataset.theme === "dark";
-
-      setTheme(isDark ? "dark" : "light");
+    const handleThemeChange = (nextTheme: EditorTheme) => {
+      setTheme(nextTheme);
     };
 
-    syncTheme();
-
-    const observer = new MutationObserver(syncTheme);
-
-    observer.observe(root, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
-    });
-
-    return () => observer.disconnect();
+    themeListeners.add(handleThemeChange);
+    return () => {
+      themeListeners.delete(handleThemeChange);
+      if (themeListeners.size === 0 && globalObserver) {
+        globalObserver.disconnect();
+        globalObserver = null;
+      }
+    };
   }, []);
 
   return theme;

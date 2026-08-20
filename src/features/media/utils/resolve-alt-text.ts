@@ -7,7 +7,7 @@ export async function resolveMediaAltText(
   fieldName: string,
   mediaUrls: string[]
 ): Promise<Record<string, string>> {
-  const normalizedEntityType = ENTITY_TYPE_MAP[entityType];
+  const normalizedEntityType = ENTITY_TYPE_MAP[entityType.trim().toLowerCase()] || ENTITY_TYPE_MAP[entityType];
   if (!normalizedEntityType) {
     throw new Error(`Unsupported media entity type: ${entityType}`);
   }

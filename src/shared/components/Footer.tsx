@@ -18,7 +18,7 @@ const footerVariants = cva(
         classic: "bg-background border-t border-border/60",
         glassmorphic: "bg-background/60 backdrop-blur-xl border-t border-border/50",
         brutalist: "bg-card border-t-4 border-border-strong shadow-md font-mono",
-        "gradient-glow":
+        gradientGlow:
           "bg-background border-t border-border/60 relative after:absolute after:top-0 after:left-1/3 after:w-1/3 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-primary/40 after:to-transparent",
         minimal: "bg-background border-t border-border/40 py-6",
       },
