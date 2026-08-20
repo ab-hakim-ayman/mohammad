@@ -94,6 +94,7 @@ enum MediaEntityType {
   TESTIMONIAL
   EXPERIENCE
   EDUCATION
+  TOOL
 }
 
 enum CategoryScope {
@@ -104,6 +105,7 @@ enum CategoryScope {
   TECHNOLOGY
   SKILL
   FAQ
+  TOOL
 }
 
 enum AchievementType {
@@ -206,6 +208,8 @@ model User {
   updatedExperiences     Experience[]     @relation("ExperienceUpdatedBy")
   createdEducations      Education[]      @relation("EducationCreatedBy")
   updatedEducations      Education[]      @relation("EducationUpdatedBy")
+  createdTools           Tool[]           @relation("ToolCreatedBy")
+  updatedTools           Tool[]           @relation("ToolUpdatedBy")
 
   @@index([role])
   @@index([status])
@@ -1083,4 +1087,52 @@ model Education {
   @@index([createdById])
   @@index([updatedById])
   @@map("educations")
+}
+
+enum ToolEngineType {
+  SCHEMA
+  CUSTOM
+}
+
+model Tool {
+  id           String         @id @default(cuid())
+  title        String
+  slug         String         @unique
+  shortDesc    String?        @map("short_desc")
+  category     String         @default("DEVELOPER")
+  icon         String?
+  engineType   ToolEngineType @default(SCHEMA) @map("engine_type")
+  actionKey    String?        @map("action_key")
+  componentKey String?        @map("component_key")
+
+  cardImage     String?  @map("card_image")
+  heroImage     String?  @map("hero_image")
+  heroVideoUrl  String?  @map("hero_video_url")
+  galleryImages String[] @default([]) @map("gallery_images")
+  demoVideoUrl  String?  @map("demo_video_url")
+  ogImage       String?  @map("og_image")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  status      Status    @default(DRAFT)
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  order       Int       @default(0)
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("ToolCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("ToolUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([category, status])
+  @@index([isFeatured])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("tools")
 }

@@ -293,5 +293,37 @@ export const A2I_BANNER_MANIFEST = {
     imageAlt: "Detailed abstract blueprints with layered multi-tier software system blocks",
     imagePriority: false,
     imagePosition: "center"
+  },
+
+  tool: {
+    variant: "splitInline" as const,
+    eyebrow: "Developer Utilities",
+    icon: React.createElement(Terminal, { className: "h-3.5 w-3.5 text-primary" }),
+    title: "High-Performance Interactive Developer Tools",
+    description: "Client-side developer utilities for instant formatting, encoding, JWT parsing, UUID generation, and system transformations with zero server latency.",
+    supportingCopy: "* All computations execute strictly in-browser for complete privacy.",
+    chips: ["Zero Server Load", "Privacy First", "Client-Side Executed", "Sub-1ms Latency"],
+    stats: [{ value: "100%", label: "Client-Side" }, { value: "Sub-1ms", label: "Transformation Speed" }],
+    actions: [{ label: "Browse All Tools", href: "/tools", variant: "primary" as const, icon: React.createElement(ArrowRight, { className: "h-4 w-4" }) }],
+    imageSrc: `${CLOUDINARY_IMAGE_BASE}/banners/tech-matrix.jpg`,
+    imageAlt: "Developer workspace terminal executing interactive transformations",
+    imagePriority: true,
+    imagePosition: "center"
+  },
+
+  tools: {
+    variant: "splitInline" as const,
+    eyebrow: "Developer Utilities",
+    icon: React.createElement(Terminal, { className: "h-3.5 w-3.5 text-primary" }),
+    title: "High-Performance Interactive Developer Tools",
+    description: "Client-side developer utilities for instant formatting, encoding, JWT parsing, UUID generation, and system transformations with zero server latency.",
+    supportingCopy: "* All computations execute strictly in-browser for complete privacy.",
+    chips: ["Zero Server Load", "Privacy First", "Client-Side Executed", "Sub-1ms Latency"],
+    stats: [{ value: "100%", label: "Client-Side" }, { value: "Sub-1ms", label: "Transformation Speed" }],
+    actions: [{ label: "Browse All Tools", href: "/tools", variant: "primary" as const, icon: React.createElement(ArrowRight, { className: "h-4 w-4" }) }],
+    imageSrc: `${CLOUDINARY_IMAGE_BASE}/banners/tech-matrix.jpg`,
+    imageAlt: "Developer workspace terminal executing interactive transformations",
+    imagePriority: true,
+    imagePosition: "center"
   }
 };
