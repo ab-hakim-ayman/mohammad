@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type SectionLayout = "grid" | "accordion" | "list" | "table" | "chart";
+export type SectionLayout = "grid" | "accordion" | "list" | "table" | "chart" | "flex";
 export type SearchVariant = "default" | "capsule" | "glass" | "solid" | "underline";
 export type SortToggleVariant = "default" | "capsule" | "glass" | "solid" | "underline";
 export type FilterDisplayType = "select" | "single-pill" | "multi-pill";
@@ -54,6 +54,7 @@ export interface SectionEngineProps<T = any> {
     renderAccordionItem?: (item: T, index: number) => ReactNode;
     renderListItem?: (item: T, index: number) => ReactNode;
     renderChart?: (items: T[]) => ReactNode;
+    renderChip?: (item: T, index: number) => ReactNode;
     renderItem?: (item: T, index: number) => ReactNode;
 
     skeletonHeightClassName?: string;

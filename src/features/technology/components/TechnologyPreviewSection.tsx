@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { PreviewSectionHeader } from "@/shared/components";
 import { usePublishedTechnologies } from "../hooks/useTechnology";
 import type { Technology } from "../types/technology.types";
-import { TechnologyCard } from "./TechnologyCard";
+import { TechnologyChip } from "./TechnologyChip";
 import { SectionEngine } from "@/shared/components/sections/SectionEngine";
 
 interface TechnologyPreviewSectionProps {
@@ -23,9 +23,9 @@ export function TechnologyPreviewSection({
   limit = 24,
   items: externalItems,
   technologies: legacyTechnologies,
-  eyebrow = "Technologies",
-  title = "Our technology capabilities",
-  description = "We use a practical mix of proven platforms, modern frameworks, cloud tools, and quality practices to build dependable digital products.",
+  eyebrow = "Tech Stack",
+  title = "Tools I work with",
+  description = "Technologies and platforms used across production systems — selected for reliability, not trends.",
   href = "/technologies",
   ctaLabel = "All technologies",
   hideHeader = false,
@@ -39,7 +39,9 @@ export function TechnologyPreviewSection({
   );
 
   const finalData = useMemo(() => {
-    return initialItems || data;
+    if (initialItems) return initialItems;
+    if (Array.isArray(data)) return data;
+    return (data as any)?.data || [];
   }, [initialItems, data]);
 
   return (
@@ -48,12 +50,12 @@ export function TechnologyPreviewSection({
       isLoading={shouldFetch && isLoading}
       error={error}
       pageSize={limit}
-      columns={6}
+      layout="flex"
       gap="sm"
       showToolbar={false}
       showPagination={false}
       hideEmptyState={true}
-      skeletonHeightClassName="h-16"
+      skeletonHeightClassName="h-8"
       header={
         !hideHeader ? (
           <PreviewSectionHeader
@@ -66,13 +68,12 @@ export function TechnologyPreviewSection({
           />
         ) : undefined
       }
-      renderCard={(technology) => (
-        <TechnologyCard
+      renderChip={(technology) => (
+        <TechnologyChip
           technology={technology}
-          size="sm"
-          layout="horizontal"
-          alignment="center"
-          className="h-16 w-full rounded-lg"
+          variant="default"
+          size="default"
+          showLogo={false}
         />
       )}
     />

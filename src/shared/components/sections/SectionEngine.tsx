@@ -77,6 +77,7 @@ export function SectionEngine<T extends Record<string, any>>({
     renderListItem,
     renderChart,
     renderItem,
+    renderChip,
     skeletonHeightClassName,
     className,
 }: SectionEngineProps<T>) {
@@ -235,6 +236,7 @@ export function SectionEngine<T extends Record<string, any>>({
 
     // 🟢 লেআউট অনুযায়ী আইটেম রেন্ডারার রেজোলিউশন
     const renderItemContent = (item: T, index: number) => {
+        if (layout === "flex" && renderChip) return renderChip(item, index);
         if (layout === "accordion" && renderAccordionItem) return renderAccordionItem(item, index);
         if (layout === "list" && renderListItem) return renderListItem(item, index);
         if (layout === "grid" && renderCard) return renderCard(item, index);
@@ -465,6 +467,21 @@ export function SectionEngine<T extends Record<string, any>>({
                                         key={item.id || index}
                                         delay={(index % columns) * 40}
                                         className="flex h-full w-full flex-col"
+                                    >
+                                        {renderItemContent(item, index)}
+                                    </ScrollReveal>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 🟢 6. Flex / Inline Wrap Layout (Chips / Badges) */}
+                        {layout === "flex" && (
+                            <div className={cn("flex flex-wrap items-center", gapVariants[gap])}>
+                                {visibleItems.map((item: T, index: number) => (
+                                    <ScrollReveal
+                                        key={item.id || index}
+                                        delay={(index % 10) * 20}
+                                        className="inline-flex"
                                     >
                                         {renderItemContent(item, index)}
                                     </ScrollReveal>
